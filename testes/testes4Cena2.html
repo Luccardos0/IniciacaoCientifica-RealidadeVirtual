@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Teste 4</title>
+        <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+
+        <script>
+            // Componente para a cauda seguir o líder
+            AFRAME.registerComponent('dynamic-trail', {
+              schema: {
+                targetId: {type: 'string'}, 
+                lerpSpeed: {type: 'number', default: 0.3},
+                offset: {type: 'vec3', default: {x: 0, y: 0, z: 0}} 
+              },
+              init: function () {
+                this.targetElement = null;
+                this.targetPos = new THREE.Vector3(); 
+              },
+              tick: function (time, timeDelta) {
+                if (!this.targetElement) {
+                    this.targetElement = document.querySelector('#' + this.data.targetId);
+                    return;
+                }
+                this.targetPos.copy(this.targetElement.object3D.position);
+                this.targetPos.add(this.data.offset);
+                this.el.object3D.position.lerp(this.targetPos, this.data.lerpSpeed);
+              }
+            });
+          </script>
+    </head>
+
+    <body>
+
+        <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; font-family: sans-serif; color: white;">
+            
+            <div style="position: absolute; top: 20px; left: 20px; width: 320px; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px); padding: 20px; border-radius: 12px; border: 1px solid #9370DB; pointer-events: auto;">
+                <h2 style="color: #9370DB; margin-top: 0;">Queda Vertical</h2>
+                <p style="font-size: 14px; line-height: 1.6;">
+                    <b>Visualização Final:</b><br>
+                    O raio surge acima da Terra e cai verticalmente. A cauda é sólida e triangular, com tracinhos marcando o caminho.
+                </p>
+            </div>
+
+            <div style="position: absolute; top: 20px; right: 20px; pointer-events: auto;">
+                <div style="background: rgba(0, 0, 0, 0.7); padding: 10px; border-radius: 5px; border: 1px solid #bcacda;">
+                    <span style="margin-right: 10px; font-weight: bold;">Navegação:</span>
+                    <button onclick="window.location.href='index.html'" style="background: #444; color: white; border: none; padding: 8px 15px; border-radius: 3px; cursor: pointer;">Cena 1</button>
+                    <button onclick="window.location.href='cena2.html'" style="background: #deb0fc; color: rgb(0, 0, 0); border: none; padding: 8px 15px; border-radius: 3px; cursor: pointer; margin-left: 5px; font-weight: bold;">Cena 2</button>
+                </div>
+            </div>
+        </div>
+
+        <a-scene id="cena-principal" shadow="type: pcfsoft">
+            <a-assets>
+                <img id="mapa_sol" src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Map_of_the_full_sun.jpg/1280px-Map_of_the_full_sun.jpg">
+                <img id="mapa_terra" src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Blue_Marble_2002.png/1280px-Blue_Marble_2002.png">
+                <img id="skymap" src="https://jocoteles.github.io/Minicurso-A-Frame-VR/TychoSkymap.t4_04096x02048.jpg">
+            </a-assets>
+
+            <a-sky src="#skymap" rotation="0 -90 0"></a-sky>
+            <a-entity light="type: ambient; color: #444"></a-entity>
+            <a-entity light="type: directional; color: #FFF; intensity: 1.5; castShadow: true" position="-10 10 -10"></a-entity>
+
+            <a-entity position="-20 15 -20">
+                <a-sphere src="#mapa_sol" radius="5" light="type: point; intensity: 2; distance: 50" material="shader: flat"></a-sphere>
+            </a-entity>
+
+            <a-entity position="0 -4 -8" rotation="0 0 23.4">
+                <a-sphere src="#mapa_terra" radius="6" shadow="receive: true"></a-sphere>
+                <a-sphere radius="9" material="color: #87CEEB; opacity: 0.15; transparent: true; side: back; blending: additive"></a-sphere>
+            </a-entity>
+        </a-scene>
+
+        <script>
+            var uniqueCounter = 0;
+
+            // --- 1. FUNÇÃO DOS TRACINHOS ---
+            function criarTrajetoriaTracejada(container, startPosStr, endPosStr, cor, delayStart, tempoTotalMovimento) {
+                var start = AFRAME.utils.coordinates.parse(startPosStr);
+                var end = AFRAME.utils.coordinates.parse(endPosStr);
+
+                var dx = end.x - start.x;
+                var dy = end.y - start.y;
+                var dz = end.z - start.z;
+                var distancia = Math.sqrt(dx*dx + dy*dy + dz*dz);
+                
+                var tamanhoTraco = 0.2; 
+                var espacoEntre = 0.4;
+                var passo = tamanhoTraco + espacoEntre;
+                var numTracos = Math.floor(distancia / passo);
+                var anguloZ = -Math.atan2(dx, dy) * (180 / Math.PI);
+
+                for (var i = 0; i < numTracos; i++) {
+                    var t = i / numTracos;
+                    var posX = start.x + dx * t;
+                    var posY = start.y + dy * t;
+                    var posZ = start.z + dz * t;
+                    var delayAparecerTraco = delayStart + (tempoTotalMovimento * t);
+
+                    var traco = document.createElement('a-entity');
+                    traco.setAttribute('geometry', `primitive: cylinder; radius: 0.01; height: ${tamanhoTraco}`);
+                    traco.setAttribute('material', `shader: flat; color: ${cor}; opacity: 0.5`);
+                    traco.setAttribute('position', `${posX} ${posY} ${posZ}`);
+                    traco.setAttribute('rotation', `0 0 ${anguloZ}`);
+                    traco.setAttribute('visible', 'false');
+
+                    traco.setAttribute('animation__vis', `property: visible; from: false; to: true; dur: 0; delay: ${delayAparecerTraco}`);
+                    traco.setAttribute('animation__sumir', `property: scale; to: 0 0 0; dur: 300; delay: ${delayStart + tempoTotalMovimento}`);
+
+                    container.appendChild(traco);
+                }
+            }
+
+            // --- 2. FUNÇÃO DA CAUDA SÓLIDA ---
+            function criarCaudaTriangulo(container, liderEl, corBase, escala, delayAparecer, tempoQueda) {
+                var liderId = liderEl.getAttribute('id');
+                var posInicial = liderEl.getAttribute('position').clone(); 
+                var alturaCone = 1.2 * escala;
+                var offsetY = alturaCone / 2;
+                posInicial.y += offsetY; 
+
+                var matBase = `shader: flat; color: ${corBase}; transparent: false; opacity: 1; side: double`;
+
+                var trailId = 'trail_' + uniqueCounter++;
+                var trail = document.createElement('a-entity');
+                trail.setAttribute('id', trailId);
+                // Geometria triangular: radiusBottom igual ao da esfera, radiusTop quase zero
+                trail.setAttribute('geometry', `primitive: cone; radiusBottom: ${0.06 * escala}; radiusTop: 0.01; height: ${alturaCone}; openEnded: false`);
+                trail.setAttribute('material', matBase);
+                trail.setAttribute('position', posInicial);
+                // Offset ajustado para colar na esfera
+                trail.setAttribute('dynamic-trail', `targetId: ${liderId}; lerpSpeed: 0.6; offset: 0 ${offsetY} 0`);
+                trail.setAttribute('visible', 'false');
+                
+                container.appendChild(trail);
+
+                trail.setAttribute('animation__vis', 'property: visible; from: false; to: true; dur: 0; delay: ' + delayAparecer);
+                trail.setAttribute('animation__shrink', 'property: scale; to: 0 0 0; dur: 300; delay: ' + (delayAparecer + tempoQueda - 100));
+            }
+
+            // --- 3. EVENTO PRINCIPAL ---
+            function criarEventoCosmico() {
+                var scene = document.querySelector('#cena-principal');
+                var randomX = (Math.random() * 8) - 4;
+                var container = document.createElement('a-entity');
+                
+                // Define a posição X do grupo, mantendo Z alinhado com o fundo
+                container.setAttribute('position', randomX + ' 0 0'); 
+                
+                var tempoRaio = 1500;
+                var alturaSplit = 3.5; 
+                var splitPosLeftX = -0.6;
+                var splitPosRightX = 0.6;
+                var yTopo = 5;
+                var yChao = 0.5;
+                var tempoQuedaPai = 500;
+                var tempoQuedaFilho = 1200;
+                var corRaio = '#FF4500';
+                var corPai = '#9370DB';
+                var corFilho = '#FFB6C1';
+
+                // --- 1. RAIO (QUEDA VERTICAL) ---
+                var startRaio = '0 15 -8'; // Começa alto
+                var endRaio = '0 5 -8';   // Termina acima da terra
+
+                var raioId = 'raio_' + uniqueCounter++;
+                var raio = document.createElement('a-entity');
+                raio.setAttribute('id', raioId);
+                raio.setAttribute('geometry', 'primitive: sphere; radius: 0.06');
+                raio.setAttribute('material', `shader: flat; color: ${corRaio}`);
+                raio.setAttribute('position', startRaio); 
+                raio.setAttribute('animation__descida', 'property: position; from: ' + startRaio + '; to: ' + endRaio + '; dur: ' + tempoRaio + '; easing: linear');
+                raio.setAttribute('animation__sumir', 'property: visible; from: true; to: false; dur: 0; delay: ' + tempoRaio);
+                container.appendChild(raio);
+                
+                criarCaudaTriangulo(container, raio, corRaio, 1.0, 0, tempoRaio);
+                criarTrajetoriaTracejada(container, startRaio, endRaio, corRaio, 0, tempoRaio);
+
+                // --- 2. PAIS ---
+                function criarPai(endX, delayStart, duracao) {
+                    var id = 'pai_' + uniqueCounter++;
+                    var el = document.createElement('a-entity');
+                    el.setAttribute('id', id);
+                    el.setAttribute('geometry', 'primitive: sphere; radius: 0.08');
+                    el.setAttribute('material', `shader: flat; color: ${corPai}`);
+                    
+                    var startPos = '0 ' + yTopo + ' -8';
+                    var toPos = endX + ' ' + alturaSplit + ' -8';
+                    
+                    el.setAttribute('position', startPos);
+                    el.setAttribute('visible', 'false');
+                    el.setAttribute('animation__vis', 'property: visible; from: false; to: true; dur: 0; delay: ' + delayStart);
+                    el.setAttribute('animation__queda', 'property: position; from: ' + startPos + '; to: ' + toPos + '; dur: ' + duracao + '; delay: ' + delayStart + '; easing: linear');
+                    el.setAttribute('animation__sumir', 'property: visible; to: false; dur: 0; delay: ' + (delayStart + duracao));
+                    container.appendChild(el);
+                    
+                    criarCaudaTriangulo(container, el, corPai, 1.2, delayStart, duracao);
+                    criarTrajetoriaTracejada(container, startPos, toPos, corPai, delayStart, duracao);
+                }
+
+                criarPai(splitPosLeftX, tempoRaio, tempoQuedaPai);
+                criarPai(splitPosRightX, tempoRaio, tempoQuedaPai);
+
+                // --- 3. FILHOS ---
+                function criarFilho(startX, endX) {
+                    var id = 'filho_' + uniqueCounter++;
+                    var el = document.createElement('a-entity');
+                    el.setAttribute('id', id);
+                    el.setAttribute('geometry', 'primitive: sphere; radius: 0.05');
+                    el.setAttribute('material', `shader: flat; color: ${corFilho}`);
+                    
+                    var startPos = startX + ' ' + alturaSplit + ' -8';
+                    var toPos = endX + ' ' + yChao + ' -8';
+
+                    el.setAttribute('position', startPos);
+                    el.setAttribute('visible', 'false');
+                    el.setAttribute('animation__vis', 'property: visible; to: true; dur: 0; delay: ' + (tempoRaio + tempoQuedaPai));
+                    el.setAttribute('animation__queda', 'property: position; to: ' + toPos + '; dur: ' + tempoQuedaFilho + '; delay: ' + (tempoRaio + tempoQuedaPai) + '; easing: linear');
+                    var fimAnim = tempoRaio + tempoQuedaPai + tempoQuedaFilho;
+                    el.setAttribute('animation__fim', 'property: scale; to: 0 0 0; dur: 200; delay: ' + fimAnim);
+                    container.appendChild(el);
+                    
+                    criarCaudaTriangulo(container, el, corFilho, 0.8, (tempoRaio + tempoQuedaPai), tempoQuedaFilho);
+                    criarTrajetoriaTracejada(container, startPos, toPos, corFilho, (tempoRaio + tempoQuedaPai), tempoQuedaFilho);
+                }
+
+                criarFilho(splitPosLeftX, -1.8);
+                criarFilho(splitPosLeftX, -0.4);
+                criarFilho(splitPosRightX, 0.4);
+                criarFilho(splitPosRightX, 1.8);
+
+                scene.appendChild(container);
+
+                setTimeout(function() {
+                    if(container.parentNode) container.parentNode.removeChild(container);
+                }, tempoRaio + tempoQuedaPai + tempoQuedaFilho + 1000);
+            }
+
+            setInterval(criarEventoCosmico, 2500);
+            window.onload = function() { setTimeout(criarEventoCosmico, 500); };
+        </script>
+    </body>
+</html>

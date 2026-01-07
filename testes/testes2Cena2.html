@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Teste 2</title>
+    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            font-family: sans-serif;
+            color: #fff
+        }
+
+        .ui {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: #0009;
+            padding: 15px;
+            border: 1px solid #9370DB;
+            border-radius: 10px;
+            width: 280px;
+            pointer-events: none
+        }
+
+        .nav {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            pointer-events: auto
+        }
+
+        button {
+            border: 0;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-left: 5px
+        }
+    </style>
+    <script>
+        AFRAME.registerComponent('cd', {
+            schema: { alvo: { type: 'string' }, spd: { type: 'number', default: 0.5 } },
+            init() { this.v = new THREE.Vector3() },
+            tick() {
+                let t = this.t || (this.t = document.querySelector('#' + this.data.alvo));
+                if (t) this.el.object3D.position.lerp(t.object3D.position, this.data.spd);
+            }
+        });
+    </script>
+</head>
+
+<body>
+    <div class="ui">
+        <h3 style="color:#9370DB;margin:0 0 5px">Rastro Sólido</h3>
+        <p style="font-size:13px;margin:0">Cauda composta por segmentos sólidos (sem transparência).</p>
+    </div>
+    <div class="nav">
+        <button onclick="location='index.html'" style="background:#444;color:#fff">Cena 1</button>
+        <button onclick="location='cena2.html'" style="background:#deb0fc">Cena 2</button>
+    </div>
+
+    <a-scene id="s" shadow="type:pcfsoft">
+        <a-assets>
+            <img id="iS"
+                src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Map_of_the_full_sun.jpg/1280px-Map_of_the_full_sun.jpg">
+            <img id="iT"
+                src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Blue_Marble_2002.png/1280px-Blue_Marble_2002.png">
+            <img id="iC" src="https://jocoteles.github.io/Minicurso-A-Frame-VR/TychoSkymap.t4_04096x02048.jpg">
+        </a-assets>
+        <a-sky src="#iC" rotation="0 -90 0"></a-sky>
+        <a-entity light="type:ambient;color:#444"></a-entity>
+        <a-entity light="type:directional;color:#fff;intensity:1.5;castShadow:true" position="-10 10 -10"></a-entity>
+        <a-sphere position="-20 15 -20" src="#iS" radius="5" material="shader:flat"></a-sphere>
+        <a-entity position="0 -4 -8" rotation="0 0 23.4">
+            <a-sphere src="#iT" radius="6" shadow="receive:true"></a-sphere>
+            <a-sphere radius="9"
+                material="color:#87CEEB;opacity:0.15;transparent:true;side:back;blending:additive"></a-sphere>
+        </a-entity>
+    </a-scene>
+
+    <script>
+        let uid = 0;
+        const $el = (p, t, a) => { let e = document.createElement(t); for (let k in a) e.setAttribute(k, a[k]); p.appendChild(e); return e; };
+        const anim = (p, to, d, dly, fr) => `property:${p}; ${fr ? `from:${fr};` : ''} to:${to}; dur:${d}; delay:${dly}; easing:linear`;
+
+        // --- GERADOR (RASTRO SÓLIDO) ---
+        const gerar = (pai, ini, fim, cor, rEsf, escIni, dly, dur) => {
+            const id = 'p' + uid++, mat = `color:${cor}; emissive:${cor}; emissiveIntensity:1.5; shader:flat`;
+
+            // 1. Cabeça (Esfera)
+            $el(pai, 'a-entity', {
+                id: id, position: ini, visible: false, geometry: `primitive:sphere; radius:${rEsf}`, material: mat,
+                animation__v: `property:visible; to:true; dur:0; delay:${dly}`,
+                animation__m: anim('position', fim, dur, dly, ini),
+                animation__s: `property:scale; to:0 0 0; dur:150; delay:${dly + dur}`
+            });
+
+            // 2. Cauda (3 Esferas seguidoras)
+            const configs = [
+                { r: 0.05, sc: 1.5, spd: 0.5 },
+                { r: 0.04, sc: 1.5, spd: 0.3 },
+                { r: 0.02, sc: 2.0, spd: 0.1 }
+            ];
+
+            let alvoAnt = id;
+            configs.forEach((c, i) => {
+                const tid = 't' + uid + '_' + i;
+                $el(pai, 'a-entity', {
+                    id: tid, geometry: `primitive:sphere; radius:${c.r * escIni}`, scale: `1 ${c.sc} 1`, material: mat,
+                    position: ini, cd: `alvo:${alvoAnt}; spd:${c.spd}`, visible: false,
+                    animation__v: `property:visible; to:true; dur:0; delay:${dly}`,
+                    animation__s: `property:scale; to:0 0 0; dur:300; delay:${dly + dur - 100}`
+                });
+                alvoAnt = tid;
+            });
+        };
+
+        const chuva = () => {
+            const c = $el(document.querySelector('#s'), 'a-entity', { position: `${(Math.random() * 8) - 4} 0 -8` });
+            const tR = 1500, tP = 500, tF = 1200;
+
+            // 1. Raio
+            gerar(c, '0 12 0', '0 5 0', '#FF4500', 0.06, 1.2, 0, tR);
+
+            // 2. Pais
+            const gPai = (x) => gerar(c, '0 5 0', `${x} 3.5 0`, '#9370DB', 0.08, 1.0, tR, tP);
+            gPai(-0.6); gPai(0.6);
+
+            // 3. Filhos
+            const gFilho = (xI, xF) => gerar(c, `${xI} 3.5 0`, `${xF} 0.5 0`, '#FFB6C1', 0.05, 0.8, tR + tP, tF);
+            gFilho(-0.6, -1.8); gFilho(-0.6, -0.4);
+            gFilho(0.6, 0.4); gFilho(0.6, 1.8);
+
+            setTimeout(() => c.remove(), tR + tP + tF + 1000);
+        };
+
+        setInterval(chuva, 2500);
+        onload = () => setTimeout(chuva, 500);
+    </script>
+</body>
+
+</html>

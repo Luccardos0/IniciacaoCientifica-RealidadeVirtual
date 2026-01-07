@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Cena 1 - Apresentação</title>
+    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+
+    <script>
+        AFRAME.registerComponent('dynamic-trail', {
+            schema: {
+                targetId: { type: 'string' },
+                lerpSpeed: { type: 'number', default: 0.3 },
+                offset: { type: 'vec3', default: { x: 0, y: 0, z: 0 } }
+            },
+            init: function () {
+                this.targetElement = null;
+                this.targetPos = new THREE.Vector3();
+            },
+            tick: function (time, timeDelta) {
+                if (!this.targetElement) {
+                    this.targetElement = document.querySelector('#' + this.data.targetId);
+                    return;
+                }
+                // Pega a posição local do alvo (dentro do grupo giratório)
+                this.targetPos.copy(this.targetElement.object3D.position);
+                this.targetPos.add(this.data.offset);
+                // Faz a cauda seguir suavemente
+                this.el.object3D.position.lerp(this.targetPos, this.data.lerpSpeed);
+            }
+        });
+    </script>
+</head>
+
+<body>
+
+    <div
+        style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; font-family: sans-serif; color: white;">
+        
+        <div style="position: absolute; top: 20px; left: 20px; width: 300px;">
+
+    <div style="
+        background: rgba(0, 0, 0, 0.5); 
+        backdrop-filter: blur(8px);    
+        -webkit-backdrop-filter: blur(8px); 
+        padding: 20px; 
+        border-radius: 12px; 
+        border: 1px solid rgba(246, 184, 254, 0.4); 
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        margin-bottom: 20px;"> <h2 style="color: #deb0fc; margin-top: 0; text-shadow: 1px 1px 2px black;">Teoria da Relatividade Restrita</h2>
+            <p style="font-size: 14px; text-align: justify; line-height: 1.6; color: white; text-shadow: 1px 1px 2px black;">
+                A <b>Teoria da Relatividade Restrita</b> (1905) redefiniu as noções de espaço e tempo baseando-se 
+                em dois pilares: a constância da velocidade da luz e a equivalência das leis físicas para observadores inerciais
+                <br><br>
+                Esses princípios geram consequências como a <b>dilatação do tempo</b> e a <b>contração do espaço</b>, fenômenos que desafiam a 
+                intuição cotidiana mas são comprovados fisicamente, como na detecção de partículas múons na superfície terrestre.
+            </p>
+    </div>
+
+    <div style="
+        background: rgba(0, 0, 0, 0.5); 
+        backdrop-filter: blur(8px);    
+        -webkit-backdrop-filter: blur(8px); 
+        padding: 20px; 
+        border-radius: 12px; 
+        border: 1px solid rgba(246, 184, 254, 0.4); 
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);">
+
+        <h2 style="color: #deb0fc; margin-top: 0; text-shadow: 1px 1px 2px black;">Múon</h2>
+        <p style="text-align: justify; font-size: 14px; line-height: 1.6; color: white; text-shadow: 1px 1px 2px black;">
+            Gerados na alta atmosfera por raios cósmicos, os múons viajam a 99,5% da velocidade da luz. Mesmo com tempo de vida curtíssimo 
+            (2,2 microssegundos), eles conseguem atingir o solo, o que comprova a Relatividade.
+        </p>
+    </div>
+
+</div>
+
+        <div style="position: absolute; top: 20px; right: 20px; pointer-events: auto;">
+            <div style="background: rgba(0, 0, 0, 0.7); padding: 10px; border-radius: 5px; border: 1px solid #bcacda;">
+                <span style="margin-right: 10px; font-weight: bold;">Navegação:</span>
+                <button onclick="window.location.href='index.html'"
+                    style="background: #deb0fc; color: rgb(0, 0, 0); border: none; padding: 8px 15px; border-radius: 3px; cursor: pointer; font-weight: bold;">Cena
+                    1</button>
+                <button onclick="window.location.href='cena2.html'"
+                    style="background: #444; color: white; border: none; padding: 8px 15px; border-radius: 3px; cursor: pointer; margin-left: 5px;">Cena
+                    2</button>
+            </div>
+        </div>
+    </div>
+
+    <a-scene shadow="type: pcfsoft">
+        <a-entity light="type: ambient; color: white; intensity: 0.005"></a-entity>
+
+        <a-assets>
+            <img id="mapa_sol"
+                src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Map_of_the_full_sun.jpg/1280px-Map_of_the_full_sun.jpg">
+            <img id="mapa_terra"
+                src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Blue_Marble_2002.png/1280px-Blue_Marble_2002.png">
+            <img id="mapa_lua"
+                src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Solarsystemscope_texture_8k_moon.jpg/1280px-Solarsystemscope_texture_8k_moon.jpg">
+            <img id="skymap" src="https://jocoteles.github.io/Minicurso-A-Frame-VR/TychoSkymap.t4_04096x02048.jpg">
+        </a-assets>
+
+        <a-entity id="pos_sol" position="0 0 -1">
+
+            <a-entity id="sol" geometry="primitive: sphere; radius: 0.3" material="src: #mapa_sol; shader: flat"
+                animation="property: rotation; to: 0 360 0; loop: true; dur: 300000; easing: linear"
+                light="type: point; color: white; intensity: 2.5; castShadow: true">
+            </a-entity>
+
+            <a-entity id="grupo_raios"
+                animation="property: rotation; to: 0 360 0; loop: true; dur: 30000; easing: linear">
+
+                <a-entity id="raio_1_head" geometry="primitive: sphere; radius: 0.015"
+                    material="shader: flat; color: #FF4500" position="0.3 0 0"
+                    animation="property: position; from: 0.3 0 0; to: 1.1 0 0; loop: true; dur: 2000; easing: linear">
+                </a-entity>
+                <a-entity id="raio_1_tail"
+                    geometry="primitive: cone; radiusBottom: 0.015; radiusTop: 0.001; height: 0.25; openEnded: false"
+                    material="shader: flat; color: #FF4500; transparent: false; opacity: 1" rotation="0 0 90"
+                    dynamic-trail="targetId: raio_1_head; lerpSpeed: 0.8; offset: -0.12 0 0">
+                </a-entity>
+
+
+                <a-entity id="raio_2_head" geometry="primitive: sphere; radius: 0.015"
+                    material="shader: flat; color: #FF4500" position="0.3 0 0"
+                    animation="property: position; from: 0.3 0 0; to: 1.1 0 0; loop: true; dur: 2000; easing: linear; delay: 1000">
+                </a-entity>
+                <a-entity id="raio_2_tail"
+                    geometry="primitive: cone; radiusBottom: 0.015; radiusTop: 0.001; height: 0.25; openEnded: false"
+                    material="shader: flat; color: #FF4500; transparent: false; opacity: 1" rotation="0 0 90"
+                    dynamic-trail="targetId: raio_2_head; lerpSpeed: 0.8; offset: -0.12 0 0">
+                </a-entity>
+
+                <a-entity id="muon_1" geometry="primitive: sphere; radius: 0.015"
+                    material="color: #9370DB; emissive: #9370DB; emissiveIntensity: 2" position="1.1 0 0"
+                    animation="property: position; from: 1.1 0 0; to: 1.5 0 0; dur: 400; loop: true; delay: 2000; easing: linear">
+                </a-entity>
+
+            </a-entity>
+
+            <a-entity id="orb_terra"
+                animation="property: rotation; to: 0 360 0; loop: true; dur: 30000; easing: linear">
+                <a-entity id="pos_terra" position="1.5 0.0 0">
+                    <a-entity id="inc_terra" rotation="23.4 0 0">
+                        <a-entity id="rev_rot_terra"
+                            animation="property: rotation; to: 0 360 0; loop: true; dur: 2000; easing: linear; dir: reverse">
+
+                            <a-entity id="terra" geometry="primitive: sphere; radius: 0.15"
+                                material="src: #mapa_terra; roughness: 1"
+                                animation="property: rotation; to: 0 360 0; loop: true; dur: 5000; easing: linear"
+                                shadow="receive: true; cast: true">
+                            </a-entity>
+
+                            <a-entity id="atmosfera" geometry="primitive: sphere; radius: 0.20"
+                                material="color: #87CEEB; opacity: 0.2; transparent: true; side: double">
+                            </a-entity>
+
+                            <a-entity id="inc_orb_lua" rotation="-25 0 0">
+                                <a-entity id="orb_lua"
+                                    animation="property: rotation; to: 0 360 0; loop: true; dur: 3000; easing: linear">
+                                    <a-entity id="pos_lua" position="0 0.0 0.5">
+                                        <a-entity id="lua" geometry="primitive: sphere; radius: 0.05"
+                                            material="src: #mapa_lua" shadow="receive: true; cast: true">
+                                        </a-entity>
+                                    </a-entity>
+                                </a-entity>
+                            </a-entity>
+
+                        </a-entity>
+                    </a-entity>
+                </a-entity>
+            </a-entity>
+
+        </a-entity>
+
+        <a-sky src="#skymap"></a-sky>
+    </a-scene>
+</body>
+
+</html>

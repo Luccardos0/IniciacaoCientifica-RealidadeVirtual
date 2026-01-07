@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Cena 2 - Decaimento do Múon</title>
+    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+    <style>
+        /* Estilização da UI separada para limpar o HTML */
+        .ui-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+            font-family: sans-serif;
+            color: white;
+        }
+
+        .card {
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+            border: 1px solid;
+            border-radius: 12px;
+            pointer-events: auto;
+        }
+
+        .info-box {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            width: 320px;
+            padding: 20px;
+            border-color: #FFB6C1;
+        }
+
+        .nav-box {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 10px;
+            border-color: #bcacda;
+            border-radius: 5px;
+        }
+
+        .btn {
+            border: none;
+            padding: 8px 15px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-1 {
+            background: #444;
+            color: white;
+        }
+
+        .btn-2 {
+            background: #deb0fc;
+            margin-left: 5px;
+        }
+
+        h2 {
+            color: #FFB6C1;
+            margin: 0 0 10px 0;
+        }
+
+        p {
+            font-size: 14px;
+            line-height: 1.6;
+            margin: 0;
+        }
+    </style>
+    <script>
+        // Componente compactado
+        AFRAME.registerComponent('dt', {
+            schema: { target: { type: 'string' }, speed: { type: 'number', default: 0.3 }, off: { type: 'vec3' } },
+            init: function () { this.v = new THREE.Vector3(); },
+            tick: function () {
+                if (!this.elT) { this.elT = document.querySelector('#' + this.data.target); return; }
+                this.v.copy(this.elT.object3D.position).add(this.data.off);
+                this.el.object3D.position.lerp(this.v, this.data.speed);
+            }
+        });
+    </script>
+</head>
+
+<body>
+    <div class="ui-layer">
+        <div class="card info-box">
+            <h2>Decaimento Múon</h2>
+            <p style="text-align: justify;">Os múons são partículas instáveis de carga negativa, geradas a partir do
+                decaimento de outras partículas
+                (mésons e píons) resultantes da interação de raios cósmicos com a atmosfera.<br>
+                <br>Eles possuem um tempo de meia-vida de aproximadamente 2,2 µs (microssegundos). Isso significa que, a
+                cada 2,2 µs, metade da quantidade
+                existente de múons se desintegra. Sem os efeitos relativísticos, a vasta maioria deles desapareceria
+                antes de conseguir atravessar a
+                atmosfera até o solo.
+            </p>
+        </div>
+        <div class="card nav-box">
+            <button class="btn btn-1" onclick="location.href='index.html'">Cena 1</button>
+            <button class="btn btn-2" onclick="location.href='cena2.html'">Cena 2</button>
+        </div>
+    </div>
+
+    <a-scene id="scene" shadow="type: pcfsoft">
+        <a-assets>
+            <img id="imSun"
+                src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Map_of_the_full_sun.jpg/1280px-Map_of_the_full_sun.jpg">
+            <img id="imEarth"
+                src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Blue_Marble_2002.png/1280px-Blue_Marble_2002.png">
+            <img id="imSky" src="https://jocoteles.github.io/Minicurso-A-Frame-VR/TychoSkymap.t4_04096x02048.jpg">
+        </a-assets>
+
+        <a-sky src="#imSky" rotation="0 -90 0"></a-sky>
+        <a-entity light="type: ambient; color: #444"></a-entity>
+        <a-entity light="type: directional; color: #FFF; intensity: 1.5; castShadow: true"
+            position="-10 10 -10"></a-entity>
+
+        <a-sphere position="-20 15 -20" src="#imSun" radius="5" light="type: point; intensity: 2; distance: 50"
+            material="shader: flat"></a-sphere>
+
+        <a-entity position="0 -4 -8" rotation="0 0 23.4">
+            <a-sphere src="#imEarth" radius="6" shadow="receive: true"></a-sphere>
+            <a-sphere radius="9"
+                material="color: #87CEEB; opacity: 0.15; transparent: true; side: back; blending: additive"></a-sphere>
+        </a-entity>
+    </a-scene>
+
+    <script>
+        let uid = 0;
+
+        // 1. SHADER DE DEGRADÊ (Transparência baseada na altura v.y)
+        AFRAME.registerShader('grad', {
+            schema: { c: { type: 'color', is: 'uniform' } },
+            vertexShader: `
+                varying vec2 v; 
+                void main(){
+                    v = uv; 
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }`,
+            fragmentShader: `
+                varying vec2 v; 
+                uniform vec3 c; 
+                void main(){ 
+                    // v.y vai de 0 (base) a 1 (ponta). 
+                    // Invertemos para 1.0 - v.y para que a base seja opaca e a ponta transparente.
+                    gl_FragColor = vec4(c, 1.0 - v.y); 
+                }`
+        });
+
+        const P = AFRAME.utils.coordinates.parse;
+
+        // Helper Factory
+        const $mk = (parent, tag, attrs) => {
+            const el = document.createElement(tag);
+            for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+            parent.appendChild(el);
+            return el;
+        };
+
+        // Cria linha tracejada (Trajetória)
+        const makeTrace = (ct, sStr, eStr, col, dly, dur) => {
+            const s = P(sStr), e = P(eStr);
+            const dist = Math.sqrt((e.x - s.x) ** 2 + (e.y - s.y) ** 2 + (e.z - s.z) ** 2);
+            const count = Math.floor(dist / 0.6);
+            const ang = -Math.atan2(e.x - s.x, e.y - s.y) * (180 / Math.PI);
+
+            for (let i = 0; i < count; i++) {
+                let t = i / count;
+                $mk(ct, 'a-entity', {
+                    geometry: 'primitive: cylinder; radius: 0.015; height: 0.2',
+                    material: `shader: flat; color: ${col}; opacity: 0.8`,
+                    position: `${s.x + (e.x - s.x) * t} ${s.y + (e.y - s.y) * t} ${s.z + (e.z - s.z) * t}`,
+                    rotation: `0 0 ${ang}`, visible: 'false',
+                    animation__v: `property: visible; from: false; to: true; dur: 0; delay: ${dly + dur * t}`,
+                    animation__s: `property: scale; to: 0 0 0; dur: 300; delay: ${dly + dur}`
+                });
+            }
+        };
+
+        // --- MUDANÇA PRINCIPAL AQUI ---
+        // Cria cauda cônica com degradê
+        const makeTail = (ct, lead, s, e, col, sc, dly, dur) => {
+            const sP = typeof s === 'string' ? P(s) : s;
+            const eP = typeof e === 'string' ? P(e) : e;
+            const ang = -Math.atan2(eP.x - sP.x, eP.y - sP.y) * (180 / Math.PI) + 180;
+            const h = 1.2 * sc, off = h / 2;
+            const len = Math.sqrt((eP.x - sP.x) ** 2 + (eP.y - sP.y) ** 2) || 1;
+            const oX = -(eP.x - sP.x) / len * off, oY = -(eP.y - sP.y) / len * off;
+
+            $mk(ct, 'a-entity', {
+                // Adicionado openEnded:true para melhor renderização do degradê
+                geometry: `primitive:cone; radiusBottom:${0.06 * sc}; radiusTop:0.0; height:${h}; openEnded:true`, 
+                // CORRIGIDO: mudado de c:${cor} para c:${col}
+                material: `shader:grad; c:${col}; transparent:true; side:double; depthTest:false`, 
+                position: `${sP.x + oX} ${sP.y + oY} ${sP.z}`, rotation: `0 0 ${ang}`,
+                dt: `target:${lead.id}; speed:0.6; off:${oX} ${oY} 0`,
+                visible: 'false', scale: '0 0 0',
+                animation__v: `property:visible; from:false; to:true; dur:0; delay:${dly}`,
+                animation__g: `property:scale; to:1 1 1; dur:300; delay:${dly}; easing:easeOutQuad`,
+                animation__s: `property:scale; to:0 0 0; dur:300; delay:${dly + dur - 100}`
+            });
+        };
+
+        // Lógica Principal
+        const spawnEvent = () => {
+            const scene = document.querySelector('#scene');
+            const pos = `${(Math.random() * 7) - 3.5} 0 ${(Math.random() * 4) - 2}`;
+            const ct = $mk(scene, 'a-entity', { position: pos });
+
+            // Constantes
+            const splitH = 3.5, topY = 5, floorY = 0.5, tRay = 1500, tParent = 1500, tChildBase = 3000;
+            const cRay = '#FF4500', cPar = '#9370DB', cChi = '#FFB6C1';
+            const sRay = '0 15 -8', eRay = '0 5 -8';
+
+            // 1. Raio Solar
+            const rayId = 'r' + uid++;
+            const ray = $mk(ct, 'a-entity', {
+                id: rayId, geometry: 'primitive:sphere; radius:0.06', material: `shader:flat; color:${cRay}`,
+                position: sRay,
+                animation__mv: `property:position; from:${sRay}; to:${eRay}; dur:${tRay}; easing:linear`,
+                animation__hd: `property:visible; from:true; to:false; dur:0; delay:${tRay}`
+            });
+            makeTail(ct, ray, sRay, eRay, cRay, 1, 0, tRay);
+
+            // 2. Pais
+            const spawnParent = (endX, side) => {
+                const s = { x: side, y: topY, z: -8 }, e = { x: endX, y: splitH, z: -8 };
+                const sS = `${s.x} ${s.y} ${s.z}`, eS = `${e.x} ${e.y} ${e.z}`;
+                const p = $mk(ct, 'a-entity', {
+                    id: 'p' + uid++, geometry: 'primitive:sphere; radius:0.08', material: `shader:flat; color:${cPar}`,
+                    position: sS, visible: 'false',
+                    animation__v: `property:visible; to:true; dur:0; delay:${tRay}`,
+                    animation__m: `property:position; from:${sS}; to:${eS}; dur:${tParent}; delay:${tRay}; easing:linear`,
+                    animation__h: `property:visible; to:false; dur:0; delay:${tRay + tParent}`
+                });
+                makeTail(ct, p, s, e, cPar, 1.2, tRay, tParent);
+                makeTrace(ct, sS, eS, cPar, tRay, tParent);
+            };
+            spawnParent(-2.5, -0.3); spawnParent(2.5, 0.3);
+
+            // 3. Filhos (Múons)
+            const spawnChild = (sX, eX) => {
+                const survive = Math.random() < 0.20;
+                const yEnd = survive ? floorY : 1 + Math.random() * 2;
+                const dur = survive ? tChildBase : tChildBase * ((splitH - yEnd) / (splitH - floorY));
+
+                const ratio = (splitH - yEnd) / (splitH - floorY);
+                const xEnd = sX + (eX - sX) * ratio;
+
+                const s = { x: sX, y: splitH, z: -8 }, e = { x: xEnd, y: yEnd, z: -8 };
+                const sS = `${s.x} ${s.y} ${s.z}`, eS = `${e.x} ${e.y} ${e.z}`;
+                const startT = tRay + tParent;
+
+                const c = $mk(ct, 'a-entity', {
+                    id: 'c' + uid++, geometry: 'primitive:sphere; radius:0.05', material: `shader:flat; color:${cChi}`,
+                    position: sS, visible: 'false',
+                    animation__v: `property:visible; to:true; dur:0; delay:${startT}`,
+                    animation__m: `property:position; to:${eS}; dur:${dur}; delay:${startT}; easing:linear`,
+                    animation__f: `property:scale; to:0 0 0; dur:150; delay:${startT + dur}`
+                });
+                makeTail(ct, c, s, e, cChi, 0.8, startT, dur);
+                makeTrace(ct, sS, eS, cChi, startT, dur);
+            };
+
+            spawnChild(-2.5, -3.5); spawnChild(-2.5, -1.5);
+            spawnChild(2.5, 1.5); spawnChild(2.5, 3.5);
+
+            // Cleanup
+            setTimeout(() => ct.parentNode && ct.parentNode.removeChild(ct), tRay + tParent + tChildBase + 2000);
+        };
+
+        // Loop
+        const loop = () => {
+            const qtd = 2 + Math.floor(Math.random() * 3);
+            for (let i = 0; i < qtd; i++) setTimeout(spawnEvent, Math.random() * 2000);
+        };
+        setInterval(loop, 6000);
+        window.onload = loop;
+    </script>
+</body>
+
+</html>

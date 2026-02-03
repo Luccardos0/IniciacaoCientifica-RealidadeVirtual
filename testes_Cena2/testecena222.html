@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Cena 2 - Switch Moderno</title>
+    <title>Cena 2 - Linha Contínua</title>
     <meta charset="utf-8">
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
 
@@ -37,84 +37,10 @@
         .ui-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; font-family: sans-serif; color: white; }
         .card { background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px); border: 1px solid; border-radius: 12px; pointer-events: auto; }
         .info-box { position: absolute; top: 20px; left: 20px; width: 320px; padding: 20px; border-color: #FFB6C1; }
-        
-        .nav-box { position: absolute; top: 20px; right: 20px; padding: 15px; border-color: #bcacda; border-radius: 5px; text-align: center; }
-        
-        .btn { border: none; padding: 8px 15px; border-radius: 3px; cursor: pointer; font-weight: bold; margin-bottom: 10px; }
+        .nav-box { position: absolute; top: 20px; right: 20px; padding: 10px; border-color: #bcacda; border-radius: 5px; }
+        .btn { border: none; padding: 8px 15px; border-radius: 3px; cursor: pointer; font-weight: bold; }
         .btn-1 { background: #444; color: white; }
         .btn-2 { background: #deb0fc; margin-left: 5px; }
-        
-        /* Container do Switch */
-        .toggle-container { border-top: 1px solid #555; padding-top: 15px; margin-top: 5px; display: flex; align-items: center; justify-content: center; }
-
-        /* O Switch em si */
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 50px;
-            height: 24px;
-            margin-right: 10px;
-        }
-
-        /* Esconde o checkbox original */
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        /* O "trilho" do switch */
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #555; /* Cor quando desligado */
-            -webkit-transition: .4s;
-            transition: .4s;
-            border-radius: 24px; /* Arredondado */
-        }
-
-        /* A "bolinha" do switch */
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 18px;
-            width: 18px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            -webkit-transition: .4s;
-            transition: .4s;
-            border-radius: 50%; /* Redondo */
-        }
-
-        /* Quando o checkbox está marcado */
-        input:checked + .slider {
-            background-color: #FFB6C1; /* Cor rosa quando ligado */
-        }
-
-        input:focus + .slider {
-            box-shadow: 0 0 1px #FFB6C1;
-        }
-
-        /* Move a bolinha quando marcado */
-        input:checked + .slider:before {
-            -webkit-transform: translateX(26px);
-            -ms-transform: translateX(26px);
-            transform: translateX(26px);
-        }
-        
-        /* O texto ao lado do switch */
-        .toggle-label-text {
-            color: #FFB6C1;
-            font-weight: bold;
-            font-size: 14px;
-            cursor: pointer;
-        }
-
         h2 { color: #FFB6C1; margin: 0 0 10px 0; text-shadow: 1px 1px 2px black; }
         p { font-size: 14px; line-height: 1.6; margin: 0; text-shadow: 1px 1px 2px black; text-align: justify; }
     </style>
@@ -125,28 +51,14 @@
         <div class="card info-box">
             <h2>Decaimento Múon</h2>
             <p>
-                Os múons são partículas instáveis.
-                <br>1. Raio Solar (laranja)
-                <br>2. 1ª Geração (roxo)
-                <br>3. 2ª Geração (rosa suave)
+                Os múons são partículas instáveis de carga negativa.
                 <br><br>
-                Use o botão switch à direita para ligar ou desligar a visualização da trajetória tracejada.
+                Agora as trajetórias são <strong>contínuas</strong>, mostrando exatamente o caminho percorrido pela partícula desde sua criação até seu decaimento ou colisão com o solo.
             </p>
         </div>
-        
         <div class="card nav-box">
-            <div>
-                <button class="btn btn-1" onclick="location.href='index.html'">Cena 1</button>
-                <button class="btn btn-2" onclick="location.href='cena2.html'">Cena 2</button>
-            </div>
-            
-            <div class="toggle-container">
-                <label class="switch">
-                    <input type="checkbox" id="chkTrace" checked>
-                    <span class="slider"></span>
-                </label>
-                <span class="toggle-label-text" onclick="document.getElementById('chkTrace').click()">Mostrar Trajetória</span>
-            </div>
+            <button class="btn btn-1" onclick="location.href='index.html'">Cena 1</button>
+            <button class="btn btn-2" onclick="location.href='cena2.html'">Cena 2</button>
         </div>
     </div>
 
@@ -171,12 +83,6 @@
 
     <script>
         let uid = 0;
-        let enableTrace = true; 
-
-        document.getElementById('chkTrace').addEventListener('change', (e) => {
-            enableTrace = e.target.checked;
-        });
-
         const P = AFRAME.utils.coordinates.parse;
 
         const $mk = (parent, tag, attrs) => {
@@ -186,37 +92,47 @@
             return el;
         };
 
+        // --- NOVA FUNÇÃO DE TRAÇO CONTÍNUO ---
         const makeTrace = (ct, sStr, eStr, col, dly, dur) => {
-            if (!enableTrace) return;
-
             const s = P(sStr), e = P(eStr);
+            
+            // Calcula a distância total
             const dist = Math.sqrt((e.x - s.x) ** 2 + (e.y - s.y) ** 2 + (e.z - s.z) ** 2);
             
-            const dashLen = 0.3; 
-            const gapLen = 0.15; 
-            const step = dashLen + gapLen;
-            
-            let count = Math.floor(dist / step);
-            if (count === 0 && dist > 0.01) count = 1;
+            // Se for muito curto, ignora para evitar erros visuais
+            if (dist < 0.01) return;
 
+            // Calcula o ângulo (mesma lógica anterior)
             const ang = -Math.atan2(e.x - s.x, e.y - s.y) * (180 / Math.PI);
 
-            for (let i = 0; i < count; i++) {
-                const t = i / count; 
-                
-                const currX = s.x + (e.x - s.x) * t;
-                const currY = s.y + (e.y - s.y) * t;
-                const currZ = s.z + (e.z - s.z) * t;
+            // Calcula o ponto médio (onde o cilindro estará no final da animação)
+            const midX = (s.x + e.x) / 2;
+            const midY = (s.y + e.y) / 2;
+            const midZ = (s.z + e.z) / 2;
 
-                $mk(ct, 'a-entity', {
-                    geometry: `primitive: cylinder; radius: 0.02; height: ${dashLen}`,
-                    material: `shader: flat; color: ${col}; opacity: 1.0`,
-                    position: `${currX} ${currY} ${currZ}`,
-                    rotation: `0 0 ${ang}`,
-                    visible: 'false',
-                    animation__v: `property: visible; from: false; to: true; dur: 0; delay: ${dly + (dur * t)}`
-                });
-            }
+            $mk(ct, 'a-entity', {
+                // Cilindro com altura base 1 (será escalado depois)
+                geometry: `primitive: cylinder; radius: 0.02; height: 1`,
+                material: `shader: flat; color: ${col}; opacity: 0.6`, // Opacidade leve para ficar bonito
+                rotation: `0 0 ${ang}`,
+                visible: 'false',
+                
+                // --- TRUQUE DA ANIMAÇÃO ---
+                // Começa na posição inicial (s), com escala Y zerada (altura 0)
+                position: `${s.x} ${s.y} ${s.z}`,
+                scale: '1 0 1',
+
+                // 1. Torna visível
+                animation__v: `property: visible; from: false; to: true; dur: 0; delay: ${dly}`,
+                
+                // 2. Cresce a altura (Scale Y) de 0 até a Distância total
+                animation__s: `property: scale; from: 1 0 1; to: 1 ${dist} 1; dur: ${dur}; delay: ${dly}; easing: linear`,
+                
+                // 3. Move do Início para o Meio
+                // (Como o cilindro cresce para os dois lados a partir do centro, 
+                // mover o centro dele do "Início" para o "Meio" faz parecer que ele cresce só para frente)
+                animation__p: `property: position; from: ${s.x} ${s.y} ${s.z}; to: ${midX} ${midY} ${midZ}; dur: ${dur}; delay: ${dly}; easing: linear`
+            });
         };
 
         const makeTail = (ct, lead, s, e, col, sc, dly, dur) => {
@@ -261,7 +177,6 @@
             const floorY = 0.5; 
 
             const tRay = 1500, tParent = 1500, tChildBase = 3000;
-            
             const cRay = '#FF4500', cPar = '#9370DB', cChi = '#FFB6C1';
             
             const sRay = `0 ${topY} -8`;   

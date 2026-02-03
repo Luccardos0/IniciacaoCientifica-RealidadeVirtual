@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Cena 2 - Switch Moderno</title>
+    <title>Cena 2 - Trajetórias Corrigidas</title>
     <meta charset="utf-8">
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
 
@@ -37,84 +37,10 @@
         .ui-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; font-family: sans-serif; color: white; }
         .card { background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px); border: 1px solid; border-radius: 12px; pointer-events: auto; }
         .info-box { position: absolute; top: 20px; left: 20px; width: 320px; padding: 20px; border-color: #FFB6C1; }
-        
-        .nav-box { position: absolute; top: 20px; right: 20px; padding: 15px; border-color: #bcacda; border-radius: 5px; text-align: center; }
-        
-        .btn { border: none; padding: 8px 15px; border-radius: 3px; cursor: pointer; font-weight: bold; margin-bottom: 10px; }
+        .nav-box { position: absolute; top: 20px; right: 20px; padding: 10px; border-color: #bcacda; border-radius: 5px; }
+        .btn { border: none; padding: 8px 15px; border-radius: 3px; cursor: pointer; font-weight: bold; }
         .btn-1 { background: #444; color: white; }
         .btn-2 { background: #deb0fc; margin-left: 5px; }
-        
-        /* Container do Switch */
-        .toggle-container { border-top: 1px solid #555; padding-top: 15px; margin-top: 5px; display: flex; align-items: center; justify-content: center; }
-
-        /* O Switch em si */
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 50px;
-            height: 24px;
-            margin-right: 10px;
-        }
-
-        /* Esconde o checkbox original */
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        /* O "trilho" do switch */
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #555; /* Cor quando desligado */
-            -webkit-transition: .4s;
-            transition: .4s;
-            border-radius: 24px; /* Arredondado */
-        }
-
-        /* A "bolinha" do switch */
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 18px;
-            width: 18px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            -webkit-transition: .4s;
-            transition: .4s;
-            border-radius: 50%; /* Redondo */
-        }
-
-        /* Quando o checkbox está marcado */
-        input:checked + .slider {
-            background-color: #FFB6C1; /* Cor rosa quando ligado */
-        }
-
-        input:focus + .slider {
-            box-shadow: 0 0 1px #FFB6C1;
-        }
-
-        /* Move a bolinha quando marcado */
-        input:checked + .slider:before {
-            -webkit-transform: translateX(26px);
-            -ms-transform: translateX(26px);
-            transform: translateX(26px);
-        }
-        
-        /* O texto ao lado do switch */
-        .toggle-label-text {
-            color: #FFB6C1;
-            font-weight: bold;
-            font-size: 14px;
-            cursor: pointer;
-        }
-
         h2 { color: #FFB6C1; margin: 0 0 10px 0; text-shadow: 1px 1px 2px black; }
         p { font-size: 14px; line-height: 1.6; margin: 0; text-shadow: 1px 1px 2px black; text-align: justify; }
     </style>
@@ -125,28 +51,17 @@
         <div class="card info-box">
             <h2>Decaimento Múon</h2>
             <p>
-                Os múons são partículas instáveis.
-                <br>1. Raio Solar (laranja)
-                <br>2. 1ª Geração (roxo)
-                <br>3. 2ª Geração (rosa suave)
+                Os múons são partículas instáveis de carga negativa. Aqui você vê:
+                <br>1. O Raio Solar (laranja)
+                <br>2. A 1ª Geração (roxo)
+                <br>3. A 2ª Geração (rosa)
                 <br><br>
-                Use o botão switch à direita para ligar ou desligar a visualização da trajetória tracejada.
+                Alguns múons rosas chegam ao solo. Outros decaem no meio do caminho, deixando seu rastro apenas até onde existiram.
             </p>
         </div>
-        
         <div class="card nav-box">
-            <div>
-                <button class="btn btn-1" onclick="location.href='index.html'">Cena 1</button>
-                <button class="btn btn-2" onclick="location.href='cena2.html'">Cena 2</button>
-            </div>
-            
-            <div class="toggle-container">
-                <label class="switch">
-                    <input type="checkbox" id="chkTrace" checked>
-                    <span class="slider"></span>
-                </label>
-                <span class="toggle-label-text" onclick="document.getElementById('chkTrace').click()">Mostrar Trajetória</span>
-            </div>
+            <button class="btn btn-1" onclick="location.href='index.html'">Cena 1</button>
+            <button class="btn btn-2" onclick="location.href='cena2.html'">Cena 2</button>
         </div>
     </div>
 
@@ -171,12 +86,6 @@
 
     <script>
         let uid = 0;
-        let enableTrace = true; 
-
-        document.getElementById('chkTrace').addEventListener('change', (e) => {
-            enableTrace = e.target.checked;
-        });
-
         const P = AFRAME.utils.coordinates.parse;
 
         const $mk = (parent, tag, attrs) => {
@@ -187,15 +96,15 @@
         };
 
         const makeTrace = (ct, sStr, eStr, col, dly, dur) => {
-            if (!enableTrace) return;
-
             const s = P(sStr), e = P(eStr);
             const dist = Math.sqrt((e.x - s.x) ** 2 + (e.y - s.y) ** 2 + (e.z - s.z) ** 2);
             
-            const dashLen = 0.3; 
-            const gapLen = 0.15; 
+            const dashLen = 0.2; 
+            const gapLen = 0.2; 
             const step = dashLen + gapLen;
             
+            // CORREÇÃO 1: Garante no mínimo 1 traço se houver distância > 0.01
+            // Antes, distâncias curtas retornavam 0 e nada era desenhado.
             let count = Math.floor(dist / step);
             if (count === 0 && dist > 0.01) count = 1;
 
@@ -209,8 +118,8 @@
                 const currZ = s.z + (e.z - s.z) * t;
 
                 $mk(ct, 'a-entity', {
-                    geometry: `primitive: cylinder; radius: 0.02; height: ${dashLen}`,
-                    material: `shader: flat; color: ${col}; opacity: 1.0`,
+                    geometry: `primitive: cylinder; radius: 0.01; height: ${dashLen}`,
+                    material: `shader: flat; color: ${col}; opacity: 0.5`,
                     position: `${currX} ${currY} ${currZ}`,
                     rotation: `0 0 ${ang}`,
                     visible: 'false',
@@ -261,7 +170,6 @@
             const floorY = 0.5; 
 
             const tRay = 1500, tParent = 1500, tChildBase = 3000;
-            
             const cRay = '#FF4500', cPar = '#9370DB', cChi = '#FFB6C1';
             
             const sRay = `0 ${topY} -8`;   
@@ -298,14 +206,22 @@
             const spawnChild = (sX, eX) => {
                 const survive = Math.random() < 0.20;
                 
+                // CORREÇÃO 2: Lógica de morte
+                // Se o múon vai morrer, forçamos que ele percorra uma % razoável do caminho
+                // (entre 30% e 80%) em vez de usar um valor fixo aleatório.
+                // Isso garante que a trajetória (eS) seja longa o suficiente para ser vista.
+                
                 const fullDrop = splitH - floorY; 
-                const deathRatio = 0.3 + (Math.random() * 0.5); 
+                const deathRatio = 0.3 + (Math.random() * 0.5); // Morre entre 30% e 80% do caminho
                 
                 let yEnd = survive ? floorY : splitH - (fullDrop * deathRatio);
+                
+                // Proteção extra: nunca deixa ir abaixo do chão visualmente
                 yEnd = Math.max(yEnd, floorY);
 
                 const dur = survive ? tChildBase : tChildBase * deathRatio;
                 
+                // Calcula X baseado na proporção de Y que ele andou
                 const ratioTraveled = (splitH - yEnd) / fullDrop;
                 const xEnd = sX + (eX - sX) * ratioTraveled;
 
@@ -313,15 +229,21 @@
                 const sS = `${s.x} ${s.y} ${s.z}`, eS = `${e.x} ${e.y} ${e.z}`;
                 const startT = tRay + tParent;
 
+                // O múon (esfera)
                 const c = $mk(ct, 'a-entity', {
                     id: 'c' + uid++, geometry: 'primitive:sphere; radius:0.05', material: `shader:flat; color:${cChi}`,
                     position: sS, visible: 'false',
                     animation__v: `property:visible; to:true; dur:0; delay:${startT}`,
+                    // Move até onde morre (ou até o chão)
                     animation__m: `property:position; from:${sS}; to:${eS}; dur:${dur}; delay:${startT}; easing:linear`,
+                    // Encolhe ao chegar no destino (simula desaparecimento ou absorção)
                     animation__f: `property:scale; to:0 0 0; dur:150; delay:${startT + dur}`
                 });
                 
                 makeTail(ct, c, s, e, cChi, 0.8, startT, dur);
+                
+                // O rastro agora irá de sS até eS. Como garantimos que eS é longe de sS,
+                // e ajustamos o makeTrace para desenhar pelo menos 1 traço, o rastro aparecerá.
                 makeTrace(ct, sS, eS, cChi, startT, dur);
             };
 

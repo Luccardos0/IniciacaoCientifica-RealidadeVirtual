@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Cena 2 - Switch Moderno</title>
+    <title>Cena 2 - Colisão Precisa (Corrigida)</title>
     <meta charset="utf-8">
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
 
@@ -37,84 +37,10 @@
         .ui-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; font-family: sans-serif; color: white; }
         .card { background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px); border: 1px solid; border-radius: 12px; pointer-events: auto; }
         .info-box { position: absolute; top: 20px; left: 20px; width: 320px; padding: 20px; border-color: #FFB6C1; }
-        
-        .nav-box { position: absolute; top: 20px; right: 20px; padding: 15px; border-color: #bcacda; border-radius: 5px; text-align: center; }
-        
-        .btn { border: none; padding: 8px 15px; border-radius: 3px; cursor: pointer; font-weight: bold; margin-bottom: 10px; }
+        .nav-box { position: absolute; top: 20px; right: 20px; padding: 10px; border-color: #bcacda; border-radius: 5px; }
+        .btn { border: none; padding: 8px 15px; border-radius: 3px; cursor: pointer; font-weight: bold; }
         .btn-1 { background: #444; color: white; }
         .btn-2 { background: #deb0fc; margin-left: 5px; }
-        
-        /* Container do Switch */
-        .toggle-container { border-top: 1px solid #555; padding-top: 15px; margin-top: 5px; display: flex; align-items: center; justify-content: center; }
-
-        /* O Switch em si */
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 50px;
-            height: 24px;
-            margin-right: 10px;
-        }
-
-        /* Esconde o checkbox original */
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        /* O "trilho" do switch */
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #555; /* Cor quando desligado */
-            -webkit-transition: .4s;
-            transition: .4s;
-            border-radius: 24px; /* Arredondado */
-        }
-
-        /* A "bolinha" do switch */
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 18px;
-            width: 18px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            -webkit-transition: .4s;
-            transition: .4s;
-            border-radius: 50%; /* Redondo */
-        }
-
-        /* Quando o checkbox está marcado */
-        input:checked + .slider {
-            background-color: #FFB6C1; /* Cor rosa quando ligado */
-        }
-
-        input:focus + .slider {
-            box-shadow: 0 0 1px #FFB6C1;
-        }
-
-        /* Move a bolinha quando marcado */
-        input:checked + .slider:before {
-            -webkit-transform: translateX(26px);
-            -ms-transform: translateX(26px);
-            transform: translateX(26px);
-        }
-        
-        /* O texto ao lado do switch */
-        .toggle-label-text {
-            color: #FFB6C1;
-            font-weight: bold;
-            font-size: 14px;
-            cursor: pointer;
-        }
-
         h2 { color: #FFB6C1; margin: 0 0 10px 0; text-shadow: 1px 1px 2px black; }
         p { font-size: 14px; line-height: 1.6; margin: 0; text-shadow: 1px 1px 2px black; text-align: justify; }
     </style>
@@ -125,28 +51,14 @@
         <div class="card info-box">
             <h2>Decaimento Múon</h2>
             <p>
-                Os múons são partículas instáveis.
-                <br>1. Raio Solar (laranja)
-                <br>2. 1ª Geração (roxo)
-                <br>3. 2ª Geração (rosa suave)
-                <br><br>
-                Use o botão switch à direita para ligar ou desligar a visualização da trajetória tracejada.
+                Os múons são partículas instáveis de carga negativa, geradas a partir do decaimento de outras partículas
+                (mésons e píons) resultantes da interação de raios cósmicos com a atmosfera.<br><br>
+                Eles possuem um tempo de meia-vida de aproximadamente 2,2 µs. Sem os efeitos relativísticos, a maioria desapareceria antes de chegar ao solo.
             </p>
         </div>
-        
         <div class="card nav-box">
-            <div>
-                <button class="btn btn-1" onclick="location.href='index.html'">Cena 1</button>
-                <button class="btn btn-2" onclick="location.href='cena2.html'">Cena 2</button>
-            </div>
-            
-            <div class="toggle-container">
-                <label class="switch">
-                    <input type="checkbox" id="chkTrace" checked>
-                    <span class="slider"></span>
-                </label>
-                <span class="toggle-label-text" onclick="document.getElementById('chkTrace').click()">Mostrar Trajetória</span>
-            </div>
+            <button class="btn btn-1" onclick="location.href='index.html'">Cena 1</button>
+            <button class="btn btn-2" onclick="location.href='cena2.html'">Cena 2</button>
         </div>
     </div>
 
@@ -171,12 +83,6 @@
 
     <script>
         let uid = 0;
-        let enableTrace = true; 
-
-        document.getElementById('chkTrace').addEventListener('change', (e) => {
-            enableTrace = e.target.checked;
-        });
-
         const P = AFRAME.utils.coordinates.parse;
 
         const $mk = (parent, tag, attrs) => {
@@ -187,17 +93,13 @@
         };
 
         const makeTrace = (ct, sStr, eStr, col, dly, dur) => {
-            if (!enableTrace) return;
-
             const s = P(sStr), e = P(eStr);
             const dist = Math.sqrt((e.x - s.x) ** 2 + (e.y - s.y) ** 2 + (e.z - s.z) ** 2);
             
-            const dashLen = 0.3; 
-            const gapLen = 0.15; 
+            const dashLen = 0.2; 
+            const gapLen = 0.2; 
             const step = dashLen + gapLen;
-            
-            let count = Math.floor(dist / step);
-            if (count === 0 && dist > 0.01) count = 1;
+            const count = Math.floor(dist / step); 
 
             const ang = -Math.atan2(e.x - s.x, e.y - s.y) * (180 / Math.PI);
 
@@ -209,8 +111,8 @@
                 const currZ = s.z + (e.z - s.z) * t;
 
                 $mk(ct, 'a-entity', {
-                    geometry: `primitive: cylinder; radius: 0.02; height: ${dashLen}`,
-                    material: `shader: flat; color: ${col}; opacity: 1.0`,
+                    geometry: `primitive: cylinder; radius: 0.01; height: ${dashLen}`,
+                    material: `shader: flat; color: ${col}; opacity: 0.5`,
                     position: `${currX} ${currY} ${currZ}`,
                     rotation: `0 0 ${ang}`,
                     visible: 'false',
@@ -249,7 +151,14 @@
             
             if (distSq >= radiusSq) return; 
 
+            // Calcula onde o raio toca a atmosfera
             const collisionY = Math.sqrt(radiusSq - distSq) - 4;
+
+            // --- CORREÇÃO DE SEGURANÇA ---
+            // Se a atmosfera estiver muito baixa (menos de 3.5m), o decaimento para os filhos
+            // (que ocorre 1.5m abaixo disso) ficaria muito perto do chão ou no subsolo,
+            // causando o bug visual do múon "subindo".
+            // Se for menor que 3.5, cancelamos este spawn e tentamos no próximo loop.
             if (collisionY < 3.5) return; 
 
             const pos = `${rndX} 0 ${rndZ}`;
@@ -261,7 +170,6 @@
             const floorY = 0.5; 
 
             const tRay = 1500, tParent = 1500, tChildBase = 3000;
-            
             const cRay = '#FF4500', cPar = '#9370DB', cChi = '#FFB6C1';
             
             const sRay = `0 ${topY} -8`;   
@@ -294,22 +202,20 @@
             };
             spawnParent(-2.5, -0.3); spawnParent(2.5, 0.3);
 
-            // 3. Filhos
+            // 3. Filhos (Múons finais)
             const spawnChild = (sX, eX) => {
                 const survive = Math.random() < 0.20;
+                // Garante que o ponto final (yEnd) é sempre menor que o inicial (splitH)
+                const yEnd = survive ? floorY : splitH - 2 + Math.random(); 
                 
-                const fullDrop = splitH - floorY; 
-                const deathRatio = 0.3 + (Math.random() * 0.5); 
-                
-                let yEnd = survive ? floorY : splitH - (fullDrop * deathRatio);
-                yEnd = Math.max(yEnd, floorY);
+                // Se por acaso o cálculo aleatório fizer ele ir pro subsolo mas não sobreviver, limitamos visualmente
+                const actualYEnd = Math.max(yEnd, floorY - 0.5);
 
-                const dur = survive ? tChildBase : tChildBase * deathRatio;
-                
-                const ratioTraveled = (splitH - yEnd) / fullDrop;
-                const xEnd = sX + (eX - sX) * ratioTraveled;
+                const dur = survive ? tChildBase : tChildBase * ((splitH - actualYEnd) / (splitH - floorY));
+                const ratio = (splitH - actualYEnd) / (splitH - floorY);
+                const xEnd = sX + (eX - sX) * ratio;
 
-                const s = { x: sX, y: splitH, z: -8 }, e = { x: xEnd, y: yEnd, z: -8 };
+                const s = { x: sX, y: splitH, z: -8 }, e = { x: xEnd, y: actualYEnd, z: -8 };
                 const sS = `${s.x} ${s.y} ${s.z}`, eS = `${e.x} ${e.y} ${e.z}`;
                 const startT = tRay + tParent;
 
@@ -320,7 +226,6 @@
                     animation__m: `property:position; from:${sS}; to:${eS}; dur:${dur}; delay:${startT}; easing:linear`,
                     animation__f: `property:scale; to:0 0 0; dur:150; delay:${startT + dur}`
                 });
-                
                 makeTail(ct, c, s, e, cChi, 0.8, startT, dur);
                 makeTrace(ct, sS, eS, cChi, startT, dur);
             };

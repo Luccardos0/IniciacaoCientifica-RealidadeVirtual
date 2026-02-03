@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Cena 2 - Switch Moderno</title>
+    <title>Cena 2 - Decaimento do Múon</title>
     <meta charset="utf-8">
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
 
     <script>
+        // Componente de interpolação (Cauda acomapanhar o múon)
         AFRAME.registerComponent('dt', {
             schema: { target: { type: 'string' }, speed: { type: 'number', default: 0.3 }, off: { type: 'vec3' } },
             init: function () { this.v = new THREE.Vector3(); },
@@ -16,6 +17,7 @@
             }
         });
 
+        // Shader de Degradê na cauda (Transparência baseada na altura)
         AFRAME.registerShader('grad', {
             schema: { c: { type: 'color', is: 'uniform' } },
             vertexShader: `
@@ -28,93 +30,25 @@
                 varying vec2 v; 
                 uniform vec3 c; 
                 void main(){ 
+                    // 1.0 - v.y faz a base ser opaca e a ponta transparente
                     gl_FragColor = vec4(c, 1.0 - v.y); 
                 }`
         });
     </script>
 
     <style>
+        /* Estilização da UI */
         .ui-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; font-family: sans-serif; color: white; }
         .card { background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px); border: 1px solid; border-radius: 12px; pointer-events: auto; }
         .info-box { position: absolute; top: 20px; left: 20px; width: 320px; padding: 20px; border-color: #FFB6C1; }
+        .nav-box { position: absolute; top: 20px; right: 20px; padding: 10px; border-color: #bcacda; border-radius: 5px; }
         
-        .nav-box { position: absolute; top: 20px; right: 20px; padding: 15px; border-color: #bcacda; border-radius: 5px; text-align: center; }
-        
-        .btn { border: none; padding: 8px 15px; border-radius: 3px; cursor: pointer; font-weight: bold; margin-bottom: 10px; }
+        /* Botões */
+        .btn { border: none; padding: 8px 15px; border-radius: 3px; cursor: pointer; font-weight: bold; }
         .btn-1 { background: #444; color: white; }
         .btn-2 { background: #deb0fc; margin-left: 5px; }
         
-        /* Container do Switch */
-        .toggle-container { border-top: 1px solid #555; padding-top: 15px; margin-top: 5px; display: flex; align-items: center; justify-content: center; }
-
-        /* O Switch em si */
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 50px;
-            height: 24px;
-            margin-right: 10px;
-        }
-
-        /* Esconde o checkbox original */
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        /* O "trilho" do switch */
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #555; /* Cor quando desligado */
-            -webkit-transition: .4s;
-            transition: .4s;
-            border-radius: 24px; /* Arredondado */
-        }
-
-        /* A "bolinha" do switch */
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 18px;
-            width: 18px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            -webkit-transition: .4s;
-            transition: .4s;
-            border-radius: 50%; /* Redondo */
-        }
-
-        /* Quando o checkbox está marcado */
-        input:checked + .slider {
-            background-color: #FFB6C1; /* Cor rosa quando ligado */
-        }
-
-        input:focus + .slider {
-            box-shadow: 0 0 1px #FFB6C1;
-        }
-
-        /* Move a bolinha quando marcado */
-        input:checked + .slider:before {
-            -webkit-transform: translateX(26px);
-            -ms-transform: translateX(26px);
-            transform: translateX(26px);
-        }
-        
-        /* O texto ao lado do switch */
-        .toggle-label-text {
-            color: #FFB6C1;
-            font-weight: bold;
-            font-size: 14px;
-            cursor: pointer;
-        }
-
+        /* Textos */
         h2 { color: #FFB6C1; margin: 0 0 10px 0; text-shadow: 1px 1px 2px black; }
         p { font-size: 14px; line-height: 1.6; margin: 0; text-shadow: 1px 1px 2px black; text-align: justify; }
     </style>
@@ -125,28 +59,16 @@
         <div class="card info-box">
             <h2>Decaimento Múon</h2>
             <p>
-                Os múons são partículas instáveis.
-                <br>1. Raio Solar (laranja)
-                <br>2. 1ª Geração (roxo)
-                <br>3. 2ª Geração (rosa suave)
-                <br><br>
-                Use o botão switch à direita para ligar ou desligar a visualização da trajetória tracejada.
+                Os múons são partículas instáveis de carga negativa, geradas a partir do decaimento de outras partículas
+                (mésons e píons) resultantes da interação de raios cósmicos com a atmosfera.<br><br>
+                Eles possuem um tempo de meia-vida de aproximadamente 2,2 µs (microssegundos). Isso significa que, a
+                cada 2,2 µs, metade da quantidade existente de múons se desintegra. Sem os efeitos relativísticos, a vasta maioria deles desapareceria
+                antes de conseguir atravessar a atmosfera até o solo.
             </p>
         </div>
-        
         <div class="card nav-box">
-            <div>
-                <button class="btn btn-1" onclick="location.href='index.html'">Cena 1</button>
-                <button class="btn btn-2" onclick="location.href='cena2.html'">Cena 2</button>
-            </div>
-            
-            <div class="toggle-container">
-                <label class="switch">
-                    <input type="checkbox" id="chkTrace" checked>
-                    <span class="slider"></span>
-                </label>
-                <span class="toggle-label-text" onclick="document.getElementById('chkTrace').click()">Mostrar Trajetória</span>
-            </div>
+            <button class="btn btn-1" onclick="location.href='index.html'">Cena 1</button>
+            <button class="btn btn-2" onclick="location.href='cena2.html'">Cena 2</button>
         </div>
     </div>
 
@@ -159,10 +81,9 @@
 
         <a-sky src="#imSky" rotation="0 -90 0"></a-sky>
         <a-entity light="type: ambient; color: #444"></a-entity>
-        
-        <a-entity light="type: directional; color: #FFF; intensity: 1.5; castShadow: true" position="0 20 -8"></a-entity>
-        <a-sphere position="0 25 -8" src="#imSun" radius="5" light="type: point; intensity: 2; distance: 50" material="shader: flat"></a-sphere>
+        <a-entity light="type: directional; color: #FFF; intensity: 1.5; castShadow: true" position="-10 10 -10"></a-entity>
 
+        <a-sphere position="-20 15 -20" src="#imSun" radius="5" light="type: point; intensity: 2; distance: 50" material="shader: flat"></a-sphere>
         <a-entity position="0 -4 -8" rotation="0 0 23.4">
             <a-sphere src="#imEarth" radius="6" shadow="receive: true"></a-sphere>
             <a-sphere radius="9" material="color: #87CEEB; opacity: 0.15; transparent: true; side: back; blending: additive"></a-sphere>
@@ -171,14 +92,11 @@
 
     <script>
         let uid = 0;
-        let enableTrace = true; 
-
-        document.getElementById('chkTrace').addEventListener('change', (e) => {
-            enableTrace = e.target.checked;
-        });
-
         const P = AFRAME.utils.coordinates.parse;
 
+        // --- Funções Auxiliares ---
+        
+        // Helper Factory: Cria elementos HTML dinamicamente
         const $mk = (parent, tag, attrs) => {
             const el = document.createElement(tag);
             for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
@@ -186,39 +104,27 @@
             return el;
         };
 
+        // Cria linha tracejada (Trajetória)
         const makeTrace = (ct, sStr, eStr, col, dly, dur) => {
-            if (!enableTrace) return;
-
             const s = P(sStr), e = P(eStr);
             const dist = Math.sqrt((e.x - s.x) ** 2 + (e.y - s.y) ** 2 + (e.z - s.z) ** 2);
-            
-            const dashLen = 0.3; 
-            const gapLen = 0.15; 
-            const step = dashLen + gapLen;
-            
-            let count = Math.floor(dist / step);
-            if (count === 0 && dist > 0.01) count = 1;
-
+            const count = Math.floor(dist / 0.6);
             const ang = -Math.atan2(e.x - s.x, e.y - s.y) * (180 / Math.PI);
 
             for (let i = 0; i < count; i++) {
-                const t = i / count; 
-                
-                const currX = s.x + (e.x - s.x) * t;
-                const currY = s.y + (e.y - s.y) * t;
-                const currZ = s.z + (e.z - s.z) * t;
-
+                let t = i / count;
                 $mk(ct, 'a-entity', {
-                    geometry: `primitive: cylinder; radius: 0.02; height: ${dashLen}`,
-                    material: `shader: flat; color: ${col}; opacity: 1.0`,
-                    position: `${currX} ${currY} ${currZ}`,
-                    rotation: `0 0 ${ang}`,
-                    visible: 'false',
-                    animation__v: `property: visible; from: false; to: true; dur: 0; delay: ${dly + (dur * t)}`
+                    geometry: 'primitive: cylinder; radius: 0.015; height: 0.2',
+                    material: `shader: flat; color: ${col}; opacity: 0.8`,
+                    position: `${s.x + (e.x - s.x) * t} ${s.y + (e.y - s.y) * t} ${s.z + (e.z - s.z) * t}`,
+                    rotation: `0 0 ${ang}`, visible: 'false',
+                    animation__v: `property: visible; from: false; to: true; dur: 0; delay: ${dly + dur * t}`,
+                    animation__s: `property: scale; to: 0 0 0; dur: 300; delay: ${dly + dur}`
                 });
             }
         };
 
+        // Cria cauda cônica com o Shader Gradiente
         const makeTail = (ct, lead, s, e, col, sc, dly, dur) => {
             const sP = typeof s === 'string' ? P(s) : s;
             const eP = typeof e === 'string' ? P(e) : e;
@@ -239,33 +145,16 @@
             });
         };
 
+        // --- Lógica Principal ---
         const spawnEvent = () => {
             const scene = document.querySelector('#scene');
-
-            const rndX = (Math.random() * 14) - 7; 
-            const rndZ = (Math.random() * 8) - 4; 
-            const radiusSq = 81; 
-            const distSq = (rndX * rndX) + (rndZ * rndZ);
-            
-            if (distSq >= radiusSq) return; 
-
-            const collisionY = Math.sqrt(radiusSq - distSq) - 4;
-            if (collisionY < 3.5) return; 
-
-            const pos = `${rndX} 0 ${rndZ}`;
+            const pos = `${(Math.random() * 7) - 3.5} 0 ${(Math.random() * 4) - 2}`;
             const ct = $mk(scene, 'a-entity', { position: pos });
 
-            const topY = 20; 
-            const atmosY = collisionY; 
-            const splitH = atmosY - 1.5; 
-            const floorY = 0.5; 
-
-            const tRay = 1500, tParent = 1500, tChildBase = 3000;
-            
+            // Configurações
+            const splitH = 3.5, topY = 5, floorY = 0.5, tRay = 1500, tParent = 1500, tChildBase = 3000;
             const cRay = '#FF4500', cPar = '#9370DB', cChi = '#FFB6C1';
-            
-            const sRay = `0 ${topY} -8`;   
-            const eRay = `0 ${atmosY} -8`; 
+            const sRay = '0 15 -8', eRay = '0 5 -8';
 
             // 1. Raio Solar
             const rayId = 'r' + uid++;
@@ -276,11 +165,10 @@
                 animation__hd: `property:visible; from:true; to:false; dur:0; delay:${tRay}`
             });
             makeTail(ct, ray, sRay, eRay, cRay, 1, 0, tRay);
-            makeTrace(ct, sRay, eRay, cRay, 0, tRay);
 
             // 2. Pais
             const spawnParent = (endX, side) => {
-                const s = { x: side, y: atmosY, z: -8 }, e = { x: endX, y: splitH, z: -8 };
+                const s = { x: side, y: topY, z: -8 }, e = { x: endX, y: splitH, z: -8 };
                 const sS = `${s.x} ${s.y} ${s.z}`, eS = `${e.x} ${e.y} ${e.z}`;
                 const p = $mk(ct, 'a-entity', {
                     id: 'p' + uid++, geometry: 'primitive:sphere; radius:0.08', material: `shader:flat; color:${cPar}`,
@@ -297,17 +185,10 @@
             // 3. Filhos
             const spawnChild = (sX, eX) => {
                 const survive = Math.random() < 0.20;
-                
-                const fullDrop = splitH - floorY; 
-                const deathRatio = 0.3 + (Math.random() * 0.5); 
-                
-                let yEnd = survive ? floorY : splitH - (fullDrop * deathRatio);
-                yEnd = Math.max(yEnd, floorY);
-
-                const dur = survive ? tChildBase : tChildBase * deathRatio;
-                
-                const ratioTraveled = (splitH - yEnd) / fullDrop;
-                const xEnd = sX + (eX - sX) * ratioTraveled;
+                const yEnd = survive ? floorY : 1 + Math.random() * 2;
+                const dur = survive ? tChildBase : tChildBase * ((splitH - yEnd) / (splitH - floorY));
+                const ratio = (splitH - yEnd) / (splitH - floorY);
+                const xEnd = sX + (eX - sX) * ratio;
 
                 const s = { x: sX, y: splitH, z: -8 }, e = { x: xEnd, y: yEnd, z: -8 };
                 const sS = `${s.x} ${s.y} ${s.z}`, eS = `${e.x} ${e.y} ${e.z}`;
@@ -317,10 +198,9 @@
                     id: 'c' + uid++, geometry: 'primitive:sphere; radius:0.05', material: `shader:flat; color:${cChi}`,
                     position: sS, visible: 'false',
                     animation__v: `property:visible; to:true; dur:0; delay:${startT}`,
-                    animation__m: `property:position; from:${sS}; to:${eS}; dur:${dur}; delay:${startT}; easing:linear`,
+                    animation__m: `property:position; to:${eS}; dur:${dur}; delay:${startT}; easing:linear`,
                     animation__f: `property:scale; to:0 0 0; dur:150; delay:${startT + dur}`
                 });
-                
                 makeTail(ct, c, s, e, cChi, 0.8, startT, dur);
                 makeTrace(ct, sS, eS, cChi, startT, dur);
             };
@@ -328,9 +208,11 @@
             spawnChild(-2.5, -3.5); spawnChild(-2.5, -1.5);
             spawnChild(2.5, 1.5); spawnChild(2.5, 3.5);
 
+            // Limpeza de memória (Remove a entidade após a animação)
             setTimeout(() => ct.parentNode && ct.parentNode.removeChild(ct), tRay + tParent + tChildBase + 2000);
         };
 
+        // Loop de geração
         const loop = () => {
             const qtd = 2 + Math.floor(Math.random() * 3);
             for (let i = 0; i < qtd; i++) setTimeout(spawnEvent, Math.random() * 2000);

@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cena 3 - Múons Corrigidos</title>
+    <meta charset="utf-8">
+    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+
+    <script>
+        AFRAME.registerComponent('dt', {
+            schema: { target: { type: 'string' }, speed: { type: 'number', default: 0.3 }, off: { type: 'vec3' } },
+            init: function () { this.v = new THREE.Vector3(); },
+            tick: function () {
+                if (!this.elT) { this.elT = document.querySelector('#' + this.data.target); return; }
+                this.v.copy(this.elT.object3D.position).add(this.data.off);
+                this.el.object3D.position.lerp(this.v, this.data.speed);
+            }
+        });
+
+        AFRAME.registerShader('grad', {
+            schema: { c: { type: 'color', is: 'uniform' } },
+            vertexShader: `
+                varying vec2 v; 
+                void main(){
+                    v = uv; 
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }`,
+            fragmentShader: `
+                varying vec2 v; 
+                uniform vec3 c; 
+                void main(){ 
+                    gl_FragColor = vec4(c, 1.0 - v.y); 
+                }`
+        });
+    </script>
+
+    <style>
+        .ui-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; font-family: sans-serif; color: white; }
+        .card { background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px); border: 1px solid; border-radius: 12px; pointer-events: auto; }
+        .info-box { position: absolute; top: 20px; left: 20px; width: 320px; padding: 20px; border-color: #FFB6C1; }
+        .nav-box { position: absolute; top: 20px; right: 20px; padding: 15px; border-color: #bcacda; border-radius: 5px; text-align: center; }
+        
+        .btn { border: none; padding: 8px 15px; border-radius: 3px; cursor: pointer; font-weight: bold; }
+        .btn + .btn { margin-left: 5px; }
+        .btn-1 { background: #444; color: white; }
+        .btn-2 { background: #deb0fc; color: black; }
+
+        h2 { color: #FFB6C1; margin: 0 0 10px 0; text-shadow: 1px 1px 2px black; }
+        p { font-size: 14px; line-height: 1.6; margin: 0; text-shadow: 1px 1px 2px black; text-align: justify; }
+    </style>
+</head>
+
+<body>
+    <div class="ui-layer">
+        <div class="card info-box">
+            <h2>Decaimento Múon</h2>
+            <p>
+                Os múons são partículas instáveis.
+                <br>1. 1ª Geração (Roxo) - Entrando
+                <br>2. 2ª Geração (Rosa) - Dentro da Atmosfera
+                <br><br>
+                Visualização corrigida: O decaimento ocorre exatamente na borda da atmosfera.
+            </p>
+        </div>
+        
+        <div class="card nav-box">
+            <div>
+                <button class="btn btn-1" onclick="location.href='index.html'">Cena 1</button>
+                <button class="btn btn-1" onclick="location.href='cena2.html'">Cena 2</button>
+                <button class="btn btn-2" onclick="location.href='cena3.html'">Cena 3</button>
+            </div>
+        </div>
+    </div>
+
+    <a-scene id="scene" shadow="type: pcfsoft">
+        <a-assets>
+            <img id="imEarth" src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Blue_Marble_2002.png/1280px-Blue_Marble_2002.png">
+            <img id="imSky" src="https://jocoteles.github.io/Minicurso-A-Frame-VR/TychoSkymap.t4_04096x02048.jpg">
+        </a-assets>
+
+        <a-camera position="0 1.6 -1.5"></a-camera>
+
+        <a-sky src="#imSky" rotation="0 -90 0"></a-sky>
+        <a-entity light="type: ambient; color: #444"></a-entity>
+        <a-entity light="type: directional; color: #FFF; intensity: 1.5; castShadow: true" position="0 20 -8"></a-entity>
+
+        <a-entity position="0 -4 -8" rotation="0 0 23.4">
+            <a-sphere src="#imEarth" radius="6" shadow="receive: true"></a-sphere>
+            <a-sphere radius="9" material="color: #87CEEB; opacity: 0.15; transparent: true; side: back; blending: additive"></a-sphere>
+        </a-entity>
+    </a-scene>
+
+    <script>
+        let uid = 0;
+        const P = AFRAME.utils.coordinates.parse;
+        const $mk = (parent, tag, attrs) => {
+            const el = document.createElement(tag);
+            for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
+            parent.appendChild(el);
+            return el;
+        };
+
+        const makeTail = (ct, lead, s, e, col, sc, dly, dur) => {
+            const sP = typeof s === 'string' ? P(s) : s;
+            const eP = typeof e === 'string' ? P(e) : e;
+            const ang = -Math.atan2(eP.x - sP.x, eP.y - sP.y) * (180 / Math.PI) + 180;
+            const h = 1.2 * sc, off = h / 2;
+            const len = Math.sqrt((eP.x - sP.x) ** 2 + (eP.y - sP.y) ** 2) || 1;
+            const oX = -(eP.x - sP.x) / len * off, oY = -(eP.y - sP.y) / len * off;
+
+            $mk(ct, 'a-entity', {
+                geometry: `primitive:cone; radiusBottom:${0.06 * sc}; radiusTop:0.0; height:${h}; openEnded:true`, 
+                material: `shader:grad; c:${col}; transparent:true; side:double; depthTest:false`, 
+                position: `${sP.x + oX} ${sP.y + oY} ${sP.z}`, rotation: `0 0 ${ang}`,
+                dt: `target:${lead.id}; speed:0.6; off:${oX} ${oY} 0`,
+                visible: 'false', scale: '0 0 0',
+                animation__v: `property:visible; from:false; to:true; dur:0; delay:${dly}`,
+                animation__g: `property:scale; to:1 1 1; dur:300; delay:${dly}; easing:easeOutQuad`,
+                animation__s: `property:scale; to:0 0 0; dur:300; delay:${dly + dur - 100}`
+            });
+        };
+
+        const spawnEvent = () => {
+            const scene = document.querySelector('#scene');
+
+            // --- CONFIGURAÇÃO GEOMÉTRICA ---
+            const earthY = -4; // Centro da Terra Y
+            const atmosRadius = 9; // Raio Atmosfera
+            const fixedZ = -8; // Profundidade fixa para alinhar com o centro da Terra
+
+            // 1. SORTEIO DE POSIÇÃO (RESTRIÇÃO DE LARGURA)
+            // Limitamos X entre -3.5 e 3.5. Isso garante que eles nasçam "em cima" da Terra
+            // e não nas laterais vazias do espaço.
+            const rndX = (Math.random() * 7) - 3.5; 
+
+            // 2. CÁLCULO EXATO DA INTERSEÇÃO (CURVA DA ATMOSFERA)
+            // Equação: y = sqrt(R² - x²) + center_y
+            // Isso nos dá a altura Y EXATA onde esse X toca a esfera
+            const dy = Math.sqrt((atmosRadius * atmosRadius) - (rndX * rndX));
+            const collisionY = dy + earthY;
+
+            // Container (Posicionamos no X sorteado)
+            const ct = $mk(scene, 'a-entity', { position: `${rndX} 0 ${fixedZ}` });
+
+            // Alturas
+            // Começa um pouco acima da colisão (Ex: +4 unidades acima) para dar sensação de entrada
+            const topY = collisionY + 4; 
+            const splitH = collisionY; // Ponto exato da borda
+            const floorY = 0.5; // Chão
+
+            // Tempos
+            const tParent = 1000; // Gen 1 é rápido
+            const tChildBase = 4000; // Gen 2 é mais lenta
+            
+            const cPar = '#9370DB'; // Roxo
+            const cChi = '#FFB6C1'; // Rosa
+
+            // 1. GEN 1 (PAIS) - Do céu até a borda exata
+            const spawnParent = (endX) => {
+                // X é 0 pois é relativo ao container que já está na posição rndX
+                const s = { x: 0, y: topY, z: 0 }, e = { x: endX, y: splitH, z: 0 };
+                const sS = `${s.x} ${s.y} ${s.z}`, eS = `${e.x} ${e.y} ${e.z}`;
+                
+                const p = $mk(ct, 'a-entity', {
+                    id: 'p' + uid++, geometry: 'primitive:sphere; radius:0.08', material: `shader:flat; color:${cPar}`,
+                    position: sS, visible: 'false',
+                    animation__v: `property:visible; to:true; dur:0; delay:0`,
+                    animation__m: `property:position; from:${sS}; to:${eS}; dur:${tParent}; easing:linear`,
+                    animation__h: `property:visible; to:false; dur:0; delay:${tParent}`
+                });
+                makeTail(ct, p, s, e, cPar, 1.2, 0, tParent);
+            };
+            
+            // O pai cai reto (offset 0)
+            spawnParent(0); 
+
+            // 2. GEN 2 (FILHOS) - Da borda para dentro
+            const spawnChild = (sX, eX) => {
+                const survive = Math.random() < 0.3;
+                
+                const fullDrop = splitH - floorY; 
+                const deathRatio = 0.3 + (Math.random() * 0.6); 
+                
+                let yEnd = survive ? floorY : splitH - (fullDrop * deathRatio);
+                yEnd = Math.max(yEnd, floorY); // Garante que não atravesse o chão
+                
+                const dur = survive ? tChildBase : tChildBase * deathRatio;
+                const ratioTraveled = (splitH - yEnd) / fullDrop;
+                
+                // Calcula dispersão lateral
+                const xEnd = sX + (eX - sX) * ratioTraveled;
+
+                const s = { x: sX, y: splitH, z: 0 }, e = { x: xEnd, y: yEnd, z: 0 };
+                const sS = `${s.x} ${s.y} ${s.z}`, eS = `${e.x} ${e.y} ${e.z}`;
+                
+                const startT = tParent;
+
+                const c = $mk(ct, 'a-entity', {
+                    id: 'c' + uid++, geometry: 'primitive:sphere; radius:0.05', material: `shader:flat; color:${cChi}`,
+                    position: sS, visible: 'false',
+                    animation__v: `property:visible; to:true; dur:0; delay:${startT}`,
+                    animation__m: `property:position; from:${sS}; to:${eS}; dur:${dur}; delay:${startT}; easing:linear`,
+                    animation__f: `property:scale; to:0 0 0; dur:150; delay:${startT + dur}`
+                });
+                
+                makeTail(ct, c, s, e, cChi, 0.8, startT, dur);
+            };
+
+            // Gera 2 filhos com leve abertura
+            spawnChild(0, -1.0); 
+            spawnChild(0, 1.0);
+
+            setTimeout(() => ct.parentNode && ct.parentNode.removeChild(ct), tParent + tChildBase + 2000);
+        };
+
+        const loop = () => {
+            // Intervalo um pouco mais rápido para preencher melhor a cena
+            const qtd = 1;
+            setTimeout(spawnEvent, Math.random() * 1000);
+        };
+        // Intervalo de criação de novos eventos
+        setInterval(loop, 2000);
+        window.onload = loop;
+    </script>
+</body>
+</html>

@@ -40,80 +40,27 @@
         
         .nav-box { position: absolute; top: 20px; right: 20px; padding: 15px; border-color: #bcacda; border-radius: 5px; text-align: center; }
         
-        .btn { border: none; padding: 8px 15px; border-radius: 3px; cursor: pointer; font-weight: bold; margin-bottom: 10px; }
+        .btn { border: none; padding: 8px 15px; border-radius: 3px; cursor: pointer; font-weight: bold; }
+        .btn + .btn { margin-left: 5px; }
         .btn-1 { background: #444; color: white; }
-        .btn-2 { background: #deb0fc; margin-left: 5px; }
+        .btn-2 { background: #deb0fc; color: black; }
         
         /* Container do Switch */
-        .toggle-container { border-top: 1px solid #555; padding-top: 15px; margin-top: 5px; display: flex; align-items: center; justify-content: center; }
+        .toggle-container { border-top: 1px solid #555; padding-top: 15px; margin-top: 15px; display: flex; align-items: center; justify-content: center; }
 
         /* O Switch em si */
-        .switch {
-            position: relative;
-            display: inline-block;
-            width: 50px;
-            height: 24px;
-            margin-right: 10px;
-        }
-
-        /* Esconde o checkbox original */
-        .switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
+        .switch { position: relative; display: inline-block; width: 50px; height: 24px; margin-right: 10px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
 
         /* O "trilho" do switch */
-        .slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #555; /* Cor quando desligado */
-            -webkit-transition: .4s;
-            transition: .4s;
-            border-radius: 24px; /* Arredondado */
-        }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #555; transition: .4s; border-radius: 24px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
 
-        /* A "bolinha" do switch */
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 18px;
-            width: 18px;
-            left: 3px;
-            bottom: 3px;
-            background-color: white;
-            -webkit-transition: .4s;
-            transition: .4s;
-            border-radius: 50%; /* Redondo */
-        }
-
-        /* Quando o checkbox está marcado */
-        input:checked + .slider {
-            background-color: #FFB6C1; /* Cor rosa quando ligado */
-        }
-
-        input:focus + .slider {
-            box-shadow: 0 0 1px #FFB6C1;
-        }
-
-        /* Move a bolinha quando marcado */
-        input:checked + .slider:before {
-            -webkit-transform: translateX(26px);
-            -ms-transform: translateX(26px);
-            transform: translateX(26px);
-        }
+        input:checked + .slider { background-color: #FFB6C1; }
+        input:focus + .slider { box-shadow: 0 0 1px #FFB6C1; }
+        input:checked + .slider:before { transform: translateX(26px); }
         
-        /* O texto ao lado do switch */
-        .toggle-label-text {
-            color: #FFB6C1;
-            font-weight: bold;
-            font-size: 14px;
-            cursor: pointer;
-        }
+        .toggle-label-text { color: #FFB6C1; font-weight: bold; font-size: 14px; cursor: pointer; }
 
         h2 { color: #FFB6C1; margin: 0 0 10px 0; text-shadow: 1px 1px 2px black; }
         p { font-size: 14px; line-height: 1.6; margin: 0; text-shadow: 1px 1px 2px black; text-align: justify; }
@@ -123,7 +70,7 @@
 <body>
     <div class="ui-layer">
         <div class="card info-box">
-            <h2>Decaimento Múon</h2>
+            <h2>Trajetória do Múon</h2>
             <p>
                 Os múons são partículas instáveis.
                 <br>1. Raio Solar (laranja)
@@ -138,6 +85,7 @@
             <div>
                 <button class="btn btn-1" onclick="location.href='index.html'">Cena 1</button>
                 <button class="btn btn-2" onclick="location.href='cena2.html'">Cena 2</button>
+                <button class="btn btn-1" onclick="location.href='cena3.html'">Cena 3</button>
             </div>
             
             <div class="toggle-container">
@@ -178,7 +126,6 @@
         });
 
         const P = AFRAME.utils.coordinates.parse;
-
         const $mk = (parent, tag, attrs) => {
             const el = document.createElement(tag);
             for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
@@ -188,26 +135,17 @@
 
         const makeTrace = (ct, sStr, eStr, col, dly, dur) => {
             if (!enableTrace) return;
-
             const s = P(sStr), e = P(eStr);
             const dist = Math.sqrt((e.x - s.x) ** 2 + (e.y - s.y) ** 2 + (e.z - s.z) ** 2);
-            
-            const dashLen = 0.3; 
-            const gapLen = 0.15; 
-            const step = dashLen + gapLen;
-            
+            const dashLen = 0.3, gapLen = 0.15, step = dashLen + gapLen;
             let count = Math.floor(dist / step);
             if (count === 0 && dist > 0.01) count = 1;
-
             const ang = -Math.atan2(e.x - s.x, e.y - s.y) * (180 / Math.PI);
-
             for (let i = 0; i < count; i++) {
                 const t = i / count; 
-                
                 const currX = s.x + (e.x - s.x) * t;
                 const currY = s.y + (e.y - s.y) * t;
                 const currZ = s.z + (e.z - s.z) * t;
-
                 $mk(ct, 'a-entity', {
                     geometry: `primitive: cylinder; radius: 0.02; height: ${dashLen}`,
                     material: `shader: flat; color: ${col}; opacity: 1.0`,
@@ -226,7 +164,6 @@
             const h = 1.2 * sc, off = h / 2;
             const len = Math.sqrt((eP.x - sP.x) ** 2 + (eP.y - sP.y) ** 2) || 1;
             const oX = -(eP.x - sP.x) / len * off, oY = -(eP.y - sP.y) / len * off;
-
             $mk(ct, 'a-entity', {
                 geometry: `primitive:cone; radiusBottom:${0.06 * sc}; radiusTop:0.0; height:${h}; openEnded:true`, 
                 material: `shader:grad; c:${col}; transparent:true; side:double; depthTest:false`, 
@@ -241,31 +178,18 @@
 
         const spawnEvent = () => {
             const scene = document.querySelector('#scene');
-
             const rndX = (Math.random() * 14) - 7; 
             const rndZ = (Math.random() * 8) - 4; 
-            const radiusSq = 81; 
-            const distSq = (rndX * rndX) + (rndZ * rndZ);
-            
+            const radiusSq = 81, distSq = (rndX * rndX) + (rndZ * rndZ);
             if (distSq >= radiusSq) return; 
-
             const collisionY = Math.sqrt(radiusSq - distSq) - 4;
             if (collisionY < 3.5) return; 
-
             const pos = `${rndX} 0 ${rndZ}`;
             const ct = $mk(scene, 'a-entity', { position: pos });
-
-            const topY = 20; 
-            const atmosY = collisionY; 
-            const splitH = atmosY - 1.5; 
-            const floorY = 0.5; 
-
+            const topY = 20, atmosY = collisionY, splitH = atmosY - 1.5, floorY = 0.5; 
             const tRay = 1500, tParent = 1500, tChildBase = 3000;
-            
             const cRay = '#FF4500', cPar = '#9370DB', cChi = '#FFB6C1';
-            
-            const sRay = `0 ${topY} -8`;   
-            const eRay = `0 ${atmosY} -8`; 
+            const sRay = `0 ${topY} -8`, eRay = `0 ${atmosY} -8`; 
 
             // 1. Raio Solar
             const rayId = 'r' + uid++;
@@ -297,22 +221,16 @@
             // 3. Filhos
             const spawnChild = (sX, eX) => {
                 const survive = Math.random() < 0.20;
-                
                 const fullDrop = splitH - floorY; 
                 const deathRatio = 0.3 + (Math.random() * 0.5); 
-                
                 let yEnd = survive ? floorY : splitH - (fullDrop * deathRatio);
                 yEnd = Math.max(yEnd, floorY);
-
                 const dur = survive ? tChildBase : tChildBase * deathRatio;
-                
                 const ratioTraveled = (splitH - yEnd) / fullDrop;
                 const xEnd = sX + (eX - sX) * ratioTraveled;
-
                 const s = { x: sX, y: splitH, z: -8 }, e = { x: xEnd, y: yEnd, z: -8 };
                 const sS = `${s.x} ${s.y} ${s.z}`, eS = `${e.x} ${e.y} ${e.z}`;
                 const startT = tRay + tParent;
-
                 const c = $mk(ct, 'a-entity', {
                     id: 'c' + uid++, geometry: 'primitive:sphere; radius:0.05', material: `shader:flat; color:${cChi}`,
                     position: sS, visible: 'false',
@@ -320,11 +238,9 @@
                     animation__m: `property:position; from:${sS}; to:${eS}; dur:${dur}; delay:${startT}; easing:linear`,
                     animation__f: `property:scale; to:0 0 0; dur:150; delay:${startT + dur}`
                 });
-                
                 makeTail(ct, c, s, e, cChi, 0.8, startT, dur);
                 makeTrace(ct, sS, eS, cChi, startT, dur);
             };
-
             spawnChild(-2.5, -3.5); spawnChild(-2.5, -1.5);
             spawnChild(2.5, 1.5); spawnChild(2.5, 3.5);
 

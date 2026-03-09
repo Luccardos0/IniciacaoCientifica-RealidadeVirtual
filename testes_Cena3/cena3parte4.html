@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Cena 3 - Largura Expandida</title>
+    <title>Cena 3 - Sobrevivência 30% Corrigida</title>
     <meta charset="utf-8">
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
 
@@ -48,7 +48,7 @@
             </div>
             <div class="control-group">
                 <label>Qtd. Múons por Ciclo: <span id="valQty">3</span></label>
-                <input type="range" id="inputQty" min="1" max="15" value="3" oninput="document.getElementById('valQty').innerText = this.value">
+                <input type="range" id="inputQty" min="1" max="10" value="3" oninput="document.getElementById('valQty').innerText = this.value">
             </div>
         </div>
         
@@ -133,10 +133,8 @@
 
             for(let i = 0; i < qty; i++) {
                 setTimeout(() => {
-                    // LARGURA EXPANDIDA (X maior) e FRENTE MANTIDA (Z negativo)
-                    const rndX = (Math.random() * 60) - 30; // De -30 a 30 metros de largura
-                    const rndZ = -(Math.random() * 15 + 5); // Entre 5 e 20 metros à frente
-                    
+                    const rndX = (Math.random() * 20) - 10;
+                    const rndZ = -(Math.random() * 10 + 5); 
                     const pos = `${rndX} 0 ${rndZ}`;
                     const ct = $mk(scene, 'a-entity', { position: pos });
                     
@@ -154,7 +152,7 @@
                     makeTail(ct, ray, `0 ${topY} 0`, `0 ${atmosY} 0`, cRay, 1, 0, tRay);
                     makeTrace(ct, `0 ${topY} 0`, `0 ${atmosY} 0`, cRay, 0, tRay);
 
-                    // Decaimentos (Lógica 30% mantida)
+                    // Decaimentos (Roxo -> Rosa -> Azul)
                     setTimeout(() => {
                         const spawnParent = (endX) => {
                             const sS = `0 ${atmosY} 0`, eS = `${endX} ${splitH} 0`;
@@ -168,8 +166,9 @@
 
                             setTimeout(() => {
                                 const spawnGen2 = (side) => {
-                                    const survives = Math.random() <= 0.3;
-                                    const targetY = survives ? floorY : splitH * 0.4;
+                                    // LÓGICA DE 30%: Se não sortear, o destino Y muda para cima do mar
+                                    const survives = Math.random() <= 0.2;
+                                    const targetY = survives ? floorY : splitH * 0.4; // 30% atingem floorY, os outros param no ar
                                     const actualDur = survives ? tChild : tChild * 0.6;
 
                                     const s2 = `${endX} ${splitH} 0`, e2 = `${endX + side} ${targetY} 0`;
@@ -178,6 +177,7 @@
                                         id: cId, geometry: 'primitive:sphere; radius:0.05', material: `shader:flat; color:${cGen2}`,
                                         position: s2, 
                                         animation: `property:position; to:${e2}; dur:${actualDur}; easing:linear`,
+                                        // Sumir ao final da queda
                                         animation__scale: `property:scale; to:0 0 0; dur:200; delay:${actualDur - 200}`
                                     });
                                     makeTail(ct, c, s2, e2, cGen2, 0.8, 0, actualDur);

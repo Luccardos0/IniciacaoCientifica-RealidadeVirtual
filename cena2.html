@@ -247,11 +247,16 @@
             setTimeout(() => ct.parentNode && ct.parentNode.removeChild(ct), tRay + tParent + tChildBase + 2000);
         };
 
-        const loop = () => {
-            const qtd = 2 + Math.floor(Math.random() * 3);
-            for (let i = 0; i < qtd; i++) setTimeout(spawnEvent, Math.random() * 2000);
+      const loop = () => {
+            // AUMENTADO: Agora cria de 5 a 10 eventos simultâneos (antes era 2 a 4)
+            const qtd = 3 + Math.floor(Math.random() * 5);
+            
+            // Distribui os disparos em um intervalo de 3 segundos para não travar o navegador
+            for (let i = 0; i < qtd; i++) setTimeout(spawnEvent, Math.random() * 3000);
         };
-        setInterval(loop, 6000);
+
+        // AUMENTADO: O ciclo agora se repete a cada 4 segundos (antes era 6)
+        setInterval(loop, 4000);
         window.onload = loop;
     </script>
 </body>

@@ -3,80 +3,20 @@
 <head>
     <title>Cena 2 - Switch Moderno</title>
     <meta charset="utf-8">
+    <link rel="stylesheet" href="css/ui-style.css">
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
-
-    <script>
-        AFRAME.registerComponent('dt', {
-            schema: { target: { type: 'string' }, speed: { type: 'number', default: 0.3 }, off: { type: 'vec3' } },
-            init: function () { this.v = new THREE.Vector3(); },
-            tick: function () {
-                if (!this.elT) { this.elT = document.querySelector('#' + this.data.target); return; }
-                this.v.copy(this.elT.object3D.position).add(this.data.off);
-                this.el.object3D.position.lerp(this.v, this.data.speed);
-            }
-        });
-
-        AFRAME.registerShader('grad', {
-            schema: { c: { type: 'color', is: 'uniform' } },
-            vertexShader: `
-                varying vec2 v; 
-                void main(){
-                    v = uv; 
-                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-                }`,
-            fragmentShader: `
-                varying vec2 v; 
-                uniform vec3 c; 
-                void main(){ 
-                    gl_FragColor = vec4(c, 1.0 - v.y); 
-                }`
-        });
-    </script>
-
-    <style>
-        .ui-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; font-family: sans-serif; color: white; }
-        .card { background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px); border: 1px solid; border-radius: 12px; pointer-events: auto; }
-        .info-box { position: absolute; top: 20px; left: 20px; width: 320px; padding: 20px; border-color: #FFB6C1; }
-        
-        .nav-box { position: absolute; top: 20px; right: 20px; padding: 15px; border-color: #bcacda; border-radius: 5px; text-align: center; }
-        
-        .btn { border: none; padding: 8px 15px; border-radius: 3px; cursor: pointer; font-weight: bold; }
-        .btn + .btn { margin-left: 5px; }
-        .btn-1 { background: #444; color: white; }
-        .btn-2 { background: #deb0fc; color: black; }
-        
-        /* Container do Switch */
-        .toggle-container { border-top: 1px solid #555; padding-top: 15px; margin-top: 15px; display: flex; align-items: center; justify-content: center; }
-
-        /* O Switch em si */
-        .switch { position: relative; display: inline-block; width: 50px; height: 24px; margin-right: 10px; }
-        .switch input { opacity: 0; width: 0; height: 0; }
-
-        /* O "trilho" do switch */
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #555; transition: .4s; border-radius: 24px; }
-        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
-
-        input:checked + .slider { background-color: #FFB6C1; }
-        input:focus + .slider { box-shadow: 0 0 1px #FFB6C1; }
-        input:checked + .slider:before { transform: translateX(26px); }
-        
-        .toggle-label-text { color: #FFB6C1; font-weight: bold; font-size: 14px; cursor: pointer; }
-
-        h2 { color: #FFB6C1; margin: 0 0 10px 0; text-shadow: 1px 1px 2px black; }
-        p { font-size: 14px; line-height: 1.6; margin: 0; text-shadow: 1px 1px 2px black; text-align: justify; }
-    </style>
+    <script src="js/aframe-components.js"></script>
+    <script src="js/muon-simulation.js"></script>
 </head>
-
 <body>
     <div class="ui-layer">
-        <div class="card info-box">
-            <h2>Trajetória do Múon</h2>
+        <div class="card info-box cena2">
+            <h2 class="cena2">Trajetória do Múon</h2>
             <p>
-                Os múons são partículas instáveis.
-                <br>1. Raio Solar (laranja)
-                <br>2. 1ª Geração (roxo)
-                <br>3. 2ª Geração (rosa suave)
-                <br><br>
+                Os múons são partículas instáveis.<br>
+                1. Raio Solar (laranja)<br>
+                2. 1ª Geração (roxo)<br>
+                3. 2ª Geração (rosa suave)<br><br>
                 Use o botão switch à direita para ligar ou desligar a visualização da trajetória tracejada.
             </p>
         </div>
@@ -84,7 +24,7 @@
         <div class="card nav-box">
             <div>
                 <button class="btn btn-1" onclick="location.href='index.html'">Cena 1</button>
-                <button class="btn btn-2" onclick="location.href='cena2.html'">Cena 2</button>
+                <button class="btn btn-2 cena2" onclick="location.href='cena2.html'">Cena 2</button>
                 <button class="btn btn-1" onclick="location.href='cena3.html'">Cena 3</button>
             </div>
             
@@ -98,16 +38,69 @@
         </div>
     </div>
 
-    <a-scene id="scene" shadow="type: pcfsoft">
+    <a-scene id="sceneCena2" shadow="type: pcfsoft">
         <a-assets>
             <img id="imSun" src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Map_of_the_full_sun.jpg/1280px-Map_of_the_full_sun.jpg">
             <img id="imEarth" src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Blue_Marble_2002.png/1280px-Blue_Marble_2002.png">
             <img id="imSky" src="https://jocoteles.github.io/Minicurso-A-Frame-VR/TychoSkymap.t4_04096x02048.jpg">
         </a-assets>
 
+        <a-entity id="rig" position="0 0 0">
+            <a-camera look-controls wasd-controls position="0 1.6 0">
+                <a-cursor raycaster="objects: .raycastable" material="color: #FF00FF; shader: flat" position="0 0 -1" geometry="primitive: ring; radiusInner: 0.01; radiusOuter: 0.015"></a-cursor>
+            </a-camera>
+            <a-entity cursor="rayOrigin: mouse" raycaster="objects: .raycastable"></a-entity>
+            <a-entity laser-controls="hand: left" raycaster="objects: .raycastable; far: 5"></a-entity>
+            <a-entity laser-controls="hand: right" raycaster="objects: .raycastable; far: 5"></a-entity>
+        </a-entity>
+
+        <a-entity position="0 0.6 -1.4" rotation="-35 0 0" scale="1.3 1.3 1.3">
+            
+            <a-box position="0 0 0" width="1.8" height="1.0" depth="0.12" material="color: #1e1e24; roughness: 0.9"></a-box>
+            <a-plane position="0 0 0.061" width="1.76" height="0.96" material="color: #0f0f14; shader: flat"></a-plane>
+            <a-plane position="0 0 0.062" width="1.74" height="0.94" material="color: #3f444a; wireframe: true; opacity: 0.4"></a-plane>
+
+            <a-entity position="0 0 0.063" painel-explicativo="cenaAtual: 2">
+                
+                <a-plane position="0 0.08 0.001" width="1.15" height="0.65" material="color: #07070a; shader: flat"></a-plane>
+                <a-plane position="0 0.08 0.000" width="1.16" height="0.66" material="color: #58a6ff; opacity: 0.25; shader: flat"></a-plane>
+
+                <a-entity class="texto-conteudo" position="-0.5 0.35 0.003"
+                          text="value: Carregando...; color: #e6edf3; width: 1.05; font: kelson; wrapCount: 42; anchor: left; baseline: top; align: justify"></a-entity>
+
+                <a-triangle class="btn-cena-anterior raycastable" position="-0.2 -0.4 0.02" rotation="0 0 90" 
+            vertex-a="0 0.08 0" vertex-b="-0.07 -0.04 0" vertex-c="0.07 -0.04 0" 
+            material="color: #FFB6C1; shader: flat; side: double"
+            animation__mouseenter="property: material.color; to: #ff6b8b; dur: 100; startEvents: mouseenter"
+            animation__mouseleave="property: material.color; to: #FFB6C1; dur: 100; startEvents: mouseleave">
+</a-triangle>
+
+<a-triangle class="btn-cena-proxima raycastable" position="0.2 -0.4 0.02" rotation="0 0 -90" 
+            vertex-a="0 0.08 0" vertex-b="-0.07 -0.04 0" vertex-c="0.07 -0.04 0" 
+            material="color: #FFB6C1; shader: flat; side: double"
+            animation__mouseenter="property: material.color; to: #ff6b8b; dur: 100; startEvents: mouseenter"
+            animation__mouseleave="property: material.color; to: #FFB6C1; dur: 100; startEvents: mouseleave">
+</a-triangle>
+
+<a-triangle class="btn-voltar-texto raycastable" position="-0.75 0.08 0.02" rotation="0 0 90" 
+            vertex-a="0 0.06 0" vertex-b="-0.05 -0.03 0" vertex-c="0.05 -0.03 0" 
+            material="color: #58a6ff; shader: flat; side: double"
+            animation__mouseenter="property: material.color; to: #1f6feb; dur: 100; startEvents: mouseenter"
+            animation__mouseleave="property: material.color; to: #58a6ff; dur: 100; startEvents: mouseleave">
+</a-triangle>
+
+<a-triangle class="btn-avancar-texto raycastable" position="0.75 0.08 0.02" rotation="0 0 -90" 
+            vertex-a="0 0.06 0" vertex-b="-0.05 -0.03 0" vertex-c="0.05 -0.03 0" 
+            material="color: #58a6ff; shader: flat; side: double"
+            animation__mouseenter="property: material.color; to: #1f6feb; dur: 100; startEvents: mouseenter"
+            animation__mouseleave="property: material.color; to: #58a6ff; dur: 100; startEvents: mouseleave">
+</a-triangle>
+
+            </a-entity>
+        </a-entity>
+
         <a-sky src="#imSky" rotation="0 -90 0"></a-sky>
         <a-entity light="type: ambient; color: #444"></a-entity>
-        
         <a-entity light="type: directional; color: #FFF; intensity: 1.5; castShadow: true" position="0 20 -8"></a-entity>
         <a-sphere position="0 25 -8" src="#imSun" radius="5" light="type: point; intensity: 2; distance: 50" material="shader: flat"></a-sphere>
 
@@ -116,148 +109,5 @@
             <a-sphere radius="9" material="color: #87CEEB; opacity: 0.15; transparent: true; side: back; blending: additive"></a-sphere>
         </a-entity>
     </a-scene>
-
-    <script>
-        let uid = 0;
-        let enableTrace = true; 
-
-        document.getElementById('chkTrace').addEventListener('change', (e) => {
-            enableTrace = e.target.checked;
-        });
-
-        const P = AFRAME.utils.coordinates.parse;
-        const $mk = (parent, tag, attrs) => {
-            const el = document.createElement(tag);
-            for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
-            parent.appendChild(el);
-            return el;
-        };
-
-        const makeTrace = (ct, sStr, eStr, col, dly, dur) => {
-            if (!enableTrace) return;
-            const s = P(sStr), e = P(eStr);
-            const dist = Math.sqrt((e.x - s.x) ** 2 + (e.y - s.y) ** 2 + (e.z - s.z) ** 2);
-            const dashLen = 0.3, gapLen = 0.15, step = dashLen + gapLen;
-            let count = Math.floor(dist / step);
-            if (count === 0 && dist > 0.01) count = 1;
-            const ang = -Math.atan2(e.x - s.x, e.y - s.y) * (180 / Math.PI);
-            for (let i = 0; i < count; i++) {
-                const t = i / count; 
-                const currX = s.x + (e.x - s.x) * t;
-                const currY = s.y + (e.y - s.y) * t;
-                const currZ = s.z + (e.z - s.z) * t;
-                $mk(ct, 'a-entity', {
-                    geometry: `primitive: cylinder; radius: 0.02; height: ${dashLen}`,
-                    material: `shader: flat; color: ${col}; opacity: 1.0`,
-                    position: `${currX} ${currY} ${currZ}`,
-                    rotation: `0 0 ${ang}`,
-                    visible: 'false',
-                    animation__v: `property: visible; from: false; to: true; dur: 0; delay: ${dly + (dur * t)}`
-                });
-            }
-        };
-
-        const makeTail = (ct, lead, s, e, col, sc, dly, dur) => {
-            const sP = typeof s === 'string' ? P(s) : s;
-            const eP = typeof e === 'string' ? P(e) : e;
-            const ang = -Math.atan2(eP.x - sP.x, eP.y - sP.y) * (180 / Math.PI) + 180;
-            const h = 1.2 * sc, off = h / 2;
-            const len = Math.sqrt((eP.x - sP.x) ** 2 + (eP.y - sP.y) ** 2) || 1;
-            const oX = -(eP.x - sP.x) / len * off, oY = -(eP.y - sP.y) / len * off;
-            $mk(ct, 'a-entity', {
-                geometry: `primitive:cone; radiusBottom:${0.06 * sc}; radiusTop:0.0; height:${h}; openEnded:true`, 
-                material: `shader:grad; c:${col}; transparent:true; side:double; depthTest:false`, 
-                position: `${sP.x + oX} ${sP.y + oY} ${sP.z}`, rotation: `0 0 ${ang}`,
-                dt: `target:${lead.id}; speed:0.6; off:${oX} ${oY} 0`,
-                visible: 'false', scale: '0 0 0',
-                animation__v: `property:visible; from:false; to:true; dur:0; delay:${dly}`,
-                animation__g: `property:scale; to:1 1 1; dur:300; delay:${dly}; easing:easeOutQuad`,
-                animation__s: `property:scale; to:0 0 0; dur:300; delay:${dly + dur - 100}`
-            });
-        };
-
-        const spawnEvent = () => {
-            const scene = document.querySelector('#scene');
-            const rndX = (Math.random() * 14) - 7; 
-            const rndZ = (Math.random() * 8) - 4; 
-            const radiusSq = 81, distSq = (rndX * rndX) + (rndZ * rndZ);
-            if (distSq >= radiusSq) return; 
-            const collisionY = Math.sqrt(radiusSq - distSq) - 4;
-            if (collisionY < 3.5) return; 
-            const pos = `${rndX} 0 ${rndZ}`;
-            const ct = $mk(scene, 'a-entity', { position: pos });
-            const topY = 20, atmosY = collisionY, splitH = atmosY - 1.5, floorY = 0.5; 
-            const tRay = 1500, tParent = 1500, tChildBase = 3000;
-            const cRay = '#FF4500', cPar = '#9370DB', cChi = '#FFB6C1';
-            const sRay = `0 ${topY} -8`, eRay = `0 ${atmosY} -8`; 
-
-            // 1. Raio Solar
-            const rayId = 'r' + uid++;
-            const ray = $mk(ct, 'a-entity', {
-                id: rayId, geometry: 'primitive:sphere; radius:0.06', material: `shader:flat; color:${cRay}`,
-                position: sRay,
-                animation__mv: `property:position; from:${sRay}; to:${eRay}; dur:${tRay}; easing:linear`,
-                animation__hd: `property:visible; from:true; to:false; dur:0; delay:${tRay}`
-            });
-            makeTail(ct, ray, sRay, eRay, cRay, 1, 0, tRay);
-            makeTrace(ct, sRay, eRay, cRay, 0, tRay);
-
-            // 2. Pais
-            const spawnParent = (endX, side) => {
-                const s = { x: side, y: atmosY, z: -8 }, e = { x: endX, y: splitH, z: -8 };
-                const sS = `${s.x} ${s.y} ${s.z}`, eS = `${e.x} ${e.y} ${e.z}`;
-                const p = $mk(ct, 'a-entity', {
-                    id: 'p' + uid++, geometry: 'primitive:sphere; radius:0.08', material: `shader:flat; color:${cPar}`,
-                    position: sS, visible: 'false',
-                    animation__v: `property:visible; to:true; dur:0; delay:${tRay}`,
-                    animation__m: `property:position; from:${sS}; to:${eS}; dur:${tParent}; delay:${tRay}; easing:linear`,
-                    animation__h: `property:visible; to:false; dur:0; delay:${tRay + tParent}`
-                });
-                makeTail(ct, p, s, e, cPar, 1.2, tRay, tParent);
-                makeTrace(ct, sS, eS, cPar, tRay, tParent);
-            };
-            spawnParent(-2.5, -0.3); spawnParent(2.5, 0.3);
-
-            // 3. Filhos
-            const spawnChild = (sX, eX) => {
-                const survive = Math.random() < 0.20;
-                const fullDrop = splitH - floorY; 
-                const deathRatio = 0.3 + (Math.random() * 0.5); 
-                let yEnd = survive ? floorY : splitH - (fullDrop * deathRatio);
-                yEnd = Math.max(yEnd, floorY);
-                const dur = survive ? tChildBase : tChildBase * deathRatio;
-                const ratioTraveled = (splitH - yEnd) / fullDrop;
-                const xEnd = sX + (eX - sX) * ratioTraveled;
-                const s = { x: sX, y: splitH, z: -8 }, e = { x: xEnd, y: yEnd, z: -8 };
-                const sS = `${s.x} ${s.y} ${s.z}`, eS = `${e.x} ${e.y} ${e.z}`;
-                const startT = tRay + tParent;
-                const c = $mk(ct, 'a-entity', {
-                    id: 'c' + uid++, geometry: 'primitive:sphere; radius:0.05', material: `shader:flat; color:${cChi}`,
-                    position: sS, visible: 'false',
-                    animation__v: `property:visible; to:true; dur:0; delay:${startT}`,
-                    animation__m: `property:position; from:${sS}; to:${eS}; dur:${dur}; delay:${startT}; easing:linear`,
-                    animation__f: `property:scale; to:0 0 0; dur:150; delay:${startT + dur}`
-                });
-                makeTail(ct, c, s, e, cChi, 0.8, startT, dur);
-                makeTrace(ct, sS, eS, cChi, startT, dur);
-            };
-            spawnChild(-2.5, -3.5); spawnChild(-2.5, -1.5);
-            spawnChild(2.5, 1.5); spawnChild(2.5, 3.5);
-
-            setTimeout(() => ct.parentNode && ct.parentNode.removeChild(ct), tRay + tParent + tChildBase + 2000);
-        };
-
-      const loop = () => {
-            // AUMENTADO: Agora cria de 5 a 10 eventos simultâneos (antes era 2 a 4)
-            const qtd = 3 + Math.floor(Math.random() * 5);
-            
-            // Distribui os disparos em um intervalo de 3 segundos para não travar o navegador
-            for (let i = 0; i < qtd; i++) setTimeout(spawnEvent, Math.random() * 3000);
-        };
-
-        // AUMENTADO: O ciclo agora se repete a cada 4 segundos (antes era 6)
-        setInterval(loop, 4000);
-        window.onload = loop;
-    </script>
 </body>
 </html>

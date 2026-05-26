@@ -3,58 +3,17 @@
 <head>
     <title>Cena 1 - Ordem Aleatória</title>
     <meta charset="utf-8">
+    <link rel="stylesheet" href="css/ui-style.css">
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
-
-    <script>
-        AFRAME.registerComponent('dynamic-trail', {
-            schema: {
-                targetId: { type: 'string' },
-                lerpSpeed: { type: 'number', default: 0.5 },
-                offset: { type: 'vec3', default: { x: 0, y: 0, z: 0 } }
-            },
-            init: function () {
-                this.targetElement = null;
-                this.targetPos = new THREE.Vector3();
-            },
-            tick: function (time, timeDelta) {
-                if (!this.targetElement) {
-                    this.targetElement = document.querySelector('#' + this.data.targetId);
-                    return;
-                }
-                this.targetElement.object3D.getWorldPosition(this.targetPos);
-                this.targetPos.add(this.data.offset);
-                this.el.object3D.position.lerp(this.targetPos, this.data.lerpSpeed);
-            }
-        });
-    </script>
-
-    <style>
-        .ui-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; font-family: sans-serif; color: white; }
-        .card { background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px); border: 1px solid; border-radius: 12px; pointer-events: auto; }
-        .info-box { position: absolute; top: 20px; left: 20px; width: 320px; padding: 20px; border-color: #deb0fc; }
-        .nav-box { position: absolute; top: 20px; right: 20px; padding: 15px; border-color: #bcacda; border-radius: 5px; text-align: center; }
-        
-        .btn { border: none; padding: 8px 15px; border-radius: 3px; cursor: pointer; font-weight: bold; }
-        .btn + .btn { margin-left: 5px; }
-        .btn-1 { background: #444; color: white; }
-        .btn-2 { background: #deb0fc; color: black; }
-
-        h2 { color: #deb0fc; margin: 0 0 10px 0; text-shadow: 1px 1px 2px black; }
-        p { font-size: 14px; line-height: 1.6; margin: 0; text-shadow: 1px 1px 2px black; text-align: justify; }
-        
-        .legenda-item { display: flex; align-items: center; margin-top: 5px; }
-        .dot { width: 15px; height: 15px; border-radius: 50%; margin-right: 10px; }
-    </style>
+    <script src="js/aframe-components.js"></script>
+    <script src="js/muon-simulation.js"></script>
 </head>
-
 <body>
 
     <div class="ui-layer">
-        <div class="card info-box">
-            <h2>Relatividade Restrita</h2>
-            <p>
-                Os raios cósmicos viajam do Sol até a Terra. Ao colidirem com a alta atmosfera, transformam-se em <b>Múons</b>, que caem em alta velocidade.
-            </p>
+        <div class="card info-box cena1">
+            <h2 class="cena1">Relatividade Restrita</h2>
+            <p>Os raios cósmicos viajam do Sol até a Terra. Ao colidirem com a alta atmosfera, transformam-se em <b>Múons</b>, que caem em alta velocidade.</p>
             <hr style="border-color: rgba(255,255,255,0.2); margin: 15px 0;">
             <h3 style="margin: 0 0 10px 0; font-size: 16px; color: white;">Legenda</h3>
             <div class="legenda-item">
@@ -68,27 +27,74 @@
         </div>
 
         <div class="card nav-box">
-            <div>
-                <button class="btn btn-2" onclick="location.href='index.html'">Cena 1</button>
-                <button class="btn btn-1" onclick="location.href='cena2.html'">Cena 2</button>
-                <button class="btn btn-1" onclick="location.href='cena3.html'">Cena 3</button>
-            </div>
+            <button class="btn btn-2 cena1" onclick="location.href='index.html'">Cena 1</button>
+            <button class="btn btn-1" onclick="location.href='cena2.html'">Cena 2</button>
+            <button class="btn btn-1" onclick="location.href='cena3.html'">Cena 3</button>
         </div>
     </div>
 
-    <a-scene shadow="type: pcfsoft" id="scene">
+    <a-scene shadow="type: pcfsoft" id="sceneCena1">
         <a-assets>
             <img id="mapa_sol" src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/Map_of_the_full_sun.jpg/1280px-Map_of_the_full_sun.jpg">
             <img id="mapa_terra" src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Blue_Marble_2002.png/1280px-Blue_Marble_2002.png">
             <img id="skymap" src="https://jocoteles.github.io/Minicurso-A-Frame-VR/TychoSkymap.t4_04096x02048.jpg">
         </a-assets>
 
-        <a-entity position="0 1.6 -5">
-            <a-camera look-controls wasd-controls></a-camera>
+        <a-entity id="rig" position="0 0 0">
+            <a-camera look-controls wasd-controls position="0 1.6 0">
+                <a-cursor raycaster="objects: .raycastable" material="color: #FF00FF; shader: flat" position="0 0 -1" geometry="primitive: ring; radiusInner: 0.01; radiusOuter: 0.015"></a-cursor>
+            </a-camera>
+            <a-entity cursor="rayOrigin: mouse" raycaster="objects: .raycastable"></a-entity>
+            <a-entity laser-controls="hand: left" raycaster="objects: .raycastable; far: 5"></a-entity>
+            <a-entity laser-controls="hand: right" raycaster="objects: .raycastable; far: 5"></a-entity>
+        </a-entity>
+
+        <a-entity position="0 0.6 -1.4" rotation="-35 0 0" scale="1.3 1.3 1.3">
+            
+            <a-box position="0 0 0" width="1.8" height="1.0" depth="0.12" material="color: #1e1e24; roughness: 0.9"></a-box>
+            <a-plane position="0 0 0.061" width="1.76" height="0.96" material="color: #0f0f14; shader: flat"></a-plane>
+            <a-plane position="0 0 0.062" width="1.74" height="0.94" material="color: #3f444a; wireframe: true; opacity: 0.4"></a-plane>
+
+            <a-entity position="0 0 0.063" painel-explicativo="cenaAtual: 1">
+                
+                <a-plane position="0 0.08 0.001" width="1.15" height="0.65" material="color: #07070a; shader: flat"></a-plane>
+                <a-plane position="0 0.08 0.000" width="1.16" height="0.66" material="color: #58a6ff; opacity: 0.25; shader: flat"></a-plane>
+
+                <a-entity class="texto-conteudo" position="-0.5 0.35 0.003"
+                          text="value: Carregando...; color: #e6edf3; width: 1.05; font: kelson; wrapCount: 42; anchor: left; baseline: top; align: justify"></a-entity>
+
+                <a-triangle class="btn-cena-anterior raycastable" position="-0.2 -0.4 0.02" rotation="0 0 90" 
+            vertex-a="0 0.08 0" vertex-b="-0.07 -0.04 0" vertex-c="0.07 -0.04 0" 
+            material="color: #FFB6C1; shader: flat; side: double"
+            animation__mouseenter="property: material.color; to: #ff6b8b; dur: 100; startEvents: mouseenter"
+            animation__mouseleave="property: material.color; to: #FFB6C1; dur: 100; startEvents: mouseleave">
+</a-triangle>
+
+<a-triangle class="btn-cena-proxima raycastable" position="0.2 -0.4 0.02" rotation="0 0 -90" 
+            vertex-a="0 0.08 0" vertex-b="-0.07 -0.04 0" vertex-c="0.07 -0.04 0" 
+            material="color: #FFB6C1; shader: flat; side: double"
+            animation__mouseenter="property: material.color; to: #ff6b8b; dur: 100; startEvents: mouseenter"
+            animation__mouseleave="property: material.color; to: #FFB6C1; dur: 100; startEvents: mouseleave">
+</a-triangle>
+
+<a-triangle class="btn-voltar-texto raycastable" position="-0.75 0.08 0.02" rotation="0 0 90" 
+            vertex-a="0 0.06 0" vertex-b="-0.05 -0.03 0" vertex-c="0.05 -0.03 0" 
+            material="color: #58a6ff; shader: flat; side: double"
+            animation__mouseenter="property: material.color; to: #1f6feb; dur: 100; startEvents: mouseenter"
+            animation__mouseleave="property: material.color; to: #58a6ff; dur: 100; startEvents: mouseleave">
+</a-triangle>
+
+<a-triangle class="btn-avancar-texto raycastable" position="0.75 0.08 0.02" rotation="0 0 -90" 
+            vertex-a="0 0.06 0" vertex-b="-0.05 -0.03 0" vertex-c="0.05 -0.03 0" 
+            material="color: #58a6ff; shader: flat; side: double"
+            animation__mouseenter="property: material.color; to: #1f6feb; dur: 100; startEvents: mouseenter"
+            animation__mouseleave="property: material.color; to: #58a6ff; dur: 100; startEvents: mouseleave">
+</a-triangle>
+
+            </a-entity>
         </a-entity>
 
         <a-sky src="#skymap" rotation="0 -90 0"></a-sky>
-
         <a-entity light="type: ambient; color: #BBB; intensity: 0.3"></a-entity>
         <a-entity light="type: directional; color: #FFF; intensity: 1.5; castShadow: true" position="15 5 -10" target="#terra"></a-entity>
 
@@ -100,100 +106,11 @@
         </a-entity>
 
         <a-entity position="-20 0 -25" rotation="0 0 23.4">
-            <a-entity id="terra" geometry="primitive: sphere; radius: 6"
-                material="src: #mapa_terra; roughness: 0.8"
-                animation="property: rotation; to: 0 360 0; loop: true; dur: 60000; easing: linear"
-                shadow="receive: true; cast: true">
+            <a-entity id="terra" geometry="primitive: sphere; radius: 6" material="src: #mapa_terra; roughness: 0.8"
+                animation="property: rotation; to: 0 360 0; loop: true; dur: 60000; easing: linear" shadow="receive: true; cast: true">
             </a-entity>
-            <a-entity id="atmosfera" geometry="primitive: sphere; radius: 9.0"
-                material="color: #87CEEB; opacity: 0.15; transparent: true; side: front; blending: additive">
-            </a-entity>
+            <a-entity id="atmosfera" geometry="primitive: sphere; radius: 9.0" material="color: #87CEEB; opacity: 0.15; transparent: true; side: front; blending: additive"></a-entity>
         </a-entity>
     </a-scene>
-
-    <script>
-        const scene = document.querySelector('#scene');
-        let particleId = 0;
-        const baseStart = { x: 15, y: 5, z: -25 };
-        const baseAtmos = { x: -11, y: 2, z: -25 };
-        const baseGround = { x: -15, y: 0.5, z: -25 };
-
-        function spawnSingleRay(posicao) {
-            particleId++;
-            const id = particleId;
-            const container = document.createElement('a-entity');
-            scene.appendChild(container);
-
-            const sunYOffset = posicao * 2.0; 
-            const earthYOffset = posicao * 4.0;
-            const start = { x: baseStart.x, y: baseStart.y + sunYOffset, z: baseStart.z };
-            const atmos = { x: baseAtmos.x, y: baseAtmos.y + earthYOffset * 0.85, z: baseAtmos.z };
-            const ground = { x: baseGround.x, y: baseGround.y + earthYOffset, z: baseGround.z };
-
-            const colorRay = '#FF4500'; 
-            const colorMuon = '#9370DB'; 
-
-            // FASE 1: RAIO SOLAR
-            const rayHead = document.createElement('a-entity');
-            rayHead.setAttribute('id', `ray-head-${id}`);
-            rayHead.setAttribute('geometry', 'primitive: sphere; radius: 0.15');
-            rayHead.setAttribute('material', `shader: flat; color: ${colorRay}`);
-            rayHead.setAttribute('position', `${start.x} ${start.y} ${start.z}`);
-            
-            const durationRay = 2000;
-            
-            rayHead.setAttribute('animation__move', `property: position; from: ${start.x} ${start.y} ${start.z}; to: ${atmos.x} ${atmos.y} ${atmos.z}; dur: ${durationRay}; easing: linear`);
-            rayHead.setAttribute('animation__hide', `property: visible; from: true; to: false; dur: 0; delay: ${durationRay}`);
-            container.appendChild(rayHead);
-
-            const rayTail = document.createElement('a-entity');
-            rayTail.setAttribute('geometry', 'primitive: cone; radiusBottom: 0.15; radiusTop: 0.01; height: 3.0; openEnded: false');
-            rayTail.setAttribute('material', `shader: flat; color: ${colorRay}; opacity: 0.8; transparent: true`);
-            rayTail.setAttribute('rotation', '0 0 -84'); 
-            rayTail.setAttribute('dynamic-trail', `targetId: ray-head-${id}; lerpSpeed: 0.9; offset: 1.48 0.15 0`);
-            rayTail.setAttribute('animation__hide', `property: visible; from: true; to: false; dur: 0; delay: ${durationRay}`);
-            container.appendChild(rayTail);
-
-            // FASE 2: MÚON
-            setTimeout(() => {
-                const muonHead = document.createElement('a-entity');
-                muonHead.setAttribute('id', `muon-head-${id}`);
-                muonHead.setAttribute('geometry', 'primitive: sphere; radius: 0.15');
-                muonHead.setAttribute('material', `color: ${colorMuon}; emissive: ${colorMuon}; emissiveIntensity: 1.5`);
-                muonHead.setAttribute('position', `${atmos.x} ${atmos.y} ${atmos.z}`);
-                
-                const durationFall = 1200;
-                
-                muonHead.setAttribute('animation__fall', `property: position; from: ${atmos.x} ${atmos.y} ${atmos.z}; to: ${ground.x} ${ground.y} ${ground.z}; dur: ${durationFall}; easing: linear`);
-                muonHead.setAttribute('animation__die', `property: scale; to: 0 0 0; dur: 100; delay: ${durationFall}`);
-                container.appendChild(muonHead);
-
-                const muonTail = document.createElement('a-entity');
-                muonTail.setAttribute('geometry', 'primitive: cone; radiusBottom: 0.15; radiusTop: 0.0; height: 1.5; openEnded: false');
-                muonTail.setAttribute('material', `color: ${colorMuon}; opacity: 0.8; transparent: true`);
-                muonTail.setAttribute('rotation', '0 0 -67'); 
-                muonTail.setAttribute('dynamic-trail', `targetId: muon-head-${id}; lerpSpeed: 0.9; offset: 0.65 0.28 0`);
-                muonTail.setAttribute('animation__die', `property: scale; to: 0 0 0; dur: 100; delay: ${durationFall}`);
-                container.appendChild(muonTail);
-            }, durationRay);
-
-            setTimeout(() => {
-                if(container.parentNode) container.parentNode.removeChild(container);
-            }, durationRay + 1500);
-        }
-
-        function spawnBatch() {
-            let posicoes = [1, 0, -1]; 
-            for (let i = posicoes.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [posicoes[i], posicoes[j]] = [posicoes[j], posicoes[i]];
-            }
-            setTimeout(() => spawnSingleRay(posicoes[0]), 0);
-            setTimeout(() => spawnSingleRay(posicoes[1]), 400); 
-            setTimeout(() => spawnSingleRay(posicoes[2]), 800); 
-        }
-
-        setInterval(spawnBatch, 2500); 
-    </script>
 </body>
 </html>

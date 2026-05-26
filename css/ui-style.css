@@ -1,0 +1,144 @@
+/* Estilos gerais da UI compartilhada entre as cenas */
+.ui-layer { 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%; 
+    pointer-events: none; 
+    z-index: 10; 
+    font-family: sans-serif; 
+    color: white; 
+}
+
+.card { 
+    background: rgba(0, 0, 0, 0.7); 
+    backdrop-filter: blur(8px); 
+    border: 1px solid; 
+    border-radius: 12px; 
+    pointer-events: auto; 
+}
+
+.info-box { 
+    position: absolute; 
+    top: 20px; 
+    left: 20px; 
+    width: 320px; 
+    padding: 20px; 
+}
+
+/* Cores específicas de cada cena serão controladas na borda/título */
+.info-box.cena1 { border-color: #deb0fc; }
+.info-box.cena2 { border-color: #FFB6C1; }
+
+.control-box { 
+    position: absolute; 
+    bottom: 20px; 
+    left: 20px; 
+    width: 300px; 
+    padding: 20px; 
+    border-color: #87CEEB; 
+}
+
+.control-group { 
+    margin-bottom: 15px; 
+}
+
+.control-group label { 
+    display: block; 
+    font-size: 12px; 
+    margin-bottom: 5px; 
+    color: #87CEEB; 
+    font-weight: bold; 
+}
+
+input[type="number"], input[type="range"] { 
+    width: 100%; 
+    background: #222; 
+    color: #fff; 
+    border: 1px solid #444; 
+    padding: 5px; 
+    border-radius: 4px; 
+}
+
+.nav-box { 
+    position: absolute; 
+    top: 20px; 
+    right: 20px; 
+    padding: 15px; 
+    border-color: #bcacda; 
+    border-radius: 5px; 
+    text-align: center; 
+}
+
+.btn { 
+    border: none; 
+    padding: 8px 15px; 
+    border-radius: 3px; 
+    cursor: pointer; 
+    font-weight: bold; 
+}
+
+.btn + .btn { 
+    margin-left: 5px; 
+}
+
+.btn-1 { background: #444; color: white; }
+.btn-2.cena1 { background: #deb0fc; color: black; }
+.btn-2.cena2 { background: #deb0fc; color: black; }
+.btn-2.cena3 { background: #9370DB; color: white; }
+
+h2 { margin: 0 0 10px 0; text-shadow: 1px 1px 2px black; }
+h2.cena1 { color: #deb0fc; }
+h2.cena2 { color: #FFB6C1; }
+h2.cena3 { color: #87CEEB; }
+
+p { font-size: 14px; line-height: 1.6; margin: 0; text-shadow: 1px 1px 2px black; text-align: justify; }
+
+.legenda-item { display: flex; align-items: center; margin-top: 5px; }
+.dot { width: 15px; height: 15px; border-radius: 50%; margin-right: 10px; }
+
+/* Switch Moderno */
+.toggle-container { 
+    border-top: 1px solid #555; 
+    padding-top: 15px; 
+    margin-top: 15px; 
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+}
+
+.switch { 
+    position: relative; 
+    display: inline-block; 
+    width: 50px; 
+    height: 24px; 
+    margin-right: 10px; 
+}
+
+.switch input { opacity: 0; width: 0; height: 0; }
+
+.slider { 
+    position: absolute; 
+    cursor: pointer; 
+    top: 0; left: 0; right: 0; bottom: 0; 
+    background-color: #555; 
+    transition: .4s; 
+    border-radius: 24px; 
+}
+
+.slider:before { 
+    position: absolute; 
+    content: ""; 
+    height: 18px; width: 18px; 
+    left: 3px; bottom: 3px; 
+    background-color: white; 
+    transition: .4s; 
+    border-radius: 50%; 
+}
+
+input:checked + .slider { background-color: #FFB6C1; }
+input:focus + .slider { box-shadow: 0 0 1px #FFB6C1; }
+input:checked + .slider:before { transform: translateX(26px); }
+
+.toggle-label-text { color: #FFB6C1; font-weight: bold; font-size: 14px; cursor: pointer; }

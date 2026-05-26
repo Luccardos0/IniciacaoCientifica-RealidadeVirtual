@@ -3,42 +3,11 @@
 <head>
     <title>Cena 3 - Reset Dinâmico</title>
     <meta charset="utf-8">
+    <link rel="stylesheet" href="css/ui-style.css">
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
-
-    <script>
-        AFRAME.registerComponent('dt', {
-            schema: { target: { type: 'string' }, speed: { type: 'number', default: 0.3 }, off: { type: 'vec3' } },
-            init: function () { this.v = new THREE.Vector3(); },
-            tick: function () {
-                if (!this.elT) { this.elT = document.querySelector('#' + this.data.target); return; }
-                if (!this.elT.object3D) return; 
-                this.v.copy(this.elT.object3D.position).add(this.data.off);
-                this.el.object3D.position.lerp(this.v, this.data.speed);
-            }
-        });
-
-        AFRAME.registerShader('grad', {
-            schema: { c: { type: 'color', is: 'uniform' } },
-            vertexShader: `varying vec2 v; void main(){ v = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }`,
-            fragmentShader: `varying vec2 v; uniform vec3 c; void main(){ gl_FragColor = vec4(c, 1.0 - v.y); }`
-        });
-    </script>
-
-    <style>
-        .ui-layer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; font-family: sans-serif; color: white; }
-        .card { background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(8px); border: 1px solid; border-radius: 12px; pointer-events: auto; }
-        .control-box { position: absolute; bottom: 20px; left: 20px; width: 300px; padding: 20px; border-color: #87CEEB; }
-        .control-group { margin-bottom: 15px; }
-        .control-group label { display: block; font-size: 12px; margin-bottom: 5px; color: #87CEEB; font-weight: bold; }
-        input[type="number"], input[type="range"] { width: 100%; background: #222; color: #fff; border: 1px solid #444; padding: 5px; border-radius: 4px; }
-        .nav-box { position: absolute; top: 20px; right: 20px; padding: 15px; border-color: #bcacda; border-radius: 5px; text-align: center; }
-        .btn { border: none; padding: 8px 15px; border-radius: 3px; cursor: pointer; font-weight: bold; }
-        .btn-1 { background: #444; color: white; }
-        .btn-2 { background: #9370DB; color: white; }
-        h2 { color: #87CEEB; margin: 0 0 10px 0; font-size: 18px; }
-    </style>
+    <script src="js/aframe-components.js"></script>
+    <script src="js/muon-simulation.js"></script>
 </head>
-
 <body>
     <div class="ui-layer">
         <div class="card control-box">
@@ -56,14 +25,68 @@
         <div class="card nav-box">
             <button class="btn btn-1" onclick="location.href='index.html'">Cena 1</button>
             <button class="btn btn-1" onclick="location.href='cena2.html'">Cena 2</button>
-            <button class="btn btn-2" onclick="location.href='cena3.html'">Cena 3</button>
+            <button class="btn btn-2 cena3" onclick="location.href='cena3.html'">Cena 3</button>
         </div>
     </div>
 
-    <a-scene id="scene">
+    <a-scene id="sceneCena3">
         <a-assets>
             <img id="imSky" src="https://jocoteles.github.io/Minicurso-A-Frame-VR/TychoSkymap.t4_04096x02048.jpg">
         </a-assets>
+
+        <a-entity id="rig" position="0 0 0">
+            <a-camera look-controls wasd-controls position="0 1.6 0">
+                <a-cursor raycaster="objects: .raycastable" material="color: #FF00FF; shader: flat" position="0 0 -1" geometry="primitive: ring; radiusInner: 0.01; radiusOuter: 0.015"></a-cursor>
+            </a-camera>
+            <a-entity cursor="rayOrigin: mouse" raycaster="objects: .raycastable"></a-entity>
+            <a-entity laser-controls="hand: left" raycaster="objects: .raycastable; far: 5"></a-entity>
+            <a-entity laser-controls="hand: right" raycaster="objects: .raycastable; far: 5"></a-entity>
+        </a-entity>
+
+        <a-entity position="2.5 0.6 -0.5" rotation="0 -75 0" scale="1.3 1.3 1.3">
+            
+            <a-box position="0 0 0" width="1.8" height="1.0" depth="0.12" material="color: #1e1e24; roughness: 0.9"></a-box>
+            <a-plane position="0 0 0.061" width="1.76" height="0.96" material="color: #0f0f14; shader: flat"></a-plane>
+            <a-plane position="0 0 0.062" width="1.74" height="0.94" material="color: #3f444a; wireframe: true; opacity: 0.4"></a-plane>
+
+            <a-entity position="0 0 0.063" painel-explicativo="cenaAtual: 3">
+                
+                <a-plane position="0 0.08 0.001" width="1.15" height="0.65" material="color: #07070a; shader: flat"></a-plane>
+                <a-plane position="0 0.08 0.000" width="1.16" height="0.66" material="color: #58a6ff; opacity: 0.25; shader: flat"></a-plane>
+
+                <a-entity class="texto-conteudo" position="-0.5 0.35 0.003"
+                          text="value: Carregando...; color: #e6edf3; width: 1.05; font: kelson; wrapCount: 42; anchor: left; baseline: top; align: justify"></a-entity>
+
+                <a-triangle class="btn-cena-anterior raycastable" position="-0.2 -0.4 0.02" rotation="0 0 90" 
+            vertex-a="0 0.08 0" vertex-b="-0.07 -0.04 0" vertex-c="0.07 -0.04 0" 
+            material="color: #FFB6C1; shader: flat; side: double"
+            animation__mouseenter="property: material.color; to: #ff6b8b; dur: 100; startEvents: mouseenter"
+            animation__mouseleave="property: material.color; to: #FFB6C1; dur: 100; startEvents: mouseleave">
+</a-triangle>
+
+<a-triangle class="btn-cena-proxima raycastable" position="0.2 -0.4 0.02" rotation="0 0 -90" 
+            vertex-a="0 0.08 0" vertex-b="-0.07 -0.04 0" vertex-c="0.07 -0.04 0" 
+            material="color: #FFB6C1; shader: flat; side: double"
+            animation__mouseenter="property: material.color; to: #ff6b8b; dur: 100; startEvents: mouseenter"
+            animation__mouseleave="property: material.color; to: #FFB6C1; dur: 100; startEvents: mouseleave">
+</a-triangle>
+
+<a-triangle class="btn-voltar-texto raycastable" position="-0.75 0.08 0.02" rotation="0 0 90" 
+            vertex-a="0 0.06 0" vertex-b="-0.05 -0.03 0" vertex-c="0.05 -0.03 0" 
+            material="color: #58a6ff; shader: flat; side: double"
+            animation__mouseenter="property: material.color; to: #1f6feb; dur: 100; startEvents: mouseenter"
+            animation__mouseleave="property: material.color; to: #58a6ff; dur: 100; startEvents: mouseleave">
+</a-triangle>
+
+<a-triangle class="btn-avancar-texto raycastable" position="0.75 0.08 0.02" rotation="0 0 -90" 
+            vertex-a="0 0.06 0" vertex-b="-0.05 -0.03 0" vertex-c="0.05 -0.03 0" 
+            material="color: #58a6ff; shader: flat; side: double"
+            animation__mouseenter="property: material.color; to: #1f6feb; dur: 100; startEvents: mouseenter"
+            animation__mouseleave="property: material.color; to: #58a6ff; dur: 100; startEvents: mouseleave">
+</a-triangle>
+
+            </a-entity>
+        </a-entity>
 
         <a-sky src="#imSky" rotation="0 -90 0"></a-sky>
         <a-entity light="type: ambient; color: #555"></a-entity>
@@ -71,215 +94,32 @@
         <a-plane position="0 0 0" rotation="-90 0 0" width="1000" height="1000" material="color: #002244; opacity: 0.95; transparent: true"></a-plane>
         
         <a-entity id="boat" position="0 -0.1 0" rotation="0 180 0">
-            
-            <a-box position="0 0.2 0" width="1.6" height="0.4" depth="4" 
-                   material="color: #3b2107; roughness: 1; metalness: 0"></a-box>
-            
-            <a-box position="-0.85 0.5 0" width="0.1" height="0.6" depth="4.2" 
-                   material="color: #4b3117; roughness: 1; metalness: 0"
-                   rotation="0 0 -5"></a-box>
-            
-            <a-box position="0.85 0.5 0" width="0.1" height="0.6" depth="4.2" 
-                   material="color: #4b3117; roughness: 1; metalness: 0"
-                   rotation="0 0 5"></a-box>
+            <a-box position="0 0.2 0" width="1.6" height="0.4" depth="4" material="color: #3b2107; roughness: 1; metalness: 0"></a-box>
+            <a-box position="-0.85 0.5 0" width="0.1" height="0.6" depth="4.2" material="color: #4b3117; roughness: 1; metalness: 0" rotation="0 0 -5"></a-box>
+            <a-box position="0.85 0.5 0" width="0.1" height="0.6" depth="4.2" material="color: #4b3117; roughness: 1; metalness: 0" rotation="0 0 5"></a-box>
 
             <a-entity position="0 0.5 -2.1" rotation="0 180 0">
-                <a-triangle vertex-a="0 0 0" vertex-b="-0.8 0 0" vertex-c="0 0 1"
-                            material="color: #3b2107; side: double" rotation="-90 0 0"></a-triangle>
-                <a-triangle vertex-a="0 0 0" vertex-b="0.8 0 0" vertex-c="0 0 1"
-                            material="color: #3b2107; side: double" rotation="-90 0 0"></a-triangle>
-
-                <a-plane position="-0.4 0.1 0.5" width="1.1" height="0.6"
-                         material="color: #4b3117; side: double; roughness: 1"
-                         rotation="-5 125 0"></a-plane>
-                <a-plane position="0.4 0.1 0.5" width="1.1" height="0.6"
-                         material="color: #4b3117; side: double; roughness: 1"
-                         rotation="-5 -125 0"></a-plane>
-                
-                <a-box position="0 0.1 0" width="0.05" height="0.8" depth="0.1"
-                       material="color: #2a1805" rotation="20 0 0"></a-box>
+                <a-triangle vertex-a="0 0 0" vertex-b="-0.8 0 0" vertex-c="0 0 1" material="color: #3b2107; side: double" rotation="-90 0 0"></a-triangle>
+                <a-triangle vertex-a="0 0 0" vertex-b="0.8 0 0" vertex-c="0 0 1" material="color: #3b2107; side: double" rotation="-90 0 0"></a-triangle>
+                <a-plane position="-0.4 0.1 0.5" width="1.1" height="0.6" material="color: #4b3117; side: double; roughness: 1" rotation="-5 125 0"></a-plane>
+                <a-plane position="0.4 0.1 0.5" width="1.1" height="0.6" material="color: #4b3117; side: double; roughness: 1" rotation="-5 -125 0"></a-plane>
+                <a-box position="0 0.1 0" width="0.05" height="0.8" depth="0.1" material="color: #2a1805" rotation="20 0 0"></a-box>
             </a-entity>
 
             <a-entity position="0 0.5 2.1">
-                <a-plane position="0 0.1 0" width="1.8" height="0.7"
-                         material="color: #4b3117; side: double; roughness: 1"
-                         rotation="-10 0 0"></a-plane>
-                <a-triangle vertex-a="0 -0.3 0" vertex-b="-0.8 -0.3 0" vertex-c="0 -0.3 -0.5"
-                            material="color: #3b2107; side: double"></a-triangle>
-                <a-triangle vertex-a="0 -0.3 0" vertex-b="0.8 -0.3 0" vertex-c="0 -0.3 -0.5"
-                            material="color: #3b2107; side: double"></a-triangle>
+                <a-plane position="0 0.1 0" width="1.8" height="0.7" material="color: #4b3117; side: double; roughness: 1" rotation="-10 0 0"></a-plane>
+                <a-triangle vertex-a="0 -0.3 0" vertex-b="-0.8 -0.3 0" vertex-c="0 -0.3 -0.5" material="color: #3b2107; side: double"></a-triangle>
+                <a-triangle vertex-a="0 -0.3 0" vertex-b="0.8 -0.3 0" vertex-c="0 -0.3 -0.5" material="color: #3b2107; side: double"></a-triangle>
             </a-entity>
 
-            <a-plane position="0 0.42 0" width="1.5" height="3.9" 
-                     rotation="-90 0 0"
-                     material="color: #5d4037; src: #woodPattern; repeat: 5 10; roughness: 1"></a-plane>
-            
-            <a-box position="0 0.55 -1.2" width="1.4" height="0.1" depth="0.4" 
-                   material="color: #3b2107"></a-box>
-            <a-box position="0 0.55 0.5" width="1.4" height="0.1" depth="0.4" 
-                   material="color: #3b2107"></a-box>
-            <a-box position="0 0.55 1.6" width="1.4" height="0.1" depth="0.4" 
-                   material="color: #3b2107"></a-box>
-            
-            <a-torus position="0 0.8 0" radius="2.1" radius-tubular="0.02" arc="360"
-                     rotation="90 0 0" scale="0.42 1 1"
-                     material="color: #2a1805"></a-torus>
-
+            <a-plane position="0 0.42 0" width="1.5" height="3.9" rotation="-90 0 0" material="color: #5d4037; src: #woodPattern; repeat: 5 10; roughness: 1"></a-plane>
+            <a-box position="0 0.55 -1.2" width="1.4" height="0.1" depth="0.4" material="color: #3b2107"></a-box>
+            <a-box position="0 0.55 0.5" width="1.4" height="0.1" depth="0.4" material="color: #3b2107"></a-box>
+            <a-box position="0 0.55 1.6" width="1.4" height="0.1" depth="0.4" material="color: #3b2107"></a-box>
+            <a-torus position="0 0.8 0" radius="2.1" radius-tubular="0.02" arc="360" rotation="90 0 0" scale="0.42 1 1" material="color: #2a1805"></a-torus>
         </a-entity>
 
         <a-entity id="muon-container"></a-entity>
-
-        <a-camera position="0 1.6 0"></a-camera>
     </a-scene>
-
-    <script>
-        let uid = 0;
-        let mainInterval = null;
-        const P = AFRAME.utils.coordinates.parse;
-
-        const $mk = (parent, tag, attrs) => {
-            const el = document.createElement(tag);
-            for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, v);
-            parent.appendChild(el);
-            return el;
-        };
-
-        const makeTrace = (ct, sStr, eStr, col, dly, dur) => {
-            const s = P(sStr), e = P(eStr);
-            const dist = Math.sqrt((e.x - s.x)**2 + (e.y - s.y)**2 + (e.z - s.z)**2);
-            const dashLen = 0.3, gapLen = 0.15, step = dashLen + gapLen;
-            let count = Math.floor(dist / step);
-            const ang = -Math.atan2(e.x - s.x, e.y - s.y) * (180 / Math.PI);
-            for (let i = 0; i < count; i++) {
-                const t = i / count; 
-                $mk(ct, 'a-entity', {
-                    geometry: `primitive: cylinder; radius: 0.02; height: ${dashLen}`,
-                    material: `shader: flat; color: ${col}; opacity: 1.0`,
-                    position: `${s.x + (e.x-s.x)*t} ${s.y + (e.y-s.y)*t} ${s.z + (e.z-s.z)*t}`,
-                    rotation: `0 0 ${ang}`,
-                    visible: 'false',
-                    animation__v: `property: visible; from: false; to: true; dur: 0; delay: ${dly + (dur * t)}`
-                });
-            }
-        };
-
-        const makeTail = (ct, lead, s, e, col, sc, dly, dur) => {
-            const sP = P(s), eP = P(e);
-            const ang = -Math.atan2(eP.x - sP.x, eP.y - sP.y) * (180 / Math.PI) + 180;
-            const h = 1.2 * sc, off = h / 2;
-            const len = Math.sqrt((eP.x - sP.x) ** 2 + (eP.y - sP.y) ** 2) || 1;
-            const oX = -(eP.x - sP.x) / len * off, oY = -(eP.y - sP.y) / len * off;
-            $mk(ct, 'a-entity', {
-                geometry: `primitive:cone; radiusBottom:${0.06 * sc}; radiusTop:0.0; height:${h}; openEnded:true`, 
-                material: `shader:grad; c:${col}; transparent:true; side:double; depthTest:false`, 
-                position: `${sP.x + oX} ${sP.y + oY} ${sP.z}`, rotation: `0 0 ${ang}`,
-                dt: `target:${lead.id}; speed:0.6; off:${oX} ${oY} 0`,
-                visible: 'false', scale: '0 0 0',
-                animation__v: `property:visible; from:false; to:true; dur:0; delay:${dly}`,
-                animation__g: `property:scale; to:1 1 1; dur:300; delay:${dly}; easing:easeOutQuad`,
-                animation__s: `property:scale; to:0 0 0; dur:300; delay:${dly + dur - 100}`
-            });
-        };
-
-        const spawnEvent = () => {
-            const container = document.querySelector('#muon-container');
-            if(!container) return;
-
-            const halfLife = parseFloat(document.getElementById('inputLife').value) * 1000;
-            const qty = parseInt(document.getElementById('inputQty').value);
-
-            for(let i = 0; i < qty; i++) {
-                setTimeout(() => {
-                    // Verifica se o container ainda existe (evita erros se resetar no meio do timeout)
-                    if(!container.parentNode) return;
-
-                    const rndX = (Math.random() * 60) - 30; 
-                    const rndZ = -(Math.random() * 15 + 5); 
-                    
-                    const pos = `${rndX} 0 ${rndZ}`;
-                    const ct = $mk(container, 'a-entity', { position: pos });
-                    
-                    const topY = 30, atmosY = 15, splitH = 10, floorY = 0.5; 
-                    const tRay = halfLife * 0.7, tParent = halfLife * 0.7, tChild = halfLife;
-                    const cRay = '#87CEEB', cPar = '#9370DB', cGen2 = '#FFB6C1';
-
-                    const rayId = 'r' + uid++;
-                    const ray = $mk(ct, 'a-entity', {
-                        id: rayId, geometry: 'primitive:sphere; radius:0.06', material: `shader:flat; color:${cRay}`,
-                        position: `0 ${topY} 0`,
-                        animation__mv: `property:position; to:0 ${atmosY} 0; dur:${tRay}; easing:linear`
-                    });
-                    makeTail(ct, ray, `0 ${topY} 0`, `0 ${atmosY} 0`, cRay, 1, 0, tRay);
-                    makeTrace(ct, `0 ${topY} 0`, `0 ${atmosY} 0`, cRay, 0, tRay);
-
-                    setTimeout(() => {
-                        const spawnParent = (endX) => {
-                            const sS = `0 ${atmosY} 0`, eS = `${endX} ${splitH} 0`;
-                            const pId = 'p' + uid++;
-                            const p = $mk(ct, 'a-entity', {
-                                id: pId, geometry: 'primitive:sphere; radius:0.08', material: `shader:flat; color:${cPar}`,
-                                position: sS, animation: `property:position; to:${eS}; dur:${tParent}; easing:linear`
-                            });
-                            makeTail(ct, p, sS, eS, cPar, 1.2, 0, tParent);
-                            makeTrace(ct, sS, eS, cPar, 0, tParent);
-
-                            setTimeout(() => {
-                                const spawnGen2 = (side) => {
-                                    const survives = Math.random() <= 0.3;
-                                    const targetY = survives ? floorY : splitH * 0.4;
-                                    const actualDur = survives ? tChild : tChild * 0.6;
-
-                                    const s2 = `${endX} ${splitH} 0`, e2 = `${endX + side} ${targetY} 0`;
-                                    const cId = 'c' + uid++;
-                                    const c = $mk(ct, 'a-entity', {
-                                        id: cId, geometry: 'primitive:sphere; radius:0.05', material: `shader:flat; color:${cGen2}`,
-                                        position: s2, 
-                                        animation: `property:position; to:${e2}; dur:${actualDur}; easing:linear`,
-                                        animation__scale: `property:scale; to:0 0 0; dur:200; delay:${actualDur - 200}`
-                                    });
-                                    makeTail(ct, c, s2, e2, cGen2, 0.8, 0, actualDur);
-                                    makeTrace(ct, s2, e2, cGen2, 0, actualDur);
-                                };
-                                spawnGen2(-1.5); spawnGen2(1.5);
-                            }, tParent);
-                        };
-                        spawnParent(-2); spawnParent(2);
-                    }, tRay);
-
-                    setTimeout(() => ct.parentNode && ct.parentNode.removeChild(ct), halfLife * 5);
-                }, Math.random() * 1000);
-            }
-        };
-
-        // Função de Reset
-        const resetSimulation = () => {
-            // 1. Para o intervalo atual
-            if (mainInterval) clearInterval(mainInterval);
-            
-            // 2. Limpa todos os elementos visuais de uma vez
-            const container = document.querySelector('#muon-container');
-            container.innerHTML = ''; 
-            
-            // 3. Reinicia a execução
-            spawnEvent();
-            mainInterval = setInterval(spawnEvent, 4000);
-        };
-
-        // Listeners para os inputs
-        window.onload = () => {
-            const inputLife = document.getElementById('inputLife');
-            const inputQty = document.getElementById('inputQty');
-            const valQty = document.getElementById('valQty');
-
-            inputLife.addEventListener('change', resetSimulation);
-            
-            inputQty.addEventListener('input', () => {
-                valQty.innerText = inputQty.value;
-            });
-            inputQty.addEventListener('change', resetSimulation);
-
-            resetSimulation();
-        };
-    </script>
 </body>
 </html>

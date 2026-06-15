@@ -56,8 +56,8 @@ AFRAME.registerShader('grad', {
 });
 
 /**
- * COMPONENTE: PAINEL EXPLICATIVO INTERATIVO VR
- * Gerencia a troca de páginas de texto (botões rosas) e a navegação entre cenas (botões azuis).
+ * COMPONENTE: PAINEL EXPLICATIVO INTERATIVO VR (VERSÃO UNIFICADA)
+ * Gerencia a troca de páginas de texto (botões azuis) e a navegação entre cenas (botões rosas).
  */
 AFRAME.registerComponent('painel-explicativo', {
     schema: {
@@ -65,7 +65,7 @@ AFRAME.registerComponent('painel-explicativo', {
     },
 
     init: function () {
-        // Banco de dados centralizado com os textos para cada cena
+        // BANCO DE DADOS ÚNICO E CENTRALIZADO
         this.textos = {
             1: [
                 "PÁGINA 1/2\nOs raios cósmicos viajam do espaço até a Terra em altíssima velocidade. Ao colidirem com os gases da alta atmosfera, eles geram uma cascata de novas partículas secundárias.",
@@ -76,39 +76,60 @@ AFRAME.registerComponent('painel-explicativo', {
                 "PÁGINA 2/2\nContudo, devido à Dilatação Temporal da Relatividade Restrita, o tempo passa mais devagar para o múon no referencial da Terra, permitindo que ele atravesse a atmosfera antes de decair."
             ],
             3: [
-                "PÁGINA 1/2\nAqui você pode interagir com os parâmetros da simulação. Ajuste a meia-vida das partículas e a quantidade gerada por ciclo utilizando o painel externo.",
-                "PÁGINA 2/2\nObserve como o tempo de decaimento altera o comprimento visual das trajetórias e a quantidade de eventos simultâneos que atingem a superfície."
-            ]
+                "PÁGINA 1/2\nRESET DINÂMICO: Modificar a Meia-vida da simulação altera diretamente o tempo médio de sobrevivência do Múon. Na física real, essa constante dita a taxa de decaimento exponencial da cascata de partículas secundárias.",
+                "PÁGINA 2/2\nAo reduzir a Meia-vida nos controles, as trajetórias tornam-se visualmente mais curtas, pois a probabilidade de decaimento prematuro se eleva. Inversamente, valores altos permitem que mais partículas alcancem o nível do mar."
+            ],
+            4: [
+                "PÁGINA 1/2\nBEM-VINDO AO REFERENCIAL DO MÚON! Aqui, você está parado e a atmosfera se move. Pela física clássica, seu tempo de vida de 2.2 microssegundos expirará antes do chão chegar.",
+                "PÁGINA 2/2\nAtive o 'Efeito Relativístico'. Pela contração do comprimento de Lorentz, a distância da atmosfera encolhe drasticamente. A Terra se aproxima rapidamente, permitindo o impacto!"
+            ],
+            5: [
+        "PÁGINA 1/3\nREFERENCIAL DA TERRA: Agora, você está fixo na superfície do planeta. Do nosso ponto de vista, a atmosfera possui sua extensão máxima real de aproximadamente 15 quilômetros de altura.",
+        "PÁGINA 2/3\nFÍSICA CLÁSSICA (TRR Desligada):\nViajando perto da velocidade da luz, um múon levaria cerca de 50 microssegundos para cruzar a atmosfera. Como seu tempo de decaimento próprio é de apenas 2.2 microssegundos, as partículas desaparecem no céu muito antes de nos alcançar.",
+        "PÁGINA 3/3\nFÍSICA RELATIVÍSTICA (TRR Ligada):\nComo os múons se movem a velocidades altíssimas, o tempo deles passa mais devagar em relação ao nosso relógio (Dilatação Temporal). Para nós, a vida útil do múon é estendida, permitindo que a chuva atinja o solo!"
+    ]
         };
 
         this.paginaAtual = 0;
-        this.paginasCena = this.textos[this.data.cenaAtual] || ["Texto não encontrado."];
-        this.rotas = { 1: 'index.html', 2: 'cena2.html', 3: 'cena3.html' };
+        
+        // Garante a captura segura do ID da cena
+        let idCena = parseInt(this.data.cenaAtual, 10) || 1;
+        this.paginasCena = this.textos[idCena] || ["Texto não encontrado."];
+        
+        // Mapeamento global de rotas (1 a 4)
+        this.rotas = { 1: 'index.html', 2: 'cena2.html', 3: 'cena3.html', 4: 'cena4.html', 5:"cena5.html" };
 
-        // Captura as tags HTML
+        // Captura as tags do DOM interno da TV
         this.textoEl = this.el.querySelector('.texto-conteudo');
         this.btnVoltarTexto = this.el.querySelector('.btn-voltar-texto');
         this.btnAvancarTexto = this.el.querySelector('.btn-avancar-texto');
         this.btnCenaAnterior = this.el.querySelector('.btn-cena-anterior');
         this.btnCenaProxima = this.el.querySelector('.btn-cena-proxima');
 
-        // Binds
+        // Binds de escopo
         this.atualizarTexto = this.atualizarTexto.bind(this);
         this.mudarPagina = this.mudarPagina.bind(this);
         this.mudarCena = this.mudarCena.bind(this);
 
-        // Listeners de Clique
+        // Ouvintes de evento com verificação de existência preventiva
         if (this.btnVoltarTexto) this.btnVoltarTexto.addEventListener('click', () => this.mudarPagina(-1));
         if (this.btnAvancarTexto) this.btnAvancarTexto.addEventListener('click', () => this.mudarPagina(1));
         if (this.btnCenaAnterior) this.btnCenaAnterior.addEventListener('click', () => this.mudarCena(-1));
         if (this.btnCenaProxima) this.btnCenaProxima.addEventListener('click', () => this.mudarCena(1));
 
-        this.atualizarTexto();
+        // Força a renderização inicial aguardando um mini-tick do motor 3D
+        setTimeout(this.atualizarTexto, 10);
     },
 
     atualizarTexto: function () {
         if (this.textoEl) {
             this.textoEl.setAttribute('text', 'value', this.paginasCena[this.paginaAtual]);
+        } else {
+            // Busca de contingência caso o elemento demore a indexar no DOM
+            this.textoEl = this.el.querySelector('.texto-conteudo');
+            if (this.textoEl) {
+                this.textoEl.setAttribute('text', 'value', this.paginasCena[this.paginaAtual]);
+            }
         }
     },
 
@@ -121,13 +142,11 @@ AFRAME.registerComponent('painel-explicativo', {
     },
 
     mudarCena: function (direcao) {
-        // CORREÇÃO AQUI: Transforma o texto do HTML em um número real de base 10
-        let cenaPura = parseInt(this.data.cenaAtual, 10);
+        let cenaPura = parseInt(this.data.cenaAtual, 10) || 1;
         let novaCena = cenaPura + direcao;
         
-        // Loop das cenas
-        if (novaCena < 1) novaCena = 3;
-        if (novaCena > 3) novaCena = 1;
+        if (novaCena < 1) novaCena = 5;
+        if (novaCena > 5) novaCena = 1;
         
         window.location.href = this.rotas[novaCena];
     }

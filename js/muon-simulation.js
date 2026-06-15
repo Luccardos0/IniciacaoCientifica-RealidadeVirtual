@@ -362,3 +362,256 @@ if (sceneEl) {
         }
     });
 }
+
+//-----Cena4--------
+
+/* --- ORQUESTRADOR NATIVO: INJEÇÃO COMPLEMENTAR CENA 4 --- */
+// Vincula a inicialização automática à árvore de execução da Cena 4
+window.addEventListener('DOMContentLoaded', () => {
+    const structuralScene = document.querySelector('a-scene');
+    if (structuralScene && structuralScene.id === 'sceneCena4') {
+        if (structuralScene.hasLoaded) {
+            inicializarCena4();
+        } else {
+            structuralScene.addEventListener('loaded', inicializarCena4);
+        }
+    }
+});
+
+function inicializarCena4() {
+    const containerNuvens = document.getElementById('container-nuvens');
+    const containerSolo = document.getElementById('container-solo');
+    const switchRelatividade = document.getElementById('switch-relatividade');
+    const statusPainel = document.getElementById('status-painel');
+    const hudSucesso = document.getElementById('hud-sucesso');
+
+    if (!containerNuvens || !switchRelatividade) return;
+
+    const TOTAL_NUVENS = 12;
+    const LIMITE_INFERIOR_Y = -35; 
+    const LIMITE_SUPERIOR_Y = 35;  
+    const VELOCIDADE_QUEDA = 2500;  
+
+    let modoRelativisticoAtivo = false;
+    let timeoutFimDaQueda = null;
+    let soloEntidade = null;
+
+    // 1. POOLING DE NUVENS USANDO A SUA FUNÇÃO UTILITÁRIA $MK
+    for (let i = 0; i < TOTAL_NUVENS; i++) {
+        let yInicial = Math.random() * (LIMITE_SUPERIOR_Y - LIMITE_INFERIOR_Y) + LIMITE_INFERIOR_Y;
+        gerarNuvemNoPool(yInicial);
+    }
+
+    function gerarNuvemNoPool(yStart) {
+        let xRand = (Math.random() - 0.5) * 45;
+        let zRand = -(Math.random() * 15 + 4); // Posiciona à frente do campo visual da câmera fixa
+        
+        let duracaoAjustada = VELOCIDADE_QUEDA * ((LIMITE_SUPERIOR_Y - yStart) / (LIMITE_SUPERIOR_Y - LIMITE_INFERIOR_Y));
+
+        // Reutilização limpa do $mk com o seu shader grad integrado para suavizar as bordas das nuvens
+        const nuvem = $mk(containerNuvens, 'a-entity', {
+            //geometry: "primitive: cone; radiusBottom: 3.5; radiusTop: 0.0; height: 1.5; openEnded: true",
+            geometry: "primitive: sphere; radius: 4", 
+            scale: "2 0.4 3",
+            position: `${xRand} ${yStart} ${zRand}`,
+            rotation: "0 0 180", // Aponta para baixo dando dinâmica de compressão aerodinâmica
+            material: "shader: grad; c: #ffffff; transparent: true; side: double",
+            animation__move: `property: position; to: ${xRand} ${LIMITE_SUPERIOR_Y} ${zRand}; dur: ${duracaoAjustada}; easing: linear; loop: false`
+        });
+
+        // Loop Infinito por escuta de evento de animação do DOM
+        nuvem.addEventListener('animationcomplete__move', () => {
+            let novoX = (Math.random() - 0.5) * 45;
+            let novoZ = -(Math.random() * 15 + 4);
+
+            nuvem.setAttribute('position', `${novoX} ${LIMITE_INFERIOR_Y} ${novoZ}`);
+            nuvem.setAttribute('animation__move', `property: position; from: ${novoX} ${LIMITE_INFERIOR_Y} ${novoZ}; to: ${novoX} ${LIMITE_SUPERIOR_Y} ${novoZ}; dur: ${VELOCIDADE_QUEDA}; easing: linear; loop: false`);
+        });
+    }
+
+    // 2. SISTEMA DE GESTÃO FÍSICA (CLÁSSICA VS RELATIVÍSTICA)
+    function gerenciarCicloDeFisica() {
+        limparCenarioRelativistico();
+
+        if (modoRelativisticoAtivo) {
+            statusPainel.innerHTML = `1. Tempo Próprio ($\tau$): 2.2 $\mu$s<br>2. Distância Atmosférica: <span style="color:#87CEEB; font-weight:bold;">Contraída</span>.<br><br>A velocidade relativística encolheu o espaço. A superfície da Terra vai colidir com o Múon!`;
+            
+            // Situação B: O solo sobe após 4.5 segundos de queda livre simulada
+            timeoutFimDaQueda = setTimeout(() => {
+                dispararSubidaDoSolo();
+            }, 4500);
+        } else {
+            statusPainel.innerHTML = `1. Tempo Próprio ($\tau$): 2.2 $\mu$s<br>2. Distância Atmosférica: Clássica (15km).<br><br><span style="color:#FF4500; font-weight:bold;">Queda Perpétua:</span> Sem a contração espacial da relatividade, o Múon decairá antes de ver o chão.`;
+        }
+    }
+
+    function dispararSubidaDoSolo() {
+        // Geração do solo verde tridimensional com $mk
+        soloEntidade = $mk(containerSolo, 'a-plane', {
+            id: "solo-terra",
+            position: "0 -50 0",
+            rotation: "-90 0 0",
+            width: "250",
+            height: "250",
+            color: "#1e3d29",
+            src: "#textura-solo",
+            material: "roughness: 0.9; repeat: 10 10",
+            animation__subir: "property: position; to: 0 0 0; dur: 2000; easing: easeOutQuad"
+        });
+
+        // Verificação de Impacto com o referencial fixo (Altura dos olhos)
+        soloEntidade.addEventListener('animationcomplete__subir', () => {
+            if(hudSucesso) {
+                hudSucesso.setAttribute('value', "SUPERFICIE ALCANÇADA!\nContracao do Espaco Comprovada.");
+                hudSucesso.emit('mostrarMsg');
+            }
+
+            setTimeout(() => {
+                if(hudSucesso) hudSucesso.emit('esconderMsg');
+                gerenciarCicloDeFisica(); // Reseta o loop de aproximação planetária
+            }, 2500);
+        });
+    }
+
+    function limparCenarioRelativistico() {
+        if (timeoutFimDaQueda) {
+            clearTimeout(timeoutFimDaQueda);
+            timeoutFimDaQueda = null;
+        }
+        if (soloEntidade && soloEntidade.parentNode) {
+            soloEntidade.parentNode.removeChild(soloEntidade);
+            soloEntidade = null;
+        }
+    }
+
+    // Escutador reativo do switch HTML
+    switchRelatividade.addEventListener('change', (event) => {
+        modoRelativisticoAtivo = event.target.checked;
+        gerenciarCicloDeFisica();
+    });
+
+    // Disparo inicial
+    gerenciarCicloDeFisica();
+}
+
+
+//-----Cena 5--------
+
+/* --- ORQUESTRADOR NATIVO: INJEÇÃO COMPLEMENTAR CENA 5 --- */
+window.addEventListener('DOMContentLoaded', () => {
+    const structuralScene = document.querySelector('a-scene');
+    if (structuralScene && structuralScene.id === 'sceneCena5') {
+        if (structuralScene.hasLoaded) {
+            inicializarCena5();
+        } else {
+            structuralScene.addEventListener('loaded', inicializarCena5);
+        }
+    }
+});
+
+function inicializarCena5() {
+    const chuvaContainer = document.getElementById('chuva-muons');
+    const switchTRR = document.getElementById('switch-trr');
+    const statusPainel = document.getElementById('status-painel');
+
+    if (!chuvaContainer || !switchTRR) return;
+
+    let trrAtiva = false;
+    let loopChuvaId = null;
+    let geradorUid = 0;
+
+    const corMuon = '#FFB6C1'; // Múon de 2ª Geração (Rosa Suave)
+
+    function spawnMuonCaindo() {
+        if (!chuvaContainer.parentNode) return;
+
+        // Distribui os múons ao redor do usuário estático
+        const angulo = Math.random() * Math.PI * 2;
+        const raio = Math.random() * 12; 
+        const xPos = Math.cos(angulo) * raio;
+        const zPos = Math.sin(angulo) * raio;
+
+        const alturaNascimento = 25; // Alta atmosfera simulada
+        const alturaChao = 0.1;      // Nível do mar
+
+        let targetY = alturaChao;
+        let sobreviventeEstatistico = true;
+
+        if (!trrAtiva) {
+            // SITUAÇÃO A: TRR DESLIGADA - 100% decaem no topo/meio da atmosfera
+            targetY = 12 + (Math.random() * 4); // Morrem alto (entre Y=12 e Y=16)
+            sobreviventeEstatistico = false;
+        } else {
+            // SITUAÇÃO B: TRR LIGADA - Regra estatística de 50% de chance (Meia-vida)
+            if (Math.random() < 0.5) {
+                // 50% dos Múons decaem no meio do ar antes de tocar o chão
+                targetY = 2 + (Math.random() * 10); // Desintegram-se em altitudes variadas (Y=2 a Y=10)
+                sobreviventeEstatistico = false;
+            } else {
+                // Os outros 50% completam a viagem com sucesso e colidem com o solo
+                targetY = alturaChao;
+                sobreviventeEstatistico = true;
+            }
+        }
+
+        const idParticula = 'm5_' + geradorUid++;
+        const distanciaTotal = alturaNascimento - targetY;
+        const duracaoMovimento = distanciaTotal * 130; // Velocidade linear de queda proporcional
+
+        // Injeção procedural via $mk com o shader grad
+        const muonNode = $mk(chuvaContainer, 'a-entity', {
+            id: idParticula,
+            geometry: "primitive: cone; radiusBottom: 0.08; radiusTop: 0.0; height: 1.2; openEnded: true",
+            position: `${xPos} ${alturaNascimento} ${zPos}`,
+            rotation: "0 0 0",
+            material: `shader: grad; c: ${corMuon}; transparent: true; side: double`,
+            animation__queda: `property: position; to: ${xPos} ${targetY} ${zPos}; dur: ${duracaoMovimento}; easing: linear`
+        });
+
+        // Evento executado no fim da trajetória calculada
+        muonNode.addEventListener('animationcomplete__queda', () => {
+            if (!sobreviventeEstatistico) {
+                // Efeito visual de desintegração/decaimento no meio do ar
+                muonNode.setAttribute('animation__decaimento', "property: scale; to: 0 0 0; dur: 200; easing: easeInQuad");
+            } else {
+                // Colisão física com o solo/mar (esmaecimento rápido por impacto)
+                muonNode.setAttribute('animation__impacto', "property: scale; to: 1 0 1; dur: 100; easing: linear");
+            }
+            
+            // Remoção segura do nó do DOM
+            setTimeout(() => {
+                if (muonNode.parentNode) {
+                    muonNode.parentNode.removeChild(muonNode);
+                }
+            }, 210);
+        });
+    }
+
+    function gerenciarCicloChuva() {
+        if (loopChuvaId) clearInterval(loopChuvaId);
+        chuvaContainer.innerHTML = '';
+
+        if (trrAtiva) {
+            statusPainel.innerHTML = `
+                <strong>Física Relativística Ativa</strong><br>
+                <strong>Dilatação do Tempo:</strong> $t = \\gamma t_0$<br><br>
+                <span style="color:#9370DB; font-weight:bold;">Status:</span> Tempo de vida estendido pela velocidade. Devido à natureza probabilística da meia-vida, <strong>~50% alcançam o solo</strong> e a outra metade decai no ar.
+            `;
+            loopChuvaId = setInterval(spawnMuonCaindo, 250);
+        } else {
+            statusPainel.innerHTML = `
+                <strong>Física Clássica Pura</strong><br>
+                <strong>Tempo de Vida Clássico:</strong> 2.2 $\\mu$s<br><br>
+                <span style="color:#FF4500; font-weight:bold;">Status:</span> Sem dilatação temporal, a vida útil expira rápido demais para a escala da atmosfera. <strong>0% dos múons alcançam o solo</strong>.
+            `;
+            loopChuvaId = setInterval(spawnMuonCaindo, 400);
+        }
+    }
+
+    switchTRR.addEventListener('change', (e) => {
+        trrAtiva = e.target.checked;
+        gerenciarCicloChuva();
+    });
+
+    gerenciarCicloChuva();
+}

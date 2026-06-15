@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <title>Cena 4 - O Referencial do Múon</title>
+    <link rel="stylesheet" href="css/ui-style.css">
+    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+    <script src="js/aframe-components.js"></script>
+    <script src="js/muon-simulation.js"></script>
+</head>
+<body>
+    <div class="ui-layer">
+        <div class="card info-box" style="border-color: #87CEEB;">
+            <h2 style="color: #87CEEB;">Referencial do Múon</h2>
+            <p id="status-painel">
+                Carregando dados do referencial físico...
+            </p>
+        </div>
+        
+        <div class="card nav-box" style="border-color: #87CEEB;">
+            <div>
+                <button class="btn btn-1" onclick="location.href='index.html'">Cena 1</button>
+                <button class="btn btn-1" onclick="location.href='cena2.html'">Cena 2</button>
+                <button class="btn btn-1" onclick="location.href='cena3.html'">Cena 3</button>
+                <button class="btn btn-2" style="background: #87CEEB; color: black;" onclick="location.href='cena4.html'">Cena 4</button>
+            </div>
+            
+            <div class="toggle-container">
+                <label class="switch">
+                    <input type="checkbox" id="switch-relatividade">
+                    <span class="slider"></span>
+                </label>
+                <span class="toggle-label-text" onclick="document.getElementById('switch-relatividade').click()">Efeito Relativístico</span>
+            </div>
+        </div>
+    </div>
+
+    <a-scene id="sceneCena4">
+        <a-assets>
+            <img id="imSky" src="https://jocoteles.github.io/Minicurso-A-Frame-VR/TychoSkymap.t4_04096x02048.jpg">
+            <img id="textura-solo" src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@dev/examples/textures/terrain/grasslight-big.jpg">
+        </a-assets>
+
+       <a-entity id="rig" position="0 0 0">
+            <a-camera look-controls wasd-controls="enabled: false" position="0 1.6 0">
+                <a-cursor raycaster="objects: .raycastable" 
+                          material="color: #FF00FF; shader: flat" 
+                          position="0 0 -1" 
+                          geometry="primitive: ring; radiusInner: 0.01; radiusOuter: 0.015">
+                </a-cursor>
+
+                <a-text id="hud-sucesso" value="" align="center" position="0 0 -2" scale="0 0 0"
+                        color="#87CEEB" font="mozillavr"
+                        animation__fade="property: scale; to: 1 1 1; dur: 300; startEvents: mostrarMsg"
+                        animation__hide="property: scale; to: 0 0 0; dur: 300; delay: 2000; startEvents: esconderMsg">
+                </a-text>
+            </a-camera>
+            <a-entity cursor="rayOrigin: mouse" raycaster="objects: .raycastable"></a-entity>
+            <a-entity laser-controls="hand: left" raycaster="objects: .raycastable; far: 5"></a-entity>
+            <a-entity laser-controls="hand: right" raycaster="objects: .raycastable; far: 5"></a-entity>
+        </a-entity>
+
+        <a-entity position="2 0.9 -1" rotation="-15 -45 0" scale="1.3 1.3 1.3">
+            <a-box position="0 0 0" width="1.8" height="1.0" depth="0.12" material="color: #1e1e24; roughness: 0.9"></a-box>
+            <a-plane position="0 0 0.061" width="1.76" height="0.96" material="color: #0f0f14; shader: flat"></a-plane>
+            <a-plane position="0 0 0.062" width="1.74" height="0.94" material="color: #3f444a; wireframe: true; opacity: 0.4"></a-plane>
+
+            <a-entity position="0 0 0.063" painel-explicativo="cenaAtual: 4">
+                <a-plane position="0 0.08 0.001" width="1.15" height="0.65" material="color: #07070a; shader: flat"></a-plane>
+                <a-plane position="0 0.08 0.000" width="1.16" height="0.66" material="color: #87CEEB; opacity: 0.25; shader: flat"></a-plane>
+
+                <a-entity class="texto-conteudo" position="-0.5 0.35 0.003"
+          text="value: Carregando...; color: #e6edf3; width: 1.05; font: roboto; wrapCount: 42; anchor: left; baseline: top; align: justify"></a-entity>
+
+                <a-triangle class="btn-cena-anterior raycastable" position="-0.2 -0.4 0.02" rotation="0 0 90" vertex-a="0 0.08 0" vertex-b="-0.07 -0.04 0" vertex-c="0.07 -0.04 0" material="color: #FFB6C1; shader: flat; side: double"></a-triangle>
+                <a-triangle class="btn-cena-proxima raycastable" position="0.2 -0.4 0.02" rotation="0 0 -90" vertex-a="0 0.08 0" vertex-b="-0.07 -0.04 0" vertex-c="0.07 -0.04 0" material="color: #FFB6C1; shader: flat; side: double"></a-triangle>
+                <a-triangle class="btn-voltar-texto raycastable" position="-0.75 0.08 0.02" rotation="0 0 90" vertex-a="0 0.06 0" vertex-b="-0.05 -0.03 0" vertex-c="0.05 -0.03 0" material="color: #58a6ff; shader: flat; side: double"></a-triangle>
+                <a-triangle class="btn-avancar-texto raycastable" position="0.75 0.08 0.02" rotation="0 0 -90" vertex-a="0 0.06 0" vertex-b="-0.05 -0.03 0" vertex-c="0.05 -0.03 0" material="color: #58a6ff; shader: flat; side: double"></a-triangle>
+            </a-entity>
+        </a-entity>
+
+        <a-sky color="#A5C9EB"></a-sky>
+        <a-entity light="type: ambient; color: #666"></a-entity>
+        <a-entity light="type: directional; intensity: 0.8" position="-1 10 5"></a-entity>
+
+        <a-entity id="container-nuvens"></a-entity>
+        <a-entity id="container-solo"></a-entity>
+    </a-scene>
+</body>
+</html>

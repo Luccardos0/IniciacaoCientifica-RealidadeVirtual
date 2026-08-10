@@ -54,37 +54,86 @@
             <a-entity laser-controls="hand: right" raycaster="objects: .raycastable; far: 5"></a-entity>
         </a-entity>
 
-        <a-entity position="2.6 1.2 -1.2" rotation="10 -55 0" scale="1.3 1.3 1.3">
-            <a-box position="0 0 0" width="1.8" height="1.0" depth="0.12" material="color: #1e1e24; roughness: 0.9"></a-box>
-            <a-plane position="0 0.061" width="1.76" height="0.96" material="color: #0f0f14; shader: flat"></a-plane>
-            <a-plane position="0 0.062" width="1.74" height="0.94" material="color: #3f444a; wireframe: true; opacity: 0.4"></a-plane>
+        <!-- MÁQUINA DETECTORA E CONTADORA DE MÚONS 3D (NO SOLO) -->
+<a-entity id="maquina-detector" position="0 0.05 -3" rotation="0 0 0">
+    <!-- Base Metalizada da Máquina -->
+    <a-box position="0 0.15 0" width="2.2" height="0.3" depth="2.2" material="color: #1a1c23; roughness: 0.6; metalness: 0.8"></a-box>
+    
+    <!-- Placa Sensorial de Detecção (Área de Colisão) -->
+    <a-box position="0 0.31 0" width="1.8" height="0.02" depth="1.8" material="color: #0d1117; roughness: 0.3; metalness: 0.9"></a-box>
+    
+    <!-- LÂMPADA / INDICADOR LUMINOSO (Acende no pulso de detecção) -->
+    <a-cylinder id="lampada-detector" position="0 0.38 -0.8" radius="0.15" height="0.12" 
+                material="color: #333333; emissive: #000000; emissiveIntensity: 0; shader: flat"></a-cylinder>
+    <!-- Luz Pontual para iluminação ambiente ao acender -->
+    <a-entity id="luz-flash" light="type: point; color: #00FF7F; intensity: 0; distance: 4" position="0 0.6 -0.8"></a-entity>
 
-            <a-entity position="0 0 0.063" painel-explicativo="cenaAtual: 5">
-                <a-plane position="0 0.08 0.001" width="1.15" height="0.65" material="color: #07070a; shader: flat"></a-plane>
-                <a-plane position="0 0.08 0.000" width="1.16" height="0.66" material="color: #9370DB; opacity: 0.25; shader: flat"></a-plane>
+    <!-- PAINEL / DISPLAY DIGITAL LED -->
+    <a-entity position="0 0.65 -0.8" rotation="-25 0 0">
+        <!-- Chassi do Display -->
+        <a-box position="0 0 0" width="1.6" height="0.45" depth="0.1" material="color: #090a0f"></a-box>
+        <!-- Borda Neon Azul -->
+        <a-plane position="0 0 0.052" width="1.54" height="0.39" material="color: #58a6ff; shader: flat"></a-plane>
+        <a-plane position="0 0 0.054" width="1.50" height="0.35" material="color: #000000; shader: flat"></a-plane>
+        
+        <!-- Texto Digital do Contador -->
+        <a-entity id="display-contador-3d" position="0 0 0.06" 
+                  text="value: DETECTADOS: 0; color: #00FF7F; align: center; width: 2.2; font: roboto; anchor: center"></a-entity>
+    </a-entity>
+</a-entity>
 
-                <a-entity class="texto-conteudo" position="-0.5 0.35 0.005"
-                          text="value: Carregando dados relativísticos...; color: #e6edf3; width: 1.05; font: roboto; wrapCount: 42; anchor: left; baseline: top; align: justify"></a-entity>
+        <!-- ESTAÇÃO DUPLA DE COMANDO 3D (CENA 5 - POSICIONADA A 90° À ESQUERDA) -->
+        <a-entity position="-4.5 1.2 0" rotation="0 90 0" painel-explicativo="cenaAtual: 5">
+            
+            <!-- 1. PAINEL SUPERIOR: TELA DE LEITURA 3D -->
+            <a-entity position="0 0.95 0">
+                <a-box position="0 0 0" width="3.6" height="2.1" depth="0.1" material="color: #12131C; roughness: 0.5"></a-box>
+                <a-plane position="0 0 0.055" width="3.5" height="2.0" material="color: #58a6ff; shader: flat"></a-plane>
+                <a-plane position="0 0 0.058" width="3.44" height="1.94" material="color: #08090E; shader: flat"></a-plane>
 
-                <a-triangle class="btn-cena-anterior raycastable" position="-0.2 -0.4 0.02" rotation="0 0 90" vertex-a="0 0.08 0" vertex-b="-0.07 -0.04 0" vertex-c="0.07 -0.04 0" material="color: #FFB6C1; shader: flat; side: double"
-                            animation__mouseenter="property: material.color; to: #ff6b8b; dur: 100; startEvents: mouseenter"
-                            animation__mouseleave="property: material.color; to: #FFB6C1; dur: 100; startEvents: mouseleave"></a-triangle>
-                
-                <a-triangle class="btn-cena-proxima raycastable" position="0.2 -0.4 0.02" rotation="0 0 -90" vertex-a="0 0.08 0" vertex-b="-0.07 -0.04 0" vertex-c="0.07 -0.04 0" material="color: #FFB6C1; shader: flat; side: double"
-                            animation__mouseenter="property: material.color; to: #ff6b8b; dur: 100; startEvents: mouseenter"
-                            animation__mouseleave="property: material.color; to: #FFB6C1; dur: 100; startEvents: mouseleave"></a-triangle>
-                
-                <a-triangle class="btn-voltar-texto raycastable" position="-0.75 0.08 0.02" rotation="0 0 90" vertex-a="0 0.06 0" vertex-b="-0.05 -0.03 0" vertex-c="0.05 -0.03 0" material="color: #58a6ff; shader: flat; side: double"
-                            animation__mouseenter="property: material.color; to: #1f6feb; dur: 100; startEvents: mouseenter"
-                            animation__mouseleave="property: material.color; to: #58a6ff; dur: 100; startEvents: mouseleave"></a-triangle>
-                
-                <a-triangle class="btn-avancar-texto raycastable" position="0.75 0.08 0.02" rotation="0 0 -90" vertex-a="0 0.06 0" vertex-b="-0.05 -0.03 0" vertex-c="0.05 -0.03 0" material="color: #58a6ff; shader: flat; side: double"
-                            animation__mouseenter="property: material.color; to: #1f6feb; dur: 100; startEvents: mouseenter"
-                            animation__mouseleave="property: material.color; to: #58a6ff; dur: 100; startEvents: mouseleave"></a-triangle>
+                <a-entity class="texto-conteudo" position="-1.58 0.8 0.063"
+                          text="value: Carregando...; color: #FFFFFF; width: 3.1; font: roboto; wrapCount: 34; anchor: left; baseline: top; align: justify"></a-entity>
             </a-entity>
+
+            <!-- 2. PAINEL INFERIOR: CONSOLE DE COMANDOS -->
+            <a-entity position="0 -0.75 0">
+                <a-box position="0 0 0" width="3.6" height="1.0" depth="0.12" material="color: #1A1C29; roughness: 0.8"></a-box>
+                <a-plane position="0 0 0.065" width="3.5" height="0.92" material="color: #0E1017; shader: flat"></a-plane>
+
+                <!-- NAVEGAÇÃO DE PÁGINAS (BOTÕES AZUIS) -->
+                <a-entity position="-0.9 0.22 0.07">
+                    <a-entity position="0 0.16 0.005" text="value: PÁGINAS; color: #58a6ff; align: center; width: 1.6; font: roboto"></a-entity>
+                    <a-box class="btn-voltar-texto raycastable" position="-0.22 -0.05 0.02" width="0.32" height="0.22" depth="0.05" material="color: #1F3A5F">
+                        <a-triangle position="0 0 0.03" rotation="0 0 90" vertex-a="0 0.06 0" vertex-b="-0.05 -0.03 0" vertex-c="0.05 -0.03 0" material="color: #58a6ff; shader: flat; side: double"></a-triangle>
+                    </a-box>
+                    <a-box class="btn-avancar-texto raycastable" position="0.22 -0.05 0.02" width="0.32" height="0.22" depth="0.05" material="color: #1F3A5F">
+                        <a-triangle position="0 0 0.03" rotation="0 0 -90" vertex-a="0 0.06 0" vertex-b="-0.05 -0.03 0" vertex-c="0.05 -0.03 0" material="color: #58a6ff; shader: flat; side: double"></a-triangle>
+                    </a-box>
+                </a-entity>
+
+                <!-- NAVEGAÇÃO DE CENAS (BOTÕES ROSAS) -->
+                <a-entity position="0.9 0.22 0.07">
+                    <a-entity position="0 0.16 0.005" text="value: TROCAR CENA; color: #FFB6C1; align: center; width: 1.6; font: roboto"></a-entity>
+                    <a-box class="btn-cena-anterior raycastable" position="-0.22 -0.05 0.02" width="0.32" height="0.22" depth="0.05" material="color: #5F1F3A">
+                        <a-triangle position="0 0 0.03" rotation="0 0 90" vertex-a="0 0.06 0" vertex-b="-0.05 -0.03 0" vertex-c="0.05 -0.03 0" material="color: #FFB6C1; shader: flat; side: double"></a-triangle>
+                    </a-box>
+                    <a-box class="btn-cena-proxima raycastable" position="0.22 -0.05 0.02" width="0.32" height="0.22" depth="0.05" material="color: #5F1F3A">
+                        <a-triangle position="0 0 0.03" rotation="0 0 -90" vertex-a="0 0.06 0" vertex-b="-0.05 -0.03 0" vertex-c="0.05 -0.03 0" material="color: #FFB6C1; shader: flat; side: double"></a-triangle>
+                    </a-box>
+                </a-entity>
+
+                <!-- BOTÃO PRINCIPAL: TRR LIGADO / DESLIGADO (CLICÁVEL VIA VR E MOUSE) -->
+                <a-entity class="btn-toggle-trr-3d raycastable" position="0 -0.22 0.09">
+                    <a-box class="raycastable" width="2.4" height="0.28" depth="0.06" material="color: #9370DB"></a-box>
+                    <a-entity class="texto-btn-trr" position="0 0 0.035"
+                              text="value: TRR: DESLIGADO; color: #FFFFFF; align: center; width: 2.2; font: roboto"></a-entity>
+                </a-entity>
+            </a-entity>
+
         </a-entity>
 
-        <a-sky color="#A5C9EB"></a-sky> <a-plane position="0 0 0" rotation="-90 0 0" width="500" height="500" src="#textura-solo" material="roughness: 0.8; repeat: 20 20"></a-plane>
+        <a-sky color="#A5C9EB"></a-sky> 
+        <a-plane position="0 0 0" rotation="-90 0 0" width="500" height="500" src="#textura-solo" material="roughness: 0.8; repeat: 20 20"></a-plane>
 
         <a-entity light="type: ambient; color: #888"></a-entity>
         <a-entity light="type: directional; intensity: 0.7" position="5 15 5"></a-entity>

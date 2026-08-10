@@ -8,6 +8,7 @@ let particleId = 0;
 let uid = 0;
 let enableTrace = true;
 let mainInterval = null;
+let intervalCena2 = null;
 
 const P = AFRAME.utils.coordinates.parse;
 
@@ -133,19 +134,22 @@ function spawnEventCena2() {
     const collisionY = Math.sqrt(radiusSq - distSq) - 4;
     if (collisionY < 3.5) return; 
 
-    const ct = $mk(scene, 'a-entity', { position: `${rndX} 0 ${rndZ}` });
+    // Classe 'container-particula' para isolamento seguro do reset
+    const ct = $mk(scene, 'a-entity', { 
+        class: 'container-particula',
+        position: `${rndX} 0 ${rndZ}` 
+    });
+
     const topY = 20, atmosY = collisionY, splitH = atmosY - 1.5, floorY = 0.5; 
     const tRay = 1500, tParent = 1500, tChildBase = 3000;
     
-    // Cores das partículas de acordo com as novas definições
-    const cRay = '#FF4500'; // Raio Cósmico (Laranja)
-    const cPion = '#9370DB'; // Píon de 1ª Geração (Roxo)
-    const cMuon = '#FFB6C1'; // Múon de 2ª Geração (Rosa Suave)
-    const cElec = '#FFD700'; // Elétron de 2ª Geração (Amarelo Ouro)
+    const cRay = '#FF4500';
+    const cPion = '#9370DB';
+    const cMuon = '#FFB6C1';
+    const cElec = '#FFD700';
 
     const sRay = `0 ${topY} -8`, eRay = `0 ${atmosY} -8`; 
 
-    // 1. Raio Cósmico Inicial
     const rayId = 'r' + uid++;
     const ray = $mk(ct, 'a-entity', {
         id: rayId, geometry: 'primitive:sphere; radius:0.06', material: `shader:flat; color:${cRay}`, position: sRay,
@@ -155,7 +159,6 @@ function spawnEventCena2() {
     makeTail(ct, ray, sRay, eRay, cRay, 1, 0, tRay);
     makeTrace(ct, sRay, eRay, cRay, 0, tRay);
 
-    // 2. Criação do Píon (Roxo)
     const spawnPion = (endX, side) => {
         const s = { x: side, y: atmosY, z: -8 }, e = { x: endX, y: splitH, z: -8 };
         const sS = `${s.x} ${s.y} ${s.z}`, eS = `${e.x} ${e.y} ${e.z}`;
@@ -169,10 +172,9 @@ function spawnEventCena2() {
         makeTail(ct, p, s, e, cPion, 2.2, tRay, tParent); 
         makeTrace(ct, sS, eS, cPion, tRay, tParent);
     };
-    spawnPion(-2.5, -0.3); // Píon da Esquerda
-    spawnPion(2.5, 0.3);  // Píon da Direita
+    spawnPion(-2.5, -0.3);
+    spawnPion(2.5, 0.3);
 
-    // 3. Decaimento das Partículas Filhas (Múon e Elétron)
     const spawnChild = (sX, eX, particleType) => {
         const isMuon = particleType === 'muon'; 
         const corFilha = isMuon ? cMuon : cElec;
@@ -199,11 +201,8 @@ function spawnEventCena2() {
         makeTrace(ct, sS, eS, corFilha, startT, dur);
     };
     
-    // RAMO ESQUERDO
     spawnChild(-2.5, -3.5, 'muon');     
     spawnChild(-2.5, -1.5, 'electron'); 
-
-    // RAMO DIREITO
     spawnChild(2.5, 1.5, 'muon');       
     spawnChild(2.5, 3.5, 'electron');   
 
@@ -215,19 +214,46 @@ const loopCena2 = () => {
     for (let i = 0; i < qtd; i++) setTimeout(spawnEventCena2, Math.random() * 3000);
 };
 
-/* --- LÓGICA COMPORTAMENTAL: CENA 3 (Modificada com base na estrutura estável da Cena 2) --- */
+function iniciarLoopCena2() {
+    if (intervalCena2) clearInterval(intervalCena2);
+    loopCena2();
+    intervalCena2 = setInterval(loopCena2, 4000);
+}
+
+function resetarCena2() {
+    const scene = document.querySelector('a-scene');
+    if (!scene) return;
+
+    // Seleciona e remove exclusivamente as partículas ativas da Cena 2
+    const particulasAtivas = scene.querySelectorAll('.container-particula');
+    particulasAtivas.forEach(particula => {
+        if (particula.parentNode === scene) {
+            scene.removeChild(particula);
+        }
+    });
+
+    iniciarLoopCena2();
+}
+
+/* --- LÓGICA COMPORTAMENTAL: CENA 3 (SELEÇÃO DIRETA DE MÚONS POR BOTÃO 3D) --- */
+let qtdMuonsCena3 = 3; 
+
+function setQtdMuonsCena3(novaQtd) {
+    qtdMuonsCena3 = novaQtd;
+    resetSimulationCena3(); 
+}
+
 const spawnEventCena3 = () => {
     const container = document.querySelector('#muon-container');
     if(!container) return;
 
-    const halfLife = parseFloat(document.getElementById('inputLife').value) * 1000;
-    const qty = parseInt(document.getElementById('inputQty').value);
+    const halfLife = 2000;
+    const qty = qtdMuonsCena3;
 
-    // Mapeamento idêntico de cores da Cena 2
     const cRay = '#87CEEB';  
-    const cPion = '#9370DB'; // Píon de 1ª Geração (Roxo)
-    const cMuon = '#FFB6C1'; // Múon de 2ª Geração (Rosa Suave)
-    const cNeut = '#FFD700'; // Neutrino/Elétron de 2ª Geração (Amarelo)
+    const cPion = '#9370DB';
+    const cMuon = '#FFB6C1';
+    const cNeut = '#FFD700';
 
     for(let i = 0; i < qty; i++) {
         setTimeout(() => {
@@ -247,19 +273,24 @@ const spawnEventCena3 = () => {
             makeTail(ct, ray, `0 ${topY} 0`, `0 ${atmosY} 0`, cRay, 1, 0, tRay);
             makeTrace(ct, `0 ${topY} 0`, `0 ${atmosY} 0`, cRay, 0, tRay);
 
-            // 2. Geração dos Píons Dinâmicos (Roxo)
             setTimeout(() => {
                 const spawnParentPion = (endX) => {
                     const sS = `0 ${atmosY} 0`, eS = `${endX} ${splitH} 0`;
                     const pId = 'p' + uid++;
+                    
+                    // Esfera do Píon com ocultação ao final da trajetória (animation__h)
                     const p = $mk(ct, 'a-entity', {
-                        id: pId, geometry: 'primitive:sphere; radius:0.14', material: `shader:flat; color:${cPion}`, position: sS,
-                        animation: `property:position; to:${eS}; dur:${tParent}; easing:linear`
+                        id: pId, 
+                        geometry: 'primitive:sphere; radius:0.14', 
+                        material: `shader:flat; color:${cPion}`, 
+                        position: sS,
+                        animation: `property:position; to:${eS}; dur:${tParent}; easing:linear`,
+                        animation__h: `property:visible; to:false; dur:0; delay:${tParent}`
                     });
+                    
                     makeTail(ct, p, sS, eS, cPion, 2.2, 0, tParent);
                     makeTrace(ct, sS, eS, cPion, 0, tParent);
 
-                    // 3. Decaimento das Partículas Filhas (Múon + Neutrino) com controle direcional anti-cruzamento
                     setTimeout(() => {
                         const spawnGen2Product = (particleType) => {
                             const isMuon = particleType === 'muon';
@@ -271,7 +302,6 @@ const spawnEventCena3 = () => {
                             const targetY = survives ? floorY : splitH * 0.4;
                             const actualDur = survives ? tChild : tChild * 0.6;
                             
-                            // impede o cruzamento calculando a projeção baseada no lado do pai (endX)
                             const direcaoPai = endX > 0 ? 1 : -1;
                             const desvioX = isMuon ? 1.2 : 0.3;
                             const targetX = endX + (direcaoPai * desvioX);
@@ -288,15 +318,14 @@ const spawnEventCena3 = () => {
                             makeTrace(ct, s2, e2, corFilha, 0, actualDur);
                         };
 
-                        // Dispara exatamente um Múon e um Neutrino por braço
                         spawnGen2Product('muon');
                         spawnGen2Product('neutrino');
 
                     }, tParent);
                 };
                 
-                spawnParentPion(-2); // Píon da Esquerda
-                spawnParentPion(2);  // Píon da Direita
+                spawnParentPion(-2);
+                spawnParentPion(2);
 
             }, tRay);
 
@@ -313,7 +342,7 @@ const resetSimulationCena3 = () => {
     mainInterval = setInterval(spawnEventCena3, 4000);
 };
 
-/* --- ENGENHARIA DE SOFTWARE: ORQUESTRADOR NATIVO DE CICLO DE VIDA --- */
+/* --- ORQUESTRADOR NATIVO DE CICLO DE VIDA (CENAS 1, 2 E 3) --- */
 const initSimulation = () => {
     const sceneEl = document.querySelector('a-scene');
     if (!sceneEl) return;
@@ -327,26 +356,18 @@ const initSimulation = () => {
     else if (sceneId === 'sceneCena2') {
         const chkTrace = document.getElementById('chkTrace');
         if(chkTrace) {
-            chkTrace.addEventListener('change', (e) => { enableTrace = e.target.checked; });
+            chkTrace.addEventListener('change', (e) => { 
+                enableTrace = e.target.checked; 
+                resetarCena2();
+            });
         }
-        setInterval(loopCena2, 4000);
-        loopCena2(); 
+        iniciarLoopCena2(); 
     } 
     else if (sceneId === 'sceneCena3') {
-        const inputLife = document.getElementById('inputLife');
-        const inputQty = document.getElementById('inputQty');
-        const valQty = document.getElementById('valQty');
-
-        if(inputLife) inputLife.addEventListener('change', resetSimulationCena3);
-        if(inputQty && valQty) {
-            inputQty.addEventListener('input', () => { valQty.innerText = inputQty.value; });
-            inputQty.addEventListener('change', resetSimulationCena3);
-        }
         resetSimulationCena3();
     }
 };
 
-// Padrão Arquitetural A-Frame: Executa estritamente após o evento 'loaded' do motor 3D
 const sceneEl = document.querySelector('a-scene');
 if (sceneEl) {
     if (sceneEl.hasLoaded) {
@@ -363,10 +384,7 @@ if (sceneEl) {
     });
 }
 
-//-----Cena4--------
-
 /* --- ORQUESTRADOR NATIVO: INJEÇÃO COMPLEMENTAR CENA 4 --- */
-// Vincula a inicialização automática à árvore de execução da Cena 4
 window.addEventListener('DOMContentLoaded', () => {
     const structuralScene = document.querySelector('a-scene');
     if (structuralScene && structuralScene.id === 'sceneCena4') {
@@ -396,7 +414,6 @@ function inicializarCena4() {
     let timeoutFimDaQueda = null;
     let soloEntidade = null;
 
-    // 1. POOLING DE NUVENS USANDO A SUA FUNÇÃO UTILITÁRIA $MK
     for (let i = 0; i < TOTAL_NUVENS; i++) {
         let yInicial = Math.random() * (LIMITE_SUPERIOR_Y - LIMITE_INFERIOR_Y) + LIMITE_INFERIOR_Y;
         gerarNuvemNoPool(yInicial);
@@ -404,22 +421,19 @@ function inicializarCena4() {
 
     function gerarNuvemNoPool(yStart) {
         let xRand = (Math.random() - 0.5) * 45;
-        let zRand = -(Math.random() * 15 + 4); // Posiciona à frente do campo visual da câmera fixa
+        let zRand = -(Math.random() * 15 + 4);
         
         let duracaoAjustada = VELOCIDADE_QUEDA * ((LIMITE_SUPERIOR_Y - yStart) / (LIMITE_SUPERIOR_Y - LIMITE_INFERIOR_Y));
 
-        // Reutilização limpa do $mk com o seu shader grad integrado para suavizar as bordas das nuvens
         const nuvem = $mk(containerNuvens, 'a-entity', {
-            //geometry: "primitive: cone; radiusBottom: 3.5; radiusTop: 0.0; height: 1.5; openEnded: true",
             geometry: "primitive: sphere; radius: 4", 
             scale: "2 0.4 3",
             position: `${xRand} ${yStart} ${zRand}`,
-            rotation: "0 0 180", // Aponta para baixo dando dinâmica de compressão aerodinâmica
+            rotation: "0 0 180",
             material: "shader: grad; c: #ffffff; transparent: true; side: double",
             animation__move: `property: position; to: ${xRand} ${LIMITE_SUPERIOR_Y} ${zRand}; dur: ${duracaoAjustada}; easing: linear; loop: false`
         });
 
-        // Loop Infinito por escuta de evento de animação do DOM
         nuvem.addEventListener('animationcomplete__move', () => {
             let novoX = (Math.random() - 0.5) * 45;
             let novoZ = -(Math.random() * 15 + 4);
@@ -429,24 +443,24 @@ function inicializarCena4() {
         });
     }
 
-    // 2. SISTEMA DE GESTÃO FÍSICA (CLÁSSICA VS RELATIVÍSTICA)
     function gerenciarCicloDeFisica() {
         limparCenarioRelativistico();
 
         if (modoRelativisticoAtivo) {
-            statusPainel.innerHTML = `1. Tempo Próprio ($\tau$): 2.2 $\mu$s<br>2. Distância Atmosférica: <span style="color:#87CEEB; font-weight:bold;">Contraída</span>.<br><br>A velocidade relativística encolheu o espaço. A superfície da Terra vai colidir com o Múon!`;
-            
-            // Situação B: O solo sobe após 4.5 segundos de queda livre simulada
+            if (statusPainel) {
+                statusPainel.innerHTML = `1. Tempo Próprio ($\tau$): 2.2 $\mu$s<br>2. Distância Atmosférica: <span style="color:#87CEEB; font-weight:bold;">Contraída</span>.<br><br>A velocidade relativística encolheu o espaço. A superfície da Terra vai colidir com o Múon!`;
+            }
             timeoutFimDaQueda = setTimeout(() => {
                 dispararSubidaDoSolo();
             }, 4500);
         } else {
-            statusPainel.innerHTML = `1. Tempo Próprio ($\tau$): 2.2 $\mu$s<br>2. Distância Atmosférica: Clássica (15km).<br><br><span style="color:#FF4500; font-weight:bold;">Queda Perpétua:</span> Sem a contração espacial da relatividade, o Múon decairá antes de ver o chão.`;
+            if (statusPainel) {
+                statusPainel.innerHTML = `1. Tempo Próprio ($\tau$): 2.2 $\mu$s<br>2. Distância Atmosférica: Clássica (15km).<br><br><span style="color:#FF4500; font-weight:bold;">Queda Perpétua:</span> Sem a contração espacial da relatividade, o Múon decairá antes de ver o chão.`;
+            }
         }
     }
 
     function dispararSubidaDoSolo() {
-        // Geração do solo verde tridimensional com $mk
         soloEntidade = $mk(containerSolo, 'a-plane', {
             id: "solo-terra",
             position: "0 -50 0",
@@ -459,16 +473,15 @@ function inicializarCena4() {
             animation__subir: "property: position; to: 0 0 0; dur: 2000; easing: easeOutQuad"
         });
 
-        // Verificação de Impacto com o referencial fixo (Altura dos olhos)
         soloEntidade.addEventListener('animationcomplete__subir', () => {
-            if(hudSucesso) {
+            if (hudSucesso) {
                 hudSucesso.setAttribute('value', "SUPERFICIE ALCANÇADA!\nContracao do Espaco Comprovada.");
                 hudSucesso.emit('mostrarMsg');
             }
 
             setTimeout(() => {
-                if(hudSucesso) hudSucesso.emit('esconderMsg');
-                gerenciarCicloDeFisica(); // Reseta o loop de aproximação planetária
+                if (hudSucesso) hudSucesso.emit('esconderMsg');
+                gerenciarCicloDeFisica();
             }, 2500);
         });
     }
@@ -484,18 +497,13 @@ function inicializarCena4() {
         }
     }
 
-    // Escutador reativo do switch HTML
     switchRelatividade.addEventListener('change', (event) => {
         modoRelativisticoAtivo = event.target.checked;
         gerenciarCicloDeFisica();
     });
 
-    // Disparo inicial
     gerenciarCicloDeFisica();
 }
-
-
-//-----Cena 5--------
 
 /* --- ORQUESTRADOR NATIVO: INJEÇÃO COMPLEMENTAR CENA 5 --- */
 window.addEventListener('DOMContentLoaded', () => {
@@ -511,44 +519,68 @@ window.addEventListener('DOMContentLoaded', () => {
 
 function inicializarCena5() {
     const chuvaContainer = document.getElementById('chuva-muons');
-    const switchTRR = document.getElementById('switch-trr');
     const statusPainel = document.getElementById('status-painel');
+    const switchTRR = document.getElementById('switch-relatividade') || document.getElementById('switch-trr');
+    
+    // Elementos da Máquina Contadora e Indicador Luminoso 3D
+    const displayContador3D = document.getElementById('display-contador-3d');
+    const lampadaDetector = document.getElementById('lampada-detector');
+    const luzFlash = document.getElementById('luz-flash');
 
     if (!chuvaContainer || !switchTRR) return;
 
     let trrAtiva = false;
     let loopChuvaId = null;
     let geradorUid = 0;
+    let totalMuonsDetectados = 0;
 
-    const corMuon = '#FFB6C1'; // Múon de 2ª Geração (Rosa Suave)
+    const corMuon = '#FFB6C1';
+
+    // Dispara o flash verde na máquina e incrementa o visor LED
+    function registrarDetectacao() {
+        totalMuonsDetectados++;
+
+        if (displayContador3D) {
+            displayContador3D.setAttribute('text', 'value', `DETECTADOS: ${totalMuonsDetectados}`);
+        }
+
+        if (lampadaDetector && luzFlash) {
+            lampadaDetector.setAttribute('material', 'color', '#00FF7F');
+            lampadaDetector.setAttribute('material', 'emissive', '#00FF7F');
+            lampadaDetector.setAttribute('material', 'emissiveIntensity', '1.0');
+            luzFlash.setAttribute('light', 'intensity', '2.0');
+
+            setTimeout(() => {
+                lampadaDetector.setAttribute('material', 'color', '#333333');
+                lampadaDetector.setAttribute('material', 'emissive', '#000000');
+                lampadaDetector.setAttribute('material', 'emissiveIntensity', '0');
+                luzFlash.setAttribute('light', 'intensity', '0');
+            }, 150);
+        }
+    }
 
     function spawnMuonCaindo() {
         if (!chuvaContainer.parentNode) return;
 
-        // Distribui os múons ao redor do usuário estático
         const angulo = Math.random() * Math.PI * 2;
         const raio = Math.random() * 12; 
         const xPos = Math.cos(angulo) * raio;
         const zPos = Math.sin(angulo) * raio;
 
-        const alturaNascimento = 25; // Alta atmosfera simulada
-        const alturaChao = 0.1;      // Nível do mar
+        const alturaNascimento = 25; 
+        const alturaChao = 0.1;      
 
         let targetY = alturaChao;
         let sobreviventeEstatistico = true;
 
         if (!trrAtiva) {
-            // SITUAÇÃO A: TRR DESLIGADA - 100% decaem no topo/meio da atmosfera
-            targetY = 12 + (Math.random() * 4); // Morrem alto (entre Y=12 e Y=16)
+            targetY = 12 + (Math.random() * 4);
             sobreviventeEstatistico = false;
         } else {
-            // SITUAÇÃO B: TRR LIGADA - Regra estatística de 50% de chance (Meia-vida)
             if (Math.random() < 0.5) {
-                // 50% dos Múons decaem no meio do ar antes de tocar o chão
-                targetY = 2 + (Math.random() * 10); // Desintegram-se em altitudes variadas (Y=2 a Y=10)
+                targetY = 2 + (Math.random() * 10);
                 sobreviventeEstatistico = false;
             } else {
-                // Os outros 50% completam a viagem com sucesso e colidem com o solo
                 targetY = alturaChao;
                 sobreviventeEstatistico = true;
             }
@@ -556,9 +588,8 @@ function inicializarCena5() {
 
         const idParticula = 'm5_' + geradorUid++;
         const distanciaTotal = alturaNascimento - targetY;
-        const duracaoMovimento = distanciaTotal * 130; // Velocidade linear de queda proporcional
+        const duracaoMovimento = distanciaTotal * 130;
 
-        // Injeção procedural via $mk com o shader grad
         const muonNode = $mk(chuvaContainer, 'a-entity', {
             id: idParticula,
             geometry: "primitive: cone; radiusBottom: 0.08; radiusTop: 0.0; height: 1.2; openEnded: true",
@@ -568,17 +599,14 @@ function inicializarCena5() {
             animation__queda: `property: position; to: ${xPos} ${targetY} ${zPos}; dur: ${duracaoMovimento}; easing: linear`
         });
 
-        // Evento executado no fim da trajetória calculada
         muonNode.addEventListener('animationcomplete__queda', () => {
             if (!sobreviventeEstatistico) {
-                // Efeito visual de desintegração/decaimento no meio do ar
                 muonNode.setAttribute('animation__decaimento', "property: scale; to: 0 0 0; dur: 200; easing: easeInQuad");
             } else {
-                // Colisão física com o solo/mar (esmaecimento rápido por impacto)
                 muonNode.setAttribute('animation__impacto', "property: scale; to: 1 0 1; dur: 100; easing: linear");
+                registrarDetectacao();
             }
             
-            // Remoção segura do nó do DOM
             setTimeout(() => {
                 if (muonNode.parentNode) {
                     muonNode.parentNode.removeChild(muonNode);
@@ -590,20 +618,29 @@ function inicializarCena5() {
     function gerenciarCicloChuva() {
         if (loopChuvaId) clearInterval(loopChuvaId);
         chuvaContainer.innerHTML = '';
+        
+        totalMuonsDetectados = 0;
+        if (displayContador3D) {
+            displayContador3D.setAttribute('text', 'value', 'DETECTADOS: 0');
+        }
 
         if (trrAtiva) {
-            statusPainel.innerHTML = `
-                <strong>Física Relativística Ativa</strong><br>
-                <strong>Dilatação do Tempo:</strong> $t = \\gamma t_0$<br><br>
-                <span style="color:#9370DB; font-weight:bold;">Status:</span> Tempo de vida estendido pela velocidade. Devido à natureza probabilística da meia-vida, <strong>~50% alcançam o solo</strong> e a outra metade decai no ar.
-            `;
+            if (statusPainel) {
+                statusPainel.innerHTML = `
+                    <strong>Física Relativística Ativa</strong><br>
+                    <strong>Dilatação do Tempo:</strong> $t = \\gamma t_0$<br><br>
+                    <span style="color:#9370DB; font-weight:bold;">Status:</span> Tempo de vida estendido pela velocidade. Devido à natureza probabilística da meia-vida, <strong>~50% alcançam o solo</strong> e acionam o detector.
+                `;
+            }
             loopChuvaId = setInterval(spawnMuonCaindo, 250);
         } else {
-            statusPainel.innerHTML = `
-                <strong>Física Clássica Pura</strong><br>
-                <strong>Tempo de Vida Clássico:</strong> 2.2 $\\mu$s<br><br>
-                <span style="color:#FF4500; font-weight:bold;">Status:</span> Sem dilatação temporal, a vida útil expira rápido demais para a escala da atmosfera. <strong>0% dos múons alcançam o solo</strong>.
-            `;
+            if (statusPainel) {
+                statusPainel.innerHTML = `
+                    <strong>Física Clássica Pura</strong><br>
+                    <strong>Tempo de Vida Clássico:</strong> 2.2 $\\mu$s<br><br>
+                    <span style="color:#FF4500; font-weight:bold;">Status:</span> Sem dilatação temporal, a vida útil expira rápido demais para a escala da atmosfera. <strong>0% dos múons alcançam o solo</strong>.
+                `;
+            }
             loopChuvaId = setInterval(spawnMuonCaindo, 400);
         }
     }

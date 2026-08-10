@@ -3,7 +3,6 @@
  * Centralização dos componentes customizados e shaders do projeto.
  */
 
-// Componente de interpolação e acompanhamento (Seguidor dinâmico)
 AFRAME.registerComponent('dynamic-trail', {
     schema: {
         targetId: { type: 'string' },
@@ -26,7 +25,6 @@ AFRAME.registerComponent('dynamic-trail', {
     }
 });
 
-// Alias mantido para retrocompatibilidade com as cenas 2 e 3
 AFRAME.registerComponent('dt', {
     schema: { target: { type: 'string' }, speed: { type: 'number', default: 0.3 }, off: { type: 'vec3' } },
     init: function () { this.v = new THREE.Vector3(); },
@@ -38,7 +36,6 @@ AFRAME.registerComponent('dt', {
     }
 });
 
-// Shader de gradiente opaco para transparente das caudas
 AFRAME.registerShader('grad', {
     schema: { c: { type: 'color', is: 'uniform' } },
     vertexShader: `
@@ -56,8 +53,7 @@ AFRAME.registerShader('grad', {
 });
 
 /**
- * COMPONENTE: PAINEL EXPLICATIVO INTERATIVO VR (VERSÃO UNIFICADA)
- * Gerencia a troca de páginas de texto (botões azuis) e a navegação entre cenas (botões rosas).
+ * COMPONENTE: PAINEL EXPLICATIVO INTERATIVO VR (VERSÃO UNIFICADA E COMPLETA)
  */
 AFRAME.registerComponent('painel-explicativo', {
     schema: {
@@ -65,7 +61,6 @@ AFRAME.registerComponent('painel-explicativo', {
     },
 
     init: function () {
-        // BANCO DE DADOS ÚNICO E CENTRALIZADO
         this.textos = {
             1: [
                 "PÁGINA 1/2\nOs raios cósmicos viajam do espaço até a Terra em altíssima velocidade. Ao colidirem com os gases da alta atmosfera, eles geram uma cascata de novas partículas secundárias.",
@@ -76,60 +71,87 @@ AFRAME.registerComponent('painel-explicativo', {
                 "PÁGINA 2/2\nContudo, devido à Dilatação Temporal da Relatividade Restrita, o tempo passa mais devagar para o múon no referencial da Terra, permitindo que ele atravesse a atmosfera antes de decair."
             ],
             3: [
-                "PÁGINA 1/2\nRESET DINÂMICO: Modificar a Meia-vida da simulação altera diretamente o tempo médio de sobrevivência do Múon. Na física real, essa constante dita a taxa de decaimento exponencial da cascata de partículas secundárias.",
-                "PÁGINA 2/2\nAo reduzir a Meia-vida nos controles, as trajetórias tornam-se visualmente mais curtas, pois a probabilidade de decaimento prematuro se eleva. Inversamente, valores altos permitem que mais partículas alcancem o nível do mar."
+                "PÁGINA 1/2\nFLUXO DE MÚONS: A intensidade da cascata secundária varia conforme a energia e a densidade dos raios cósmicos incidentes na alta atmosfera.",
+                "PÁGINA 2/2\nUtilize os botões no console para alternar entre uma simulação de menor fluxo (3 múons por ciclo) e maior fluxo (6 múons por ciclo), observando a densidade de decaimento sobre a superfície do mar."
             ],
             4: [
                 "PÁGINA 1/2\nBEM-VINDO AO REFERENCIAL DO MÚON! Aqui, você está parado e a atmosfera se move. Pela física clássica, seu tempo de vida de 2.2 microssegundos expirará antes do chão chegar.",
                 "PÁGINA 2/2\nAtive o 'Efeito Relativístico'. Pela contração do comprimento de Lorentz, a distância da atmosfera encolhe drasticamente. A Terra se aproxima rapidamente, permitindo o impacto!"
             ],
             5: [
-        "PÁGINA 1/3\nREFERENCIAL DA TERRA: Agora, você está fixo na superfície do planeta. Do nosso ponto de vista, a atmosfera possui sua extensão máxima real de aproximadamente 15 quilômetros de altura.",
-        "PÁGINA 2/3\nFÍSICA CLÁSSICA (TRR Desligada):\nViajando perto da velocidade da luz, um múon levaria cerca de 50 microssegundos para cruzar a atmosfera. Como seu tempo de decaimento próprio é de apenas 2.2 microssegundos, as partículas desaparecem no céu muito antes de nos alcançar.",
-        "PÁGINA 3/3\nFÍSICA RELATIVÍSTICA (TRR Ligada):\nComo os múons se movem a velocidades altíssimas, o tempo deles passa mais devagar em relação ao nosso relógio (Dilatação Temporal). Para nós, a vida útil do múon é estendida, permitindo que a chuva atinja o solo!"
-    ]
+                "PÁGINA 1/3\nREFERENCIAL DA TERRA: Ao observarmos o fenômeno a partir da superfície, a atmosfera mantém sua extensão real de 15km. Pela física clássica, os múons levariam 50 microssegundos para cruzar essa distância.",
+                "PÁGINA 2/3\nFÍSICA CLÁSSICA (TRR Desligada):\nComo o tempo de vida próprio dessas partículas é de apenas 2.2 microssegundos, o percurso clássico é longo demais. Sem os efeitos relativísticos, 100% dos múons decaem e somem no ar antes de chegar perto do chão.",
+                "PÁGINA 3/3\nFÍSICA RELATIVÍSTICA (TRR Ligada):\nA dilatação temporal amplia a expectativa de vida das partículas do nosso ponto de vista. Porém, o decaimento é estocástico: mesmo com o tempo dilatado, a física probabilística dita que cerca de 50% dos múons ainda decairão no meio do ar, enquanto a outra metade alcança o nível do mar!"
+            ]
         };
 
         this.paginaAtual = 0;
-        
-        // Garante a captura segura do ID da cena
         let idCena = parseInt(this.data.cenaAtual, 10) || 1;
         this.paginasCena = this.textos[idCena] || ["Texto não encontrado."];
-        
-        // Mapeamento global de rotas (1 a 4)
-        this.rotas = { 1: 'index.html', 2: 'cena2.html', 3: 'cena3.html', 4: 'cena4.html', 5:"cena5.html" };
+        this.rotas = { 1: 'index.html', 2: 'cena2.html', 3: 'cena3.html', 4: 'cena4.html', 5: 'cena5.html' };
 
-        // Captura as tags do DOM interno da TV
-        this.textoEl = this.el.querySelector('.texto-conteudo');
-        this.btnVoltarTexto = this.el.querySelector('.btn-voltar-texto');
-        this.btnAvancarTexto = this.el.querySelector('.btn-avancar-texto');
-        this.btnCenaAnterior = this.el.querySelector('.btn-cena-anterior');
-        this.btnCenaProxima = this.el.querySelector('.btn-cena-proxima');
+        // Elementos globais da cena
+        let scene = this.el.sceneEl;
+        this.textoEl = scene.querySelector('.texto-conteudo');
+        this.btnVoltarTexto = scene.querySelector('.btn-voltar-texto');
+        this.btnAvancarTexto = scene.querySelector('.btn-avancar-texto');
+        this.btnCenaAnterior = scene.querySelector('.btn-cena-anterior');
+        this.btnCenaProxima = scene.querySelector('.btn-cena-proxima');
+        this.btnToggleTRR3D = scene.querySelector('.btn-toggle-trr-3d');
 
-        // Binds de escopo
+        this.estadoFiltro3D = (idCena === 2); // Inicia ligado na Cena 2 por padrão
+
         this.atualizarTexto = this.atualizarTexto.bind(this);
         this.mudarPagina = this.mudarPagina.bind(this);
         this.mudarCena = this.mudarCena.bind(this);
+        this.toggleFiltro3D = this.toggleFiltro3D.bind(this);
 
-        // Ouvintes de evento com verificação de existência preventiva
+        // Ouvintes globais
         if (this.btnVoltarTexto) this.btnVoltarTexto.addEventListener('click', () => this.mudarPagina(-1));
         if (this.btnAvancarTexto) this.btnAvancarTexto.addEventListener('click', () => this.mudarPagina(1));
         if (this.btnCenaAnterior) this.btnCenaAnterior.addEventListener('click', () => this.mudarCena(-1));
         if (this.btnCenaProxima) this.btnCenaProxima.addEventListener('click', () => this.mudarCena(1));
+        
+        // Botão de ação (Cenas 2, 4 e 5)
+        if (this.btnToggleTRR3D) {
+            this.btnToggleTRR3D.addEventListener('click', this.toggleFiltro3D);
+        }
 
-        // Força a renderização inicial aguardando um mini-tick do motor 3D
-        setTimeout(this.atualizarTexto, 10);
+        // Lógica específica para os botões de seleção de múons na Cena 3
+        if (idCena === 3) {
+            let btn3 = scene.querySelector('.btn-muons-3');
+            let btn6 = scene.querySelector('.btn-muons-6');
+
+            const atualizarSelecao3D = (qtd) => {
+                let box3 = btn3 ? btn3.querySelector('.bg-btn-3') : null;
+                let box6 = btn6 ? btn6.querySelector('.bg-btn-6') : null;
+
+                if (qtd === 3) {
+                    if (box3) box3.setAttribute('material', 'color', '#00FF7F');
+                    if (box6) box6.setAttribute('material', 'color', '#9370DB');
+                } else {
+                    if (box3) box3.setAttribute('material', 'color', '#9370DB');
+                    if (box6) box6.setAttribute('material', 'color', '#00FF7F');
+                }
+
+                if (typeof setQtdMuonsCena3 === 'function') {
+                    setQtdMuonsCena3(qtd);
+                }
+            };
+
+            if (btn3) btn3.addEventListener('click', () => atualizarSelecao3D(3));
+            if (btn6) btn6.addEventListener('click', () => atualizarSelecao3D(6));
+        }
+
+        setTimeout(this.atualizarTexto, 50);
     },
 
     atualizarTexto: function () {
+        if (!this.textoEl) {
+            this.textoEl = this.el.sceneEl.querySelector('.texto-conteudo');
+        }
         if (this.textoEl) {
             this.textoEl.setAttribute('text', 'value', this.paginasCena[this.paginaAtual]);
-        } else {
-            // Busca de contingência caso o elemento demore a indexar no DOM
-            this.textoEl = this.el.querySelector('.texto-conteudo');
-            if (this.textoEl) {
-                this.textoEl.setAttribute('text', 'value', this.paginasCena[this.paginaAtual]);
-            }
         }
     },
 
@@ -149,5 +171,45 @@ AFRAME.registerComponent('painel-explicativo', {
         if (novaCena > 5) novaCena = 1;
         
         window.location.href = this.rotas[novaCena];
+    },
+
+    toggleFiltro3D: function () {
+        this.estadoFiltro3D = !this.estadoFiltro3D;
+        let idCena = parseInt(this.data.cenaAtual, 10) || 1;
+        let btn3D = this.btnToggleTRR3D || this.el.sceneEl.querySelector('.btn-toggle-trr-3d');
+
+        if (btn3D) {
+            let textoEl = btn3D.querySelector('.texto-btn-trr');
+            let fundoEl = btn3D.querySelector('a-box') || btn3D.querySelector('a-plane');
+
+            if (fundoEl) {
+                fundoEl.setAttribute('material', 'color', this.estadoFiltro3D ? '#00FF7F' : '#9370DB');
+            }
+
+            if (textoEl) {
+                if (idCena === 4) {
+                    textoEl.setAttribute('text', 'value', this.estadoFiltro3D ? 'RELATIVIDADE: LIGADA' : 'RELATIVIDADE: DESLIGADA');
+                } else if (idCena === 5) {
+                    textoEl.setAttribute('text', 'value', this.estadoFiltro3D ? 'TRR: LIGADO' : 'TRR: DESLIGADO');
+                } else if (idCena === 2) {
+                    textoEl.setAttribute('text', 'value', this.estadoFiltro3D ? 'RASTROS: LIGADOS' : 'RASTROS: DESLIGADOS');
+                }
+            }
+        }
+
+        if (idCena === 2) {
+            if (typeof enableTrace !== 'undefined') {
+                enableTrace = this.estadoFiltro3D;
+            }
+            if (typeof resetarCena2 === 'function') {
+                resetarCena2();
+            }
+        }
+
+        let switch2D = document.getElementById('switch-relatividade') || document.getElementById('switch-trr') || document.getElementById('chkTrace');
+        if (switch2D) {
+            switch2D.checked = this.estadoFiltro3D;
+            switch2D.dispatchEvent(new Event('change', { bubbles: true }));
+        }
     }
 });

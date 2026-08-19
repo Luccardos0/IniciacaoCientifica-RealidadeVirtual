@@ -134,7 +134,6 @@ function spawnEventCena2() {
     const collisionY = Math.sqrt(radiusSq - distSq) - 4;
     if (collisionY < 3.5) return; 
 
-    // Classe 'container-particula' para isolamento seguro do reset
     const ct = $mk(scene, 'a-entity', { 
         class: 'container-particula',
         position: `${rndX} 0 ${rndZ}` 
@@ -224,7 +223,6 @@ function resetarCena2() {
     const scene = document.querySelector('a-scene');
     if (!scene) return;
 
-    // Seleciona e remove exclusivamente as partículas ativas da Cena 2
     const particulasAtivas = scene.querySelectorAll('.container-particula');
     particulasAtivas.forEach(particula => {
         if (particula.parentNode === scene) {
@@ -235,7 +233,7 @@ function resetarCena2() {
     iniciarLoopCena2();
 }
 
-/* --- LÓGICA COMPORTAMENTAL: CENA 3 (SELEÇÃO DIRETA DE MÚONS POR BOTÃO 3D) --- */
+/* --- LÓGICA COMPORTAMENTAL: CENA 3 (FLUXO DE MÚONS) --- */
 let qtdMuonsCena3 = 3; 
 
 function setQtdMuonsCena3(novaQtd) {
@@ -278,7 +276,6 @@ const spawnEventCena3 = () => {
                     const sS = `0 ${atmosY} 0`, eS = `${endX} ${splitH} 0`;
                     const pId = 'p' + uid++;
                     
-                    // Esfera do Píon com ocultação ao final da trajetória (animation__h)
                     const p = $mk(ct, 'a-entity', {
                         id: pId, 
                         geometry: 'primitive:sphere; radius:0.14', 
@@ -448,14 +445,14 @@ function inicializarCena4() {
 
         if (modoRelativisticoAtivo) {
             if (statusPainel) {
-                statusPainel.innerHTML = `1. Tempo Próprio ($\tau$): 2.2 $\mu$s<br>2. Distância Atmosférica: <span style="color:#87CEEB; font-weight:bold;">Contraída</span>.<br><br>A velocidade relativística encolheu o espaço. A superfície da Terra vai colidir com o Múon!`;
+                statusPainel.innerHTML = `1. Tempo Próprio (\\tau): 2.2 \\mu s<br>2. Distância Atmosférica: <span style="color:#87CEEB; font-weight:bold;">Contraída</span>.<br><br>A velocidade relativística encolheu o espaço. A superfície da Terra vai colidir com o Múon!`;
             }
             timeoutFimDaQueda = setTimeout(() => {
                 dispararSubidaDoSolo();
             }, 4500);
         } else {
             if (statusPainel) {
-                statusPainel.innerHTML = `1. Tempo Próprio ($\tau$): 2.2 $\mu$s<br>2. Distância Atmosférica: Clássica (15km).<br><br><span style="color:#FF4500; font-weight:bold;">Queda Perpétua:</span> Sem a contração espacial da relatividade, o Múon decairá antes de ver o chão.`;
+                statusPainel.innerHTML = `1. Tempo Próprio (\\tau): 2.2 \\mu s<br>2. Distância Atmosférica: Clássica (15km).<br><br><span style="color:#FF4500; font-weight:bold;">Queda Perpétua:</span> Sem a contração espacial da relatividade, o Múon decairá antes de ver o chão.`;
             }
         }
     }
@@ -522,7 +519,6 @@ function inicializarCena5() {
     const statusPainel = document.getElementById('status-painel');
     const switchTRR = document.getElementById('switch-relatividade') || document.getElementById('switch-trr');
     
-    // Elementos da Máquina Contadora e Indicador Luminoso 3D
     const displayContador3D = document.getElementById('display-contador-3d');
     const lampadaDetector = document.getElementById('lampada-detector');
     const luzFlash = document.getElementById('luz-flash');
@@ -536,7 +532,14 @@ function inicializarCena5() {
 
     const corMuon = '#FFB6C1';
 
-    // Dispara o flash verde na máquina e incrementa o visor LED
+    // Limites da Placa Sensorial Gigante (Centro: X=0, Z=-6.5 | Largura: 8.2m | Profundidade: 5.2m)
+    const DETECTOR_BOUNDS = {
+        minX: -4.1,
+        maxX:  4.1,
+        minZ: -9.1,
+        maxZ: -3.9
+    };
+
     function registrarDetectacao() {
         totalMuonsDetectados++;
 
@@ -547,25 +550,24 @@ function inicializarCena5() {
         if (lampadaDetector && luzFlash) {
             lampadaDetector.setAttribute('material', 'color', '#00FF7F');
             lampadaDetector.setAttribute('material', 'emissive', '#00FF7F');
-            lampadaDetector.setAttribute('material', 'emissiveIntensity', '1.0');
-            luzFlash.setAttribute('light', 'intensity', '2.0');
+            lampadaDetector.setAttribute('material', 'emissiveIntensity', '1.5');
+            luzFlash.setAttribute('light', 'intensity', '2.5');
 
             setTimeout(() => {
                 lampadaDetector.setAttribute('material', 'color', '#333333');
                 lampadaDetector.setAttribute('material', 'emissive', '#000000');
                 lampadaDetector.setAttribute('material', 'emissiveIntensity', '0');
                 luzFlash.setAttribute('light', 'intensity', '0');
-            }, 150);
+            }, 200);
         }
     }
 
     function spawnMuonCaindo() {
         if (!chuvaContainer.parentNode) return;
 
-        const angulo = Math.random() * Math.PI * 2;
-        const raio = Math.random() * 12; 
-        const xPos = Math.cos(angulo) * raio;
-        const zPos = Math.sin(angulo) * raio;
+        // Distribuição focada na área ao redor do solo e do detector
+        const xPos = (Math.random() - 0.5) * 20; 
+        const zPos = -(Math.random() * 16 + 1);
 
         const alturaNascimento = 25; 
         const alturaChao = 0.1;      
@@ -574,9 +576,17 @@ function inicializarCena5() {
         let sobreviventeEstatistico = true;
 
         if (!trrAtiva) {
-            targetY = 12 + (Math.random() * 4);
-            sobreviventeEstatistico = false;
+            // Sem TRR: ~2% de sobrevivência esporádica (cauda estatística pura)
+            const sobreviveEsporadico = Math.random() < 0.5;
+            if (sobreviveEsporadico) {
+                targetY = alturaChao;
+                sobreviventeEstatistico = true;
+            } else {
+                targetY = 10 + (Math.random() * 6);
+                sobreviventeEstatistico = false;
+            }
         } else {
+            // Com TRR: ~50% alcançam o solo devido à dilatação do tempo
             if (Math.random() < 0.5) {
                 targetY = 2 + (Math.random() * 10);
                 sobreviventeEstatistico = false;
@@ -604,7 +614,18 @@ function inicializarCena5() {
                 muonNode.setAttribute('animation__decaimento', "property: scale; to: 0 0 0; dur: 200; easing: easeInQuad");
             } else {
                 muonNode.setAttribute('animation__impacto', "property: scale; to: 1 0 1; dur: 100; easing: linear");
-                registrarDetectacao();
+                
+                // Validação retangular precisa da área da placa sensorial
+                const atingiuPlaca = (
+                    xPos >= DETECTOR_BOUNDS.minX &&
+                    xPos <= DETECTOR_BOUNDS.maxX &&
+                    zPos >= DETECTOR_BOUNDS.minZ &&
+                    zPos <= DETECTOR_BOUNDS.maxZ
+                );
+
+                if (atingiuPlaca) {
+                    registrarDetectacao();
+                }
             }
             
             setTimeout(() => {
@@ -629,19 +650,19 @@ function inicializarCena5() {
                 statusPainel.innerHTML = `
                     <strong>Física Relativística Ativa</strong><br>
                     <strong>Dilatação do Tempo:</strong> $t = \\gamma t_0$<br><br>
-                    <span style="color:#9370DB; font-weight:bold;">Status:</span> Tempo de vida estendido pela velocidade. Devido à natureza probabilística da meia-vida, <strong>~50% alcançam o solo</strong> e acionam o detector.
+                    <span style="color:#9370DB; font-weight:bold;">Status:</span> Tempo de vida estendido pela velocidade relativística ($\gamma \approx 10$). Cerca de <strong>~50% dos múons alcançam o solo</strong> e acionam o detector ao atingirem sua placa sensorial.
                 `;
             }
-            loopChuvaId = setInterval(spawnMuonCaindo, 250);
+            loopChuvaId = setInterval(spawnMuonCaindo, 200);
         } else {
             if (statusPainel) {
                 statusPainel.innerHTML = `
                     <strong>Física Clássica Pura</strong><br>
                     <strong>Tempo de Vida Clássico:</strong> 2.2 $\\mu$s<br><br>
-                    <span style="color:#FF4500; font-weight:bold;">Status:</span> Sem dilatação temporal, a vida útil expira rápido demais para a escala da atmosfera. <strong>0% dos múons alcançam o solo</strong>.
+                    <span style="color:#FF4500; font-weight:bold;">Status:</span> Sem dilatação temporal, quase a totalidade decai na atmosfera. Apenas uma <strong>fração esporádica (< 2%)</strong> consegue atingir o solo pela cauda probabilística do decaimento.
                 `;
             }
-            loopChuvaId = setInterval(spawnMuonCaindo, 400);
+            loopChuvaId = setInterval(spawnMuonCaindo, 350);
         }
     }
 

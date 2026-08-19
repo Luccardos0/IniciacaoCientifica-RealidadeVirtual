@@ -53,7 +53,7 @@ AFRAME.registerShader('grad', {
 });
 
 /**
- * COMPONENTE: PAINEL EXPLICATIVO INTERATIVO VR (VERSÃO UNIFICADA E COMPLETA)
+ * COMPONENTE: PAINEL EXPLICATIVO INTERATIVO VR (MODAL POP-UP FRONTAL)
  */
 AFRAME.registerComponent('painel-explicativo', {
     schema: {
@@ -90,41 +90,47 @@ AFRAME.registerComponent('painel-explicativo', {
         this.paginasCena = this.textos[idCena] || ["Texto não encontrado."];
         this.rotas = { 1: 'index.html', 2: 'cena2.html', 3: 'cena3.html', 4: 'cena4.html', 5: 'cena5.html' };
 
-        // Elementos globais da cena
         let scene = this.el.sceneEl;
+        
+        // Elementos do Modal de Leitura
+        this.modalInfo = scene.querySelector('#modal-leitura-info');
         this.textoEl = scene.querySelector('.texto-conteudo');
         this.btnVoltarTexto = scene.querySelector('.btn-voltar-texto');
         this.btnAvancarTexto = scene.querySelector('.btn-avancar-texto');
+        this.btnFecharModal = scene.querySelector('.btn-fechar-modal');
+
+        // Elementos do Console Fixo
+        this.btnToggleInfo = scene.querySelector('.btn-toggle-info');
         this.btnCenaAnterior = scene.querySelector('.btn-cena-anterior');
         this.btnCenaProxima = scene.querySelector('.btn-cena-proxima');
         this.btnToggleTRR3D = scene.querySelector('.btn-toggle-trr-3d');
 
+        this.infoVisivel = false;
         this.estadoFiltro3D = (idCena === 2); // Inicia ligado na Cena 2 por padrão
 
         this.atualizarTexto = this.atualizarTexto.bind(this);
         this.mudarPagina = this.mudarPagina.bind(this);
         this.mudarCena = this.mudarCena.bind(this);
+        this.toggleModalInfo = this.toggleModalInfo.bind(this);
         this.toggleFiltro3D = this.toggleFiltro3D.bind(this);
 
-        // Ouvintes globais
+        // Ouvintes de eventos
         if (this.btnVoltarTexto) this.btnVoltarTexto.addEventListener('click', () => this.mudarPagina(-1));
         if (this.btnAvancarTexto) this.btnAvancarTexto.addEventListener('click', () => this.mudarPagina(1));
         if (this.btnCenaAnterior) this.btnCenaAnterior.addEventListener('click', () => this.mudarCena(-1));
         if (this.btnCenaProxima) this.btnCenaProxima.addEventListener('click', () => this.mudarCena(1));
-        
-        // Botão de ação (Cenas 2, 4 e 5)
-        if (this.btnToggleTRR3D) {
-            this.btnToggleTRR3D.addEventListener('click', this.toggleFiltro3D);
-        }
+        if (this.btnToggleInfo) this.btnToggleInfo.addEventListener('click', this.toggleModalInfo);
+        if (this.btnFecharModal) this.btnFecharModal.addEventListener('click', this.toggleModalInfo);
+        if (this.btnToggleTRR3D) this.btnToggleTRR3D.addEventListener('click', this.toggleFiltro3D);
 
-        // Lógica específica para os botões de seleção de múons na Cena 3
+        // Lógica de seleção na Cena 3
         if (idCena === 3) {
             let btn3 = scene.querySelector('.btn-muons-3');
             let btn6 = scene.querySelector('.btn-muons-6');
 
             const atualizarSelecao3D = (qtd) => {
-                let box3 = btn3 ? btn3.querySelector('.bg-btn-3') : null;
-                let box6 = btn6 ? btn6.querySelector('.bg-btn-6') : null;
+                let box3 = btn3 ? btn3.querySelector('.bg-btn-3') || btn3.querySelector('a-box') : null;
+                let box6 = btn6 ? btn6.querySelector('.bg-btn-6') || btn6.querySelector('a-box') : null;
 
                 if (qtd === 3) {
                     if (box3) box3.setAttribute('material', 'color', '#00FF7F');
@@ -152,6 +158,27 @@ AFRAME.registerComponent('painel-explicativo', {
         }
         if (this.textoEl) {
             this.textoEl.setAttribute('text', 'value', this.paginasCena[this.paginaAtual]);
+        }
+    },
+
+    toggleModalInfo: function () {
+        this.infoVisivel = !this.infoVisivel;
+        
+        if (this.modalInfo) {
+            this.modalInfo.setAttribute('visible', this.infoVisivel);
+            if (this.infoVisivel) {
+                this.modalInfo.setAttribute('scale', '1 1 1');
+            } else {
+                this.modalInfo.setAttribute('scale', '0.001 0.001 0.001');
+            }
+        }
+
+        // Feedback visual no botão INFO (Verde quando aberto, Azul quando fechado)
+        if (this.btnToggleInfo) {
+            let bg = this.btnToggleInfo.querySelector('a-box');
+            if (bg) {
+                bg.setAttribute('material', 'color', this.infoVisivel ? '#00FF7F' : '#1F3A5F');
+            }
         }
     },
 

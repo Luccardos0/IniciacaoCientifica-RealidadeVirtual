@@ -10,7 +10,7 @@
 </head>
 <body>
     <div class="ui-layer">
-        <!-- CARD DE CONTROLE 2D ATUALIZADO (SELEÇÃO RÁPIDA DE FLUXO) -->
+        <!-- CARD DE CONTROLE 2D -->
         <div class="card control-box">
             <h2>Configurações</h2>
             <p style="color: #ccc; font-size: 13px; margin-bottom: 10px;">Selecione a quantidade de múons por ciclo:</p>
@@ -43,68 +43,69 @@
             <a-entity laser-controls="hand: right" raycaster="objects: .raycastable; far: 5"></a-entity>
         </a-entity>
 
-        <!-- ESTAÇÃO DUPLA DE COMANDO 3D (CENA 3 - POSICIONADA A 90° À ESQUERDA) -->
-<a-entity position="-4.5 1.2 0" rotation="0 90 0" painel-explicativo="cenaAtual: 3">
-    
-    <!-- 1. PAINEL SUPERIOR: TELA DE LEITURA 3D -->
-    <a-entity position="0 0.95 0">
-        <a-box position="0 0 0" width="3.6" height="2.1" depth="0.1" material="color: #12131C; roughness: 0.5"></a-box>
-        <a-plane position="0 0 0.055" width="3.5" height="2.0" material="color: #58a6ff; shader: flat"></a-plane>
-        <a-plane position="0 0 0.058" width="3.44" height="1.94" material="color: #08090E; shader: flat"></a-plane>
-
-        <a-entity class="texto-conteudo" position="-1.58 0.8 0.063"
-                  text="value: Carregando...; color: #FFFFFF; width: 3.1; font: roboto; wrapCount: 34; anchor: left; baseline: top; align: justify"></a-entity>
-    </a-entity>
-
-    <!-- 2. PAINEL INFERIOR: CONSOLE DE COMANDOS DEDICADO -->
-    <a-entity position="0 -0.75 0">
-        <a-box position="0 0 0" width="3.6" height="1.0" depth="0.12" material="color: #1A1C29; roughness: 0.8"></a-box>
-        <a-plane position="0 0 0.065" width="3.5" height="0.92" material="color: #0E1017; shader: flat"></a-plane>
-
-        <!-- LINHA SUPERIOR: NAVEGAÇÃO DE PÁGINAS E CENAS (POSICIONADAS MAIS AO TOPO) -->
-        
-        <!-- ESQUERDA: PÁGINAS (BOTÕES AZUIS) -->
-        <a-entity position="-0.9 0.25 0.07">
-            <a-entity position="0 0.15 0.005" text="value: PÁGINAS; color: #58a6ff; align: center; width: 1.6; font: roboto"></a-entity>
-            <a-box class="btn-voltar-texto raycastable" position="-0.22 -0.04 0.02" width="0.32" height="0.20" depth="0.05" material="color: #1F3A5F">
-                <a-triangle position="0 0 0.03" rotation="0 0 90" vertex-a="0 0.05 0" vertex-b="-0.04 -0.025 0" vertex-c="0.04 -0.025 0" material="color: #58a6ff; shader: flat; side: double"></a-triangle>
-            </a-box>
-            <a-box class="btn-avancar-texto raycastable" position="0.22 -0.04 0.02" width="0.32" height="0.20" depth="0.05" material="color: #1F3A5F">
-                <a-triangle position="0 0 0.03" rotation="0 0 -90" vertex-a="0 0.05 0" vertex-b="-0.04 -0.025 0" vertex-c="0.04 -0.025 0" material="color: #58a6ff; shader: flat; side: double"></a-triangle>
-            </a-box>
-        </a-entity>
-
-        <!-- DIREITA: TROCAR CENA (BOTÕES ROSAS) -->
-        <a-entity position="0.9 0.25 0.07">
-            <a-entity position="0 0.15 0.005" text="value: TROCAR CENA; color: #FFB6C1; align: center; width: 1.6; font: roboto"></a-entity>
-            <a-box class="btn-cena-anterior raycastable" position="-0.22 -0.04 0.02" width="0.32" height="0.20" depth="0.05" material="color: #5F1F3A">
-                <a-triangle position="0 0 0.03" rotation="0 0 90" vertex-a="0 0.05 0" vertex-b="-0.04 -0.025 0" vertex-c="0.04 -0.025 0" material="color: #FFB6C1; shader: flat; side: double"></a-triangle>
-            </a-box>
-            <a-box class="btn-cena-proxima raycastable" position="0.22 -0.04 0.02" width="0.32" height="0.20" depth="0.05" material="color: #5F1F3A">
-                <a-triangle position="0 0 0.03" rotation="0 0 -90" vertex-a="0 0.05 0" vertex-b="-0.04 -0.025 0" vertex-c="0.04 -0.025 0" material="color: #FFB6C1; shader: flat; side: double"></a-triangle>
-            </a-box>
-        </a-entity>
-
-
-        <!-- LINHA INFERIOR: CONTROLE DE FLUXO (ELEVADO E CENTRALIZADO) -->
-        <a-entity position="0 -0.16 0.07">
-            <a-entity position="0 0.18 0.005" text="value: FLUXO DE MÚONS POR CICLO; color: #00FF7F; align: center; width: 2.0; font: roboto"></a-entity>
-            
-            <!-- Botão 3 Múons (Ativo) -->
-            <a-entity class="btn-muons-3 raycastable" position="-0.65 -0.05 0.02">
-                <a-box class="bg-btn-3 raycastable" width="1.1" height="0.26" depth="0.06" material="color: #00FF7F"></a-box>
-                <a-entity position="0 0 0.035" text="value: 3 MÚONS; color: #111; align: center; width: 1.8; font: roboto"></a-entity>
+        <!-- ======================================================= -->
+        <!-- CONTROLES FLUTUANTES FRONTAIS (CENA 3)                  -->
+        <!-- ======================================================= -->
+        <a-entity position="0 1.4 -1.6" rotation="-12 0 0" painel-explicativo="cenaAtual: 3">
+            <!-- BOTÃO INFO -->
+            <a-entity class="btn-toggle-info raycastable" position="-0.38 0 0">
+                <a-box class="raycastable" width="0.52" height="0.26" depth="0.04" material="color: #2A6F97; roughness: 0.5"></a-box>
+                <a-entity position="0 0 0.025" text="value: INFO; color: #FFFFFF; align: center; width: 1.8; font: roboto"></a-entity>
             </a-entity>
 
-            <!-- Botão 6 Múons (Inativo) -->
-            <a-entity class="btn-muons-6 raycastable" position="0.65 -0.05 0.02">
-                <a-box class="bg-btn-6 raycastable" width="1.1" height="0.26" depth="0.06" material="color: #9370DB"></a-box>
-                <a-entity position="0 0 0.035" text="value: 6 MÚONS; color: #FFF; align: center; width: 1.8; font: roboto"></a-entity>
+            <!-- NAVEGAÇÃO ENTRE CENAS -->
+            <a-entity position="0.35 0 0">
+                <a-entity position="0 0.13 0" text="value: TROCAR CENA; color: #FFD1DC; align: center; width: 1.2; font: roboto"></a-entity>
+                <a-box class="btn-cena-anterior raycastable" position="-0.15 -0.04 0" width="0.24" height="0.18" depth="0.04" material="color: #A83264; roughness: 0.4">
+                    <a-triangle position="0 0 0.025" rotation="0 0 90" vertex-a="0 0.04 0" vertex-b="-0.03 -0.02 0" vertex-c="0.03 -0.02 0" material="color: #FFFFFF; shader: flat; side: double"></a-triangle>
+                </a-box>
+                <a-box class="btn-cena-proxima raycastable" position="0.15 -0.04 0" width="0.24" height="0.18" depth="0.04" material="color: #A83264; roughness: 0.4">
+                    <a-triangle position="0 0 0.025" rotation="0 0 -90" vertex-a="0 0.04 0" vertex-b="-0.03 -0.02 0" vertex-c="0.03 -0.02 0" material="color: #FFFFFF; shader: flat; side: double"></a-triangle>
+                </a-box>
+            </a-entity>
+
+            <!-- BOTÕES DE QUANTIDADE DE MÚONS (INFERIOR COM ESPAÇAMENTO E TEXTO BRANCO) -->
+            <a-entity position="-0.01 -0.30 0">
+                <a-entity class="btn-muons-3 raycastable" position="-0.32 0 0">
+                    <a-box class="bg-btn-3 raycastable" width="0.61" height="0.22" depth="0.04" material="color: #00AA55; roughness: 0.5"></a-box>
+                    <a-entity position="0 0 0.025" text="value: 3 MÚONS; color: #FFFFFF; align: center; width: 1.6; font: roboto"></a-entity>
+                </a-entity>
+                <a-entity class="btn-muons-6 raycastable" position="0.32 0 0">
+                    <a-box class="bg-btn-6 raycastable" width="0.61" height="0.22" depth="0.04" material="color: #6A3A8A; roughness: 0.5"></a-box>
+                    <a-entity position="0 0 0.025" text="value: 6 MÚONS; color: #FFFFFF; align: center; width: 1.6; font: roboto"></a-entity>
+                </a-entity>
             </a-entity>
         </a-entity>
 
-    </a-entity>
+        <!-- ======================================================= -->
+<!-- PAINEL POP-UP DE LEITURA (COMPACTO E ELEVADO)           -->
+<!-- ======================================================= -->
+<a-entity id="modal-leitura-info" position="0 2.2 -1.8" rotation="-8 0 0" visible="false" scale="0.001 0.001 0.001">
+    <!-- Moldura e Fundo Redimensionados -->
+    <a-box position="0 0 0" width="2.2" height="1.35" depth="0.08" material="color: #12131C; roughness: 0.5"></a-box>
+    <a-plane position="0 0 0.045" width="2.12" height="1.27" material="color: #58a6ff; shader: flat"></a-plane>
+    <a-plane position="0 0 0.048" width="2.06" height="1.21" material="color: #08090E; shader: flat"></a-plane>
 
+    <!-- Área de Conteúdo de Texto Ajustada -->
+    <a-entity class="texto-conteudo" position="-0.95 0.45 0.055"
+              text="value: Carregando...; color: #FFFFFF; width: 1.95; font: roboto; wrapCount: 30; anchor: left; baseline: top; align: justify"></a-entity>
+
+    <!-- BARRA INFERIOR DE NAVEGAÇÃO COMPACTA -->
+    <a-entity position="0 -0.45 0.055">
+        <!-- Setas de Paginação Lado a Lado -->
+        <a-box class="btn-voltar-texto raycastable" position="-0.42 0 0" width="0.25" height="0.16" depth="0.04" material="color: #1F3A5F; roughness: 0.4">
+            <a-triangle position="0 0 0.025" rotation="0 0 90" vertex-a="0 0.035 0" vertex-b="-0.03 -0.018 0" vertex-c="0.03 -0.018 0" material="color: #58a6ff; shader: flat; side: double"></a-triangle>
+        </a-box>
+
+        <a-box class="btn-avancar-texto raycastable" position="-0.14 0 0" width="0.25" height="0.16" depth="0.04" material="color: #1F3A5F; roughness: 0.4">
+            <a-triangle position="0 0 0.025" rotation="0 0 -90" vertex-a="0 0.035 0" vertex-b="-0.03 -0.018 0" vertex-c="0.03 -0.018 0" material="color: #58a6ff; shader: flat; side: double"></a-triangle>
+        </a-box>
+
+        <!-- Botão Fechar -->
+        <a-box class="btn-fechar-modal raycastable" position="0.30 0 0" width="0.42" height="0.16" depth="0.04" material="color: #B22222; roughness: 0.4">
+            <a-entity position="0 0 0.025" text="value: FECHAR; color: #FFFFFF; align: center; width: 1.4; font: roboto"></a-entity>
+        </a-box>
+    </a-entity>
 </a-entity>
 
         <a-sky src="#imSky" rotation="0 -90 0"></a-sky>
@@ -131,7 +132,7 @@
                 <a-triangle vertex-a="0 -0.3 0" vertex-b="0.8 -0.3 0" vertex-c="0 -0.3 -0.5" material="color: #3b2107; side: double"></a-triangle>
             </a-entity>
 
-            <a-plane position="0 0.42 0" width="1.5" height="3.9" rotation="-90 0 0" material="color: #5d4037; src: #woodPattern; repeat: 5 10; roughness: 1"></a-plane>
+            <a-plane position="0 0.42 0" width="1.5" height="3.9" rotation="-90 0 0" material="color: #5d4037; repeat: 5 10; roughness: 1"></a-plane>
             <a-box position="0 0.55 -1.2" width="1.4" height="0.1" depth="0.4" material="color: #3b2107"></a-box>
             <a-box position="0 0.55 0.5" width="1.4" height="0.1" depth="0.4" material="color: #3b2107"></a-box>
             <a-box position="0 0.55 1.6" width="1.4" height="0.1" depth="0.4" material="color: #3b2107"></a-box>

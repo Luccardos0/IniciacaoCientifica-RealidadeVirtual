@@ -52,6 +52,35 @@ AFRAME.registerShader('grad', {
         }`
 });
 
+// Shader de degradê vertical do Céu (Espaço -> Atmosfera)
+AFRAME.registerShader('sky-gradient', {
+    schema: {
+        topColor: { type: 'color', default: '#020208', is: 'uniform' },
+        bottomColor: { type: 'color', default: '#4a90e2', is: 'uniform' },
+        offset: { type: 'float', default: 400.0, is: 'uniform' },
+        exponent: { type: 'float', default: 0.6, is: 'uniform' }
+    },
+    vertexShader: `
+        varying vec3 vWorldPosition;
+        void main() {
+            vec4 worldPosition = modelMatrix * vec4(position, 1.0);
+            vWorldPosition = worldPosition.xyz;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+    `,
+    fragmentShader: `
+        uniform vec3 topColor;
+        uniform vec3 bottomColor;
+        uniform float offset;
+        uniform float exponent;
+        varying vec3 vWorldPosition;
+        void main() {
+            float h = normalize(vWorldPosition + offset).y;
+            gl_FragColor = vec4(mix(bottomColor, topColor, max(pow(max(h, 0.0), exponent), 0.0)), 1.0);
+        }
+    `
+});
+
 /**
  * COMPONENTE: PAINEL EXPLICATIVO INTERATIVO VR (MODAL POP-UP FRONTAL)
  */
@@ -75,8 +104,8 @@ AFRAME.registerComponent('painel-explicativo', {
                 "PÁGINA 2/2\nUtilize os botões no console para alternar entre uma simulação de menor fluxo (3 múons por ciclo) e maior fluxo (6 múons por ciclo), observando a densidade de decaimento sobre a superfície do mar."
             ],
             4: [
-                "PÁGINA 1/2\nBEM-VINDO AO REFERENCIAL DO MÚON! Aqui, você está parado e a atmosfera se move. Pela física clássica, seu tempo de vida de 2.2 microssegundos expirará antes do chão chegar.",
-                "PÁGINA 2/2\nAtive o 'Efeito Relativístico'. Pela contração do comprimento de Lorentz, a distância da atmosfera encolhe drasticamente. A Terra se aproxima rapidamente, permitindo o impacto!"
+                "PÁGINA 1/2\nBEM-VINDO AO REFERENCIAL DO MÚON! Aqui, você está no referencial de repouso da partícula e a atmosfera sobe em sua direção.",
+                "PÁGINA 2/2\nSem a TRR, o tempo próprio (2.2 microssegundos) esgota-se e o múon se desintegra no ar.\nCom o Efeito Relativístico ativado, a contração do comprimento encurta a atmosfera e a Terra atinge o múon antes do decaimento!"
             ],
             5: [
                 "PÁGINA 1/3\nREFERENCIAL DA TERRA: Ao observarmos o fenômeno a partir da superfície, a atmosfera mantém sua extensão real de 15km. Pela física clássica, os múons levariam 50 microssegundos para cruzar essa distância.",
@@ -92,21 +121,19 @@ AFRAME.registerComponent('painel-explicativo', {
 
         let scene = this.el.sceneEl;
         
-        // Elementos do Modal de Leitura
         this.modalInfo = scene.querySelector('#modal-leitura-info');
         this.textoEl = scene.querySelector('.texto-conteudo');
         this.btnVoltarTexto = scene.querySelector('.btn-voltar-texto');
         this.btnAvancarTexto = scene.querySelector('.btn-avancar-texto');
         this.btnFecharModal = scene.querySelector('.btn-fechar-modal');
 
-        // Elementos do Console Fixo
         this.btnToggleInfo = scene.querySelector('.btn-toggle-info');
         this.btnCenaAnterior = scene.querySelector('.btn-cena-anterior');
         this.btnCenaProxima = scene.querySelector('.btn-cena-proxima');
         this.btnToggleTRR3D = scene.querySelector('.btn-toggle-trr-3d');
 
         this.infoVisivel = false;
-        this.estadoFiltro3D = (idCena === 2); // Inicia ligado na Cena 2 por padrão
+        this.estadoFiltro3D = (idCena === 2);
 
         this.atualizarTexto = this.atualizarTexto.bind(this);
         this.mudarPagina = this.mudarPagina.bind(this);
@@ -114,7 +141,6 @@ AFRAME.registerComponent('painel-explicativo', {
         this.toggleModalInfo = this.toggleModalInfo.bind(this);
         this.toggleFiltro3D = this.toggleFiltro3D.bind(this);
 
-        // Ouvintes de eventos
         if (this.btnVoltarTexto) this.btnVoltarTexto.addEventListener('click', () => this.mudarPagina(-1));
         if (this.btnAvancarTexto) this.btnAvancarTexto.addEventListener('click', () => this.mudarPagina(1));
         if (this.btnCenaAnterior) this.btnCenaAnterior.addEventListener('click', () => this.mudarCena(-1));
@@ -123,7 +149,6 @@ AFRAME.registerComponent('painel-explicativo', {
         if (this.btnFecharModal) this.btnFecharModal.addEventListener('click', this.toggleModalInfo);
         if (this.btnToggleTRR3D) this.btnToggleTRR3D.addEventListener('click', this.toggleFiltro3D);
 
-        // Lógica de seleção na Cena 3
         if (idCena === 3) {
             let btn3 = scene.querySelector('.btn-muons-3');
             let btn6 = scene.querySelector('.btn-muons-6');
@@ -173,7 +198,6 @@ AFRAME.registerComponent('painel-explicativo', {
             }
         }
 
-        // Feedback visual no botão INFO (Verde quando aberto, Azul quando fechado)
         if (this.btnToggleInfo) {
             let bg = this.btnToggleInfo.querySelector('a-box');
             if (bg) {

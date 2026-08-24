@@ -38,7 +38,6 @@
 
     <a-scene id="sceneCena4">
         <a-assets>
-            <img id="imSky" src="https://jocoteles.github.io/Minicurso-A-Frame-VR/TychoSkymap.t4_04096x02048.jpg">
             <img id="textura-solo" src="https://cdn.jsdelivr.net/gh/mrdoob/three.js@dev/examples/textures/terrain/grasslight-big.jpg">
         </a-assets>
 
@@ -53,7 +52,7 @@
                 <a-text id="hud-sucesso" value="" align="center" position="0 0 -2" scale="0 0 0"
                         color="#87CEEB" font="mozillavr"
                         animation__fade="property: scale; to: 1 1 1; dur: 300; startEvents: mostrarMsg"
-                        animation__hide="property: scale; to: 0 0 0; dur: 300; delay: 2000; startEvents: esconderMsg">
+                        animation__hide="property: scale; to: 0 0 0; dur: 300; delay: 2500; startEvents: esconderMsg">
                 </a-text>
             </a-camera>
             <a-entity cursor="rayOrigin: mouse" raycaster="objects: .raycastable"></a-entity>
@@ -61,8 +60,11 @@
             <a-entity laser-controls="hand: right" raycaster="objects: .raycastable; far: 5"></a-entity>
         </a-entity>
 
+        <!-- Container de efeitos de decaimento do múon -->
+        <a-entity id="container-decaimento" position="0 1.6 -1.5"></a-entity>
+
         <!-- ======================================================= -->
-        <!-- CONTROLES FLUTUANTES FRONTAIS (CENA 4)                  -->
+        <!-- CONTROLES FLUTUANTES FRONTAIS                           -->
         <!-- ======================================================= -->
         <a-entity position="0 0.7 -1.8" rotation="-20 0 0" painel-explicativo="cenaAtual: 4">
             <!-- BOTÃO INFO -->
@@ -90,7 +92,7 @@
         </a-entity>
 
         <!-- ======================================================= -->
-        <!-- PAINEL POP-UP DE LEITURA (APARECE AO CLICAR EM INFO)    -->
+        <!-- PAINEL POP-UP DE LEITURA                                -->
         <!-- ======================================================= -->
         <a-entity id="modal-leitura-info" position="0 1.6 -1.8" visible="false" scale="0.001 0.001 0.001">
             <a-box position="0 0 0" width="2.6" height="1.6" depth="0.08" material="color: #12131C; roughness: 0.5"></a-box>
@@ -101,7 +103,6 @@
                       text="value: Carregando...; color: #FFFFFF; width: 2.3; font: roboto; wrapCount: 32; anchor: left; baseline: top; align: justify"></a-entity>
 
             <a-entity position="0 -0.55 0.055">
-                <!-- Setas de Paginação Lado a Lado -->
                 <a-box class="btn-voltar-texto raycastable" position="-0.48 0 0" width="0.28" height="0.18" depth="0.04" material="color: #1F3A5F; roughness: 0.4">
                     <a-triangle position="0 0 0.025" rotation="0 0 90" vertex-a="0 0.04 0" vertex-b="-0.035 -0.02 0" vertex-c="0.035 -0.02 0" material="color: #58a6ff; shader: flat; side: double"></a-triangle>
                 </a-box>
@@ -110,15 +111,16 @@
                     <a-triangle position="0 0 0.025" rotation="0 0 -90" vertex-a="0 0.04 0" vertex-b="-0.035 -0.02 0" vertex-c="0.035 -0.02 0" material="color: #58a6ff; shader: flat; side: double"></a-triangle>
                 </a-box>
 
-                <!-- Botão Fechar -->
                 <a-box class="btn-fechar-modal raycastable" position="0.32 0 0" width="0.48" height="0.18" depth="0.04" material="color: #B22222; roughness: 0.4">
                     <a-entity position="0 0 0.025" text="value: FECHAR; color: #FFFFFF; align: center; width: 1.6; font: roboto"></a-entity>
                 </a-box>
             </a-entity>
         </a-entity>
 
-        <a-sky color="#A5C9EB"></a-sky>
-        <a-entity light="type: ambient; color: #666"></a-entity>
+        <!-- Céu em Degradê vertical -->
+        <a-sky material="shader: sky-gradient; topColor: #050B1A; bottomColor: #4A9FFF; exponent: 0.7;"></a-sky>
+
+        <a-entity light="type: ambient; color: #777"></a-entity>
         <a-entity light="type: directional; intensity: 0.8" position="-1 10 5"></a-entity>
 
         <a-entity id="container-nuvens"></a-entity>

@@ -381,6 +381,37 @@ if (sceneEl) {
     });
 }
 
+/* --- COMPONENTE CUSTOMIZADO A-FRAME: MOVIMENTO DE NUVENS NO LOOP WEBXR (CENA 4) --- */
+AFRAME.registerComponent('animador-nuvens', {
+    schema: {
+        animar: { type: 'boolean', default: true },
+        multiplicador: { type: 'number', default: 1.0 }
+    },
+    tick: function (time, timeDelta) {
+        const delta = timeDelta / 1000;
+        
+        // Interrompe se a animação estiver pausada, se houver lag excessivo ou ausência de dados
+        if (!this.data.animar || delta > 0.1 || !this.el.nuvensData) return;
+        
+        const VELOCIDADE_BASE = 32.0;
+        const LIMITE_INFERIOR_Y = -40; 
+        const LIMITE_SUPERIOR_Y = 40;  
+        const stepSpeed = VELOCIDADE_BASE * this.data.multiplicador * delta;
+
+        for (let i = 0; i < this.el.nuvensData.length; i++) {
+            const nuvem = this.el.nuvensData[i];
+            nuvem.y += stepSpeed * nuvem.speedOffset;
+
+            if (nuvem.y > LIMITE_SUPERIOR_Y) {
+                nuvem.y = LIMITE_INFERIOR_Y;
+                nuvem.x = (Math.random() - 0.5) * 45;
+                nuvem.z = -(Math.random() * 18 + 2.5);
+            }
+            nuvem.el.object3D.position.set(nuvem.x, nuvem.y, nuvem.z);
+        }
+    }
+});
+
 /* --- ORQUESTRADOR NATIVO: CENA 4 (REFERENCIAL DO MÚON COM CONGELAMENTO NO DECAIMENTO) --- */
 window.addEventListener('DOMContentLoaded', () => {
     const structuralScene = document.querySelector('a-scene');
@@ -406,14 +437,11 @@ function inicializarCena4() {
     const TOTAL_NUVENS = 24;
     const LIMITE_INFERIOR_Y = -40; 
     const LIMITE_SUPERIOR_Y = 40;  
-    const VELOCIDADE_BASE = 32.0; 
 
     let modoRelativisticoAtivo = false;
-    let animarNuvens = true;
     let timerCiclo = null;
     let soloEntidade = null;
     let nuvensData = [];
-    let lastTime = performance.now();
 
     // Cria/reseta a distribuição inicial das nuvens
     function resetarPosicaoNuvens() {
@@ -440,38 +468,15 @@ function inicializarCena4() {
                 speedOffset: 0.85 + Math.random() * 0.35
             });
         }
+        // Injeta os dados das nuvens no container para acesso do componente 'animador-nuvens'
+        containerNuvens.nuvensData = nuvensData;
     }
 
     resetarPosicaoNuvens();
 
-    // Loop contínuo das nuvens com suporte a congelamento
-    function loopAnimacaoNuvens(currentTime) {
-        const delta = (currentTime - lastTime) / 1000;
-        lastTime = currentTime;
-
-        if (animarNuvens && delta < 0.1) {
-            const multiplicadorTRR = modoRelativisticoAtivo ? 1.6 : 1.0;
-            const stepSpeed = VELOCIDADE_BASE * multiplicadorTRR * delta;
-
-            for (let i = 0; i < nuvensData.length; i++) {
-                const nuvem = nuvensData[i];
-                nuvem.y += stepSpeed * nuvem.speedOffset;
-
-                if (nuvem.y > LIMITE_SUPERIOR_Y) {
-                    nuvem.y = LIMITE_INFERIOR_Y;
-                    nuvem.x = (Math.random() - 0.5) * 45;
-                    nuvem.z = -(Math.random() * 18 + 2.5);
-                }
-                nuvem.el.object3D.position.set(nuvem.x, nuvem.y, nuvem.z);
-            }
-        }
-        requestAnimationFrame(loopAnimacaoNuvens);
-    }
-    requestAnimationFrame(loopAnimacaoNuvens);
-
     function dispararDecaimentoClassico() {
-        // 1. CONGELA A CENA (para o movimento das nuvens exatamente onde estão)
-        animarNuvens = false;
+        // 1. CONGELA A CENA (pausa o componente de animação das nuvens)
+        containerNuvens.setAttribute('animador-nuvens', 'animar', false);
 
         if (containerDecaimento) {
             containerDecaimento.innerHTML = '';
@@ -544,7 +549,7 @@ function inicializarCena4() {
 
         soloEntidade.addEventListener('animationcomplete__subir', () => {
             // CONGELA A CENA (solo tocou o múon)
-            animarNuvens = false;
+            containerNuvens.setAttribute('animador-nuvens', 'animar', false);
 
             if (hudSucesso) {
                 hudSucesso.setAttribute('value', "SUPERFÍCIE ALCANÇADA!\nContração do Espaço Comprovada.");
@@ -573,8 +578,10 @@ function inicializarCena4() {
             containerDecaimento.innerHTML = '';
         }
 
-        // Descongela a animação ao iniciar o ciclo
-        animarNuvens = true;
+        // Ativa e atualiza o multiplicador do componente de animação das nuvens
+        containerNuvens.setAttribute('animador-nuvens', 'animar', true);
+        const multiplicadorTRR = modoRelativisticoAtivo ? 1.6 : 1.0;
+        containerNuvens.setAttribute('animador-nuvens', 'multiplicador', multiplicadorTRR);
 
         if (modoRelativisticoAtivo) {
             if (statusPainel) {

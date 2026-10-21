@@ -521,7 +521,7 @@ function inicializarCena4() {
 
         // 2. Exibe o HUD com a mensagem
         if (hudSucesso) {
-            hudSucesso.setAttribute('value', "TEMPO PRÓPRIO ESGOTADO (2.2 µs)\nO múon decaiu na atmosfera antes de atingir o solo.");
+            hudSucesso.setAttribute('value', "TEMPO PROPRIO ESGOTADO (2.2 µs)\nO muon decaiu na atmosfera\n antes de atingir o solo.");
             hudSucesso.setAttribute('color', '#fb735a');
             hudSucesso.emit('mostrarMsg');
         }
@@ -552,7 +552,7 @@ function inicializarCena4() {
             containerNuvens.setAttribute('animador-nuvens', 'animar', false);
 
             if (hudSucesso) {
-                hudSucesso.setAttribute('value', "SUPERFÍCIE ALCANÇADA!\nContração do Espaço Comprovada.");
+                hudSucesso.setAttribute('value', "SUPERFiCIE ALCANÇADA!\nContraçao do Espaço Comprovada.");
                 hudSucesso.setAttribute('color', '#f5e60c');
                 hudSucesso.emit('mostrarMsg');
             }

@@ -92,25 +92,24 @@ AFRAME.registerComponent('painel-explicativo', {
     init: function () {
         this.textos = {
             1: [
-                "PÁGINA 1/2\nOs raios cósmicos viajam do espaço até a Terra em altíssima velocidade. Ao colidirem com os gases da alta atmosfera, eles geram uma cascata de novas partículas secundárias.",
-                "PÁGINA 2/2\nEssa colisão gera os píons de primeira geração. A dinâmica observada nesta Cena 1 demonstra a distribuição e a ordem aleatória de chegada dessas partículas na superfície terrestre."
+                "PÁGINA 1/2\nRaios cosmicos de alta energia colidem com gases na alta atmosfera terrestre. A colisao gera uma cascata de particulas secundarias em direcao ao solo. ",
+                "PÁGINA 2/2\nNesta cena observamos a origem dos pions de primeira geracao. A simulacao mostra a chegada aleatoria e distribuida dessas particulas na Terra."
             ],
             2: [
-                "PÁGINA 1/2\nOs múons são partículas instáveis e de vida curta. Pela física clássica, a maioria deveria decair muito antes de conseguir alcançar o solo, devido à distância da atmosfera.",
-                "PÁGINA 2/2\nContudo, devido à Dilatação Temporal da Relatividade Restrita, o tempo passa mais devagar para o múon no referencial da Terra, permitindo que ele atravesse a atmosfera antes de decair."
+                "PÁGINA 1/2\nOs pions gerados na alta atmosfera sao instaveis e decaem rapidamente. Esse decaimento origina os muons e neutrinos de segunda geracao.",
+                "PÁGINA 2/2\nPela fisica classica o tempo de vida curto dos muons impediria sua chegada ao solo. A trajetoria tracejada permite visualizar cada etapa do decaimento."
             ],
             3: [
-                "PÁGINA 1/2\nFLUXO DE MÚONS: A intensidade da cascata secundária varia conforme a energia e a densidade dos raios cósmicos incidentes na alta atmosfera.",
-                "PÁGINA 2/2\nUtilize os botões no console para alternar entre uma simulação de menor fluxo (3 múons por ciclo) e maior fluxo (6 múons por ciclo), observando a densidade de decaimento sobre a superfície do mar."
+                "PÁGINA 1/2\nA quantidade de muons incidentes depende da energia dos raios cosmicos na atmosfera. O tempo de meia vida proprio do muon e de apenas 2.2 microsegundos.",
+                "PÁGINA 2/2\nAlterne no console entre 3 e 6 muons por ciclo para comparar a densidade do fluxo. Observe como a taxa de decaimento varia sobre a superficie do mar."
             ],
             4: [
-                "PÁGINA 1/2\nBEM-VINDO AO REFERENCIAL DO MÚON! Aqui, você está no referencial de repouso da partícula e a atmosfera sobe em sua direção.",
-                "PÁGINA 2/2\nSem a TRR, o tempo próprio (2.2 microssegundos) esgota-se e o múon se desintegra no ar.\nCom o Efeito Relativístico ativado, a contração do comprimento encurta a atmosfera e a Terra atinge o múon antes do decaimento!"
+                "PÁGINA 1/2\nNo referencial de repouso do muon a atmosfera se move em sua direcao. Sem a TRR o tempo proprio de 2.2 microsegundos acaba e o muon decai no ar.",
+                "PÁGINA 2/2\nCom a TRR ativa ocorre a contracao do comprimento da atmosfera. A distancia encurtada permite que a superficie da Terra atinja o muon antes do decaimento."
             ],
             5: [
-                "PÁGINA 1/3\nREFERENCIAL DA TERRA: Ao observarmos o fenômeno a partir da superfície, a atmosfera mantém sua extensão real de 15km. Pela física clássica, os múons levariam 50 microssegundos para cruzar essa distância.",
-                "PÁGINA 2/3\nFÍSICA CLÁSSICA (TRR Desligada):\nComo o tempo de vida próprio dessas partículas é de apenas 2.2 microssegundos, o percurso clássico é longo demais. Sem os efeitos relativísticos, 100% dos múons decaem e somem no ar antes de chegar perto do chão.",
-                "PÁGINA 3/3\nFÍSICA RELATIVÍSTICA (TRR Ligada):\nA dilatação temporal amplia a expectativa de vida das partículas do nosso ponto de vista. Porém, o decaimento é estocástico: mesmo com o tempo dilatado, a física probabilística dita que cerca de 50% dos múons ainda decairão no meio do ar, enquanto a outra metade alcança o nível do mar!"
+                "PÁGINA 1/3\nNo referencial da Terra a atmosfera possui extensoes reais de 10 a 15 km. Sem a TRR o percurso exige tempo excessivo e quase 100% dos muons decaem no ar.",
+                "PÁGINA 2/3\nCom a TRR a dilatacao temporal estende a vida util do muon para o observador do solo. A fisica probabilistica permite que cerca de 50% atinjam o detector."
             ]
         };
 

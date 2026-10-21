@@ -108,8 +108,8 @@ AFRAME.registerComponent('painel-explicativo', {
                 "PÁGINA 2/2\nCom a TRR ativa ocorre a contracao do comprimento da atmosfera. A distancia encurtada permite que a superficie da Terra atinja o muon antes do decaimento."
             ],
             5: [
-                "PÁGINA 1/3\nNo referencial da Terra a atmosfera possui extensoes reais de 10 a 15 km. Sem a TRR o percurso exige tempo excessivo e quase 100% dos muons decaem no ar.",
-                "PÁGINA 2/3\nCom a TRR a dilatacao temporal estende a vida util do muon para o observador do solo. A fisica probabilistica permite que cerca de 50% atinjam o detector."
+                "PÁGINA 1/2\nNo referencial da Terra a atmosfera possui extensoes reais de 10 a 15 km. Sem a TRR o percurso exige tempo excessivo e quase 100% dos muons decaem no ar.",
+                "PÁGINA 2/2\nCom a TRR a dilatacao temporal estende a vida util do muon para o observador do solo. A fisica probabilistica permite que cerca de 50% atinjam o detector."
             ]
         };
 

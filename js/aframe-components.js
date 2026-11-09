@@ -92,24 +92,24 @@ AFRAME.registerComponent('painel-explicativo', {
     init: function () {
         this.textos = {
             1: [
-                "PÁGINA 1/2\nRaios cosmicos de alta energia colidem com gases na alta atmosfera terrestre. A colisao gera uma cascata de particulas secundarias em direcao ao solo. ",
-                "PÁGINA 2/2\nNesta cena observamos a origem dos pions de primeira geracao. A simulacao mostra a chegada aleatoria e distribuida dessas particulas na Terra."
+                "PÁGINA 1/2\nRaios cósmicos de alta energia colidem com gases na alta atmosfera terrestre. A colisão gera uma cascata de partículas secundárias em direção ao solo.",
+                "PÁGINA 2/2\nNesta cena observamos a origem dos píons de primeira geração. A simulação mostra a chegada aleatória e distribuída dessas partículas na Terra."
             ],
             2: [
-                "PÁGINA 1/2\nOs pions gerados na alta atmosfera sao instaveis e decaem rapidamente. Esse decaimento origina os muons e neutrinos de segunda geracao.",
-                "PÁGINA 2/2\nPela fisica classica o tempo de vida curto dos muons impediria sua chegada ao solo. A trajetoria tracejada permite visualizar cada etapa do decaimento."
+                "PÁGINA 1/2\nOs píons gerados na alta atmosfera são instáveis e decaem rapidamente. Esse decaimento origina os múons e neutrinos de segunda geração.",
+                "PÁGINA 2/2\nPela física clássica o tempo de vida curto dos múons impediria sua chegada ao solo. A trajetória tracejada permite visualizar cada etapa do decaimento."
             ],
             3: [
-                "PÁGINA 1/2\nA quantidade de muons incidentes depende da energia dos raios cosmicos na atmosfera. O tempo de meia vida proprio do muon e de apenas 2.2 microsegundos.",
-                "PÁGINA 2/2\nAlterne no console entre 3 e 6 muons por ciclo para comparar a densidade do fluxo. Observe como a taxa de decaimento varia sobre a superficie do mar."
+                "PÁGINA 1/2\nA quantidade de múons incidentes depende da energia dos raios cósmicos na atmosfera. O tempo de meia-vida próprio do múon é de apenas 2.2 microssegundos.",
+                "PÁGINA 2/2\nAlterne no console entre 3 e 6 múons por ciclo para comparar a densidade do fluxo. Observe como a taxa de decaimento varia sobre a superfície do mar."
             ],
             4: [
-                "PÁGINA 1/2\nNo referencial de repouso do muon a atmosfera se move em sua direcao. Sem a TRR o tempo proprio de 2.2 microsegundos acaba e o muon decai no ar.",
-                "PÁGINA 2/2\nCom a TRR ativa ocorre a contracao do comprimento da atmosfera. A distancia encurtada permite que a superficie da Terra atinja o muon antes do decaimento."
+                "PÁGINA 1/2\nNo referencial de repouso do múon a atmosfera se move em sua direção. Sem a TRR o tempo próprio de 2.2 microssegundos acaba e o múon decai no ar.",
+                "PÁGINA 2/2\nCom a TRR ativa ocorre a contração do comprimento da atmosfera. A distância encurtada permite que a superfície da Terra atinja o múon antes do decaimento."
             ],
             5: [
-                "PÁGINA 1/2\nNo referencial da Terra a atmosfera possui extensoes reais de 10 a 15 km. Sem a TRR o percurso exige tempo excessivo e quase 100% dos muons decaem no ar.",
-                "PÁGINA 2/2\nCom a TRR a dilatacao temporal estende a vida util do muon para o observador do solo. A fisica probabilistica permite que cerca de 50% atinjam o detector."
+                "PÁGINA 1/2\nNo referencial da Terra a atmosfera possui extensões reais de 10 a 15 km. Sem a TRR o percurso exige tempo excessivo e quase 100% dos múons decaem no ar.",
+                "PÁGINA 2/2\nCom a TRR a dilatação temporal estende a vida útil do múon para o observador do solo. A física probabilística permite que cerca de 50% atinjam o detector."
             ]
         };
 
@@ -133,6 +133,13 @@ AFRAME.registerComponent('painel-explicativo', {
 
         this.infoVisivel = false;
         this.estadoFiltro3D = (idCena === 2);
+
+        // Canvas dinâmico de alta resolução para renderização de texto UTF-8 sem distorção
+        this.canvas = document.createElement('canvas');
+        this.canvas.width = 1024;
+        this.canvas.height = 512;
+        this.ctx = this.canvas.getContext('2d');
+        this.texture = new THREE.CanvasTexture(this.canvas);
 
         this.atualizarTexto = this.atualizarTexto.bind(this);
         this.mudarPagina = this.mudarPagina.bind(this);
@@ -173,15 +180,84 @@ AFRAME.registerComponent('painel-explicativo', {
             if (btn6) btn6.addEventListener('click', () => atualizarSelecao3D(6));
         }
 
-        setTimeout(this.atualizarTexto, 50);
+        setTimeout(this.atualizarTexto, 100);
     },
 
     atualizarTexto: function () {
         if (!this.textoEl) {
             this.textoEl = this.el.sceneEl.querySelector('.texto-conteudo');
         }
-        if (this.textoEl) {
-            this.textoEl.setAttribute('text', 'value', this.paginasCena[this.paginaAtual]);
+        if (!this.textoEl) return;
+
+        // Se a entidade ainda for a-entity text, converte-a para a-plane para receber a textura do Canvas
+        if (this.textoEl.tagName.toLowerCase() !== 'a-plane') {
+            const parent = this.textoEl.parentNode;
+            const pos = this.textoEl.getAttribute('position') || { x: 0, y: 0.1, z: 0.055 };
+            
+            const newPlane = document.createElement('a-plane');
+            newPlane.setAttribute('class', 'texto-conteudo');
+            newPlane.setAttribute('position', `${pos.x + 1.15} ${pos.y - 0.55} 0.055`);
+            newPlane.setAttribute('width', '2.3');
+            newPlane.setAttribute('height', '1.15');
+            newPlane.setAttribute('material', 'transparent: true; opacity: 1; shader: flat');
+            
+            parent.replaceChild(newPlane, this.textoEl);
+            this.textoEl = newPlane;
+        }
+
+        // Desenha o texto nativamente no Canvas 2D
+        const ctx = this.ctx;
+        const w = this.canvas.width;
+        const h = this.canvas.height;
+
+        ctx.clearRect(0, 0, w, h);
+
+        const texto = this.paginasCena[this.paginaAtual] || "";
+        const linhas = texto.split('\n');
+
+        let yCursor = 50;
+        
+        ctx.fillStyle = "#FFFFFF";
+        ctx.textBaseline = "top";
+
+        linhas.forEach((linha, index) => {
+            if (index === 0) {
+                // Título (PÁGINA X/Y)
+                ctx.font = "bold 38px sans-serif";
+                ctx.fillStyle = "#FFD1DC";
+                ctx.fillText(linha, 30, yCursor);
+                yCursor += 60;
+            } else {
+                // Corpo do texto com quebra automática de linhas
+                ctx.font = "32px sans-serif";
+                ctx.fillStyle = "#FFFFFF";
+                
+                const palavras = linha.split(' ');
+                let linhaAtual = '';
+
+                for (let n = 0; n < palavras.length; n++) {
+                    const testLinha = linhaAtual + palavras[n] + ' ';
+                    const metrics = ctx.measureText(testLinha);
+                    if (metrics.width > (w - 60) && n > 0) {
+                        ctx.fillText(linhaAtual, 30, yCursor);
+                        linhaAtual = palavras[n] + ' ';
+                        yCursor += 44;
+                    } else {
+                        linhaAtual = testLinha;
+                    }
+                }
+                ctx.fillText(linhaAtual, 30, yCursor);
+                yCursor += 44;
+            }
+        });
+
+        this.texture.needsUpdate = true;
+
+        // Aplica a textura no mesh Three.js do plano
+        const mesh = this.textoEl.getObject3D('mesh');
+        if (mesh && mesh.material) {
+            mesh.material.map = this.texture;
+            mesh.material.needsUpdate = true;
         }
     },
 
@@ -192,6 +268,7 @@ AFRAME.registerComponent('painel-explicativo', {
             this.modalInfo.setAttribute('visible', this.infoVisivel);
             if (this.infoVisivel) {
                 this.modalInfo.setAttribute('scale', '1 1 1');
+                this.atualizarTexto();
             } else {
                 this.modalInfo.setAttribute('scale', '0.001 0.001 0.001');
             }

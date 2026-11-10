@@ -552,7 +552,7 @@ function inicializarCena4() {
             containerNuvens.setAttribute('animador-nuvens', 'animar', false);
 
             if (hudSucesso) {
-                hudSucesso.setAttribute('value', "SUPERFiCIE ALCANÇADA!\nContraçao do Espaço Comprovada.");
+                hudSucesso.setAttribute('value', "SUPERFICIE ATINGIDA!\nContracao do Espaco Comprovada.");
                 hudSucesso.setAttribute('color', '#f5e60c');
                 hudSucesso.emit('mostrarMsg');
             }

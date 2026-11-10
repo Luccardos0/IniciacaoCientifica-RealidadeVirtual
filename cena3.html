@@ -10,16 +10,6 @@
 </head>
 <body>
     <div class="ui-layer">
-        <!-- CARD DE CONTROLE 2D -->
-       <!-- <div class="card control-box">
-            <h2>Configurações</h2>
-            <p style="color: #ccc; font-size: 13px; margin-bottom: 10px;">Selecione a quantidade de múons por ciclo:</p>
-            <div class="control-group" style="display: flex; gap: 10px;">
-                <button class="btn btn-1" id="btn-2d-muons-3" onclick="if(typeof setQtdMuonsCena3 === 'function') setQtdMuonsCena3(3);" style="flex: 1; background: #00FF7F; color: #111; font-weight: bold;">3 Múons</button>
-                <button class="btn btn-1" id="btn-2d-muons-6" onclick="if(typeof setQtdMuonsCena3 === 'function') setQtdMuonsCena3(6);" style="flex: 1; background: #1F3A5F; color: #FFF;">6 Múons</button>
-            </div>
-        </div>-->
-        
         <div class="card nav-box">
             <button class="btn btn-1" onclick="location.href='index.html'">Cena 1</button>
             <button class="btn btn-1" onclick="location.href='cena2.html'">Cena 2</button>
@@ -64,46 +54,44 @@
                 </a-box>
             </a-entity>
 
-            <!-- BOTÕES DE QUANTIDADE DE MÚONS (INFERIOR COM ESPAÇAMENTO E TEXTO BRANCO) -->
+            <!-- BOTÕES DE QUANTIDADE DE MÚONS -->
             <a-entity position="-0.01 -0.30 0">
                 <a-entity class="btn-muons-3 raycastable" position="-0.32 0 0">
-                    <a-box class="bg-btn-3 raycastable" width="0.61" height="0.22" depth="0.04" material="color: #00AA55; roughness: 0.5"></a-box>
-                    <a-entity position="0 0 0.025" text="value: 3 MÚONS; color: #FFFFFF; align: center; width: 1.6; font: roboto"></a-entity>
+                    <a-box class="bg-btn-3 raycastable" width="0.61" height="0.22" depth="0.04" material="color: #00FF7F; roughness: 0.5"></a-box>
+                    <a-entity position="0 0 0.025" text="value: 3 MUONS; color: #FFFFFF; align: center; width: 1.6; font: roboto"></a-entity>
                 </a-entity>
                 <a-entity class="btn-muons-6 raycastable" position="0.32 0 0">
                     <a-box class="bg-btn-6 raycastable" width="0.61" height="0.22" depth="0.04" material="color: #6A3A8A; roughness: 0.5"></a-box>
-                    <a-entity position="0 0 0.025" text="value: 6 MÚONS; color: #FFFFFF; align: center; width: 1.6; font: roboto"></a-entity>
+                    <a-entity position="0 0 0.025" text="value: 6 MUONS; color: #FFFFFF; align: center; width: 1.6; font: roboto"></a-entity>
                 </a-entity>
             </a-entity>
         </a-entity>
 
         <!-- ======================================================= -->
-<!-- PAINEL POP-UP DE LEITURA (PADRONIZADO)                  -->
-<!-- ======================================================= -->
-<a-entity id="modal-leitura-info" position="0 2.35 -1.7" visible="false" scale="0.001 0.001 0.001">
-    <a-box position="0 0 0" width="2.6" height="1.6" depth="0.08" material="color: #12131C; roughness: 0.5"></a-box>
-    <a-plane position="0 0 0.045" width="2.52" height="1.52" material="color: #58a6ff; shader: flat"></a-plane>
-    <a-plane position="0 0 0.048" width="2.46" height="1.46" material="color: #08090E; shader: flat"></a-plane>
+        <!-- PAINEL POP-UP DE LEITURA                                -->
+        <!-- ======================================================= -->
+        <a-entity id="modal-leitura-info" position="0 2.45 -1.7" rotation="-5 0 0" visible="false" scale="0.001 0.001 0.001">
+            <a-box position="0 0 0" width="2.6" height="1.6" depth="0.08" material="color: #12131C; roughness: 0.5"></a-box>
+            <a-plane position="0 0 0.045" width="2.52" height="1.52" material="color: #58a6ff; shader: flat"></a-plane>
+            <a-plane position="0 0 0.048" width="2.46" height="1.46" material="color: #08090E; shader: flat"></a-plane>
 
-    <a-entity class="texto-conteudo" position="-1.15 0.55 0.055"
-              text="value: Carregando...; color: #FFFFFF; width: 2.3; font: roboto; wrapCount: 32; anchor: left; baseline: top; align: justify"></a-entity>
+            <a-entity class="texto-conteudo" position="-1.15 0.55 0.055"
+                      text="value: Carregando...; color: #FFFFFF; width: 2.3; font: roboto; wrapCount: 32; anchor: left; baseline: top; align: justify"></a-entity>
 
-    <a-entity position="0 -0.55 0.055">
-        <!-- Setas de Paginação Lado a Lado -->
-        <a-box class="btn-voltar-texto raycastable" position="-0.48 0 0" width="0.28" height="0.18" depth="0.04" material="color: #1F3A5F; roughness: 0.4">
-            <a-triangle position="0 0 0.025" rotation="0 0 90" vertex-a="0 0.04 0" vertex-b="-0.035 -0.02 0" vertex-c="0.035 -0.02 0" material="color: #58a6ff; shader: flat; side: double"></a-triangle>
-        </a-box>
+            <a-entity position="0 -0.55 0.055">
+                <a-box class="btn-voltar-texto raycastable" position="-0.48 0 0" width="0.28" height="0.18" depth="0.04" material="color: #1F3A5F; roughness: 0.4">
+                    <a-triangle position="0 0 0.025" rotation="0 0 90" vertex-a="0 0.04 0" vertex-b="-0.035 -0.02 0" vertex-c="0.035 -0.02 0" material="color: #58a6ff; shader: flat; side: double"></a-triangle>
+                </a-box>
 
-        <a-box class="btn-avancar-texto raycastable" position="-0.16 0 0" width="0.28" height="0.18" depth="0.04" material="color: #1F3A5F; roughness: 0.4">
-            <a-triangle position="0 0 0.025" rotation="0 0 -90" vertex-a="0 0.04 0" vertex-b="-0.035 -0.02 0" vertex-c="0.035 -0.02 0" material="color: #58a6ff; shader: flat; side: double"></a-triangle>
-        </a-box>
+                <a-box class="btn-avancar-texto raycastable" position="-0.16 0 0" width="0.28" height="0.18" depth="0.04" material="color: #1F3A5F; roughness: 0.4">
+                    <a-triangle position="0 0 0.025" rotation="0 0 -90" vertex-a="0 0.04 0" vertex-b="-0.035 -0.02 0" vertex-c="0.035 -0.02 0" material="color: #58a6ff; shader: flat; side: double"></a-triangle>
+                </a-box>
 
-        <!-- Botão Fechar -->
-        <a-box class="btn-fechar-modal raycastable" position="0.32 0 0" width="0.48" height="0.18" depth="0.04" material="color: #B22222; roughness: 0.4">
-            <a-entity position="0 0 0.025" text="value: FECHAR; color: #FFFFFF; align: center; width: 1.6; font: roboto"></a-entity>
-        </a-box>
-    </a-entity>
-</a-entity>
+                <a-box class="btn-fechar-modal raycastable" position="0.32 0 0" width="0.48" height="0.18" depth="0.04" material="color: #B22222; roughness: 0.4">
+                    <a-entity position="0 0 0.025" text="value: FECHAR; color: #FFFFFF; align: center; width: 1.6; font: roboto"></a-entity>
+                </a-box>
+            </a-entity>
+        </a-entity>
 
         <a-sky src="#imSky" rotation="0 -90 0"></a-sky>
         <a-entity light="type: ambient; color: #555"></a-entity>

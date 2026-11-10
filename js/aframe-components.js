@@ -134,7 +134,6 @@ AFRAME.registerComponent('painel-explicativo', {
         this.infoVisivel = false;
         this.estadoFiltro3D = (idCena === 2);
 
-        // Canvas dinâmico de alta resolução para renderização de texto UTF-8 sem distorção
         this.canvas = document.createElement('canvas');
         this.canvas.width = 1024;
         this.canvas.height = 512;
@@ -158,6 +157,45 @@ AFRAME.registerComponent('painel-explicativo', {
         if (idCena === 3) {
             let btn3 = scene.querySelector('.btn-muons-3');
             let btn6 = scene.querySelector('.btn-muons-6');
+
+            const aplicarTextoBotaoCanvas = (elBotao, texto) => {
+                if (!elBotao) return;
+                let textoEnt = elBotao.querySelector('a-entity[text]');
+                if (textoEnt) {
+                    let canvas = document.createElement('canvas');
+                    canvas.width = 512;
+                    canvas.height = 128;
+                    let ctx = canvas.getContext('2d');
+                    ctx.clearRect(0, 0, 512, 128);
+                    ctx.fillStyle = '#FFFFFF';
+                    ctx.font = 'bold 52px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(texto, 256, 64);
+
+                    let plane = document.createElement('a-plane');
+                    plane.setAttribute('position', '0 0 0.025');
+                    plane.setAttribute('width', '0.61');
+                    plane.setAttribute('height', '0.22');
+                    plane.setAttribute('material', 'transparent: true; opacity: 1; shader: flat');
+
+                    let tex = new THREE.CanvasTexture(canvas);
+                    plane.addEventListener('loaded', () => {
+                        let m = plane.getObject3D('mesh');
+                        if (m && m.material) {
+                            m.material.map = tex;
+                            m.material.needsUpdate = true;
+                        }
+                    });
+
+                    elBotao.replaceChild(plane, textoEnt);
+                }
+            };
+
+            setTimeout(() => {
+                aplicarTextoBotaoCanvas(btn3, "3 MÚONS");
+                aplicarTextoBotaoCanvas(btn6, "6 MÚONS");
+            }, 100);
 
             const atualizarSelecao3D = (qtd) => {
                 let box3 = btn3 ? btn3.querySelector('.bg-btn-3') || btn3.querySelector('a-box') : null;
@@ -189,23 +227,21 @@ AFRAME.registerComponent('painel-explicativo', {
         }
         if (!this.textoEl) return;
 
-        // Se a entidade ainda for a-entity text, converte-a para a-plane para receber a textura do Canvas
+        // Plano ajustado com maior área útil na caixa de leitura
         if (this.textoEl.tagName.toLowerCase() !== 'a-plane') {
             const parent = this.textoEl.parentNode;
-            const pos = this.textoEl.getAttribute('position') || { x: 0, y: 0.1, z: 0.055 };
             
             const newPlane = document.createElement('a-plane');
             newPlane.setAttribute('class', 'texto-conteudo');
-            newPlane.setAttribute('position', `${pos.x + 1.15} ${pos.y - 0.55} 0.055`);
-            newPlane.setAttribute('width', '2.3');
-            newPlane.setAttribute('height', '1.15');
+            newPlane.setAttribute('position', '0 0.12 0.055');
+            newPlane.setAttribute('width', '2.25');
+            newPlane.setAttribute('height', '1.1');
             newPlane.setAttribute('material', 'transparent: true; opacity: 1; shader: flat');
             
             parent.replaceChild(newPlane, this.textoEl);
             this.textoEl = newPlane;
         }
 
-        // Desenha o texto nativamente no Canvas 2D
         const ctx = this.ctx;
         const w = this.canvas.width;
         const h = this.canvas.height;
@@ -215,21 +251,20 @@ AFRAME.registerComponent('painel-explicativo', {
         const texto = this.paginasCena[this.paginaAtual] || "";
         const linhas = texto.split('\n');
 
-        let yCursor = 50;
-        
+        let yCursor = 30;
         ctx.fillStyle = "#FFFFFF";
         ctx.textBaseline = "top";
 
         linhas.forEach((linha, index) => {
             if (index === 0) {
-                // Título (PÁGINA X/Y)
-                ctx.font = "bold 38px sans-serif";
+                // Título (PÁGINA X/Y) com letra maior e destaque
+                ctx.font = "bold 52px sans-serif";
                 ctx.fillStyle = "#FFD1DC";
-                ctx.fillText(linha, 30, yCursor);
-                yCursor += 60;
+                ctx.fillText(linha, 35, yCursor);
+                yCursor += 70;
             } else {
-                // Corpo do texto com quebra automática de linhas
-                ctx.font = "32px sans-serif";
+                // Corpo do texto expandido (44px)
+                ctx.font = "bold 44px sans-serif";
                 ctx.fillStyle = "#FFFFFF";
                 
                 const palavras = linha.split(' ');
@@ -238,22 +273,21 @@ AFRAME.registerComponent('painel-explicativo', {
                 for (let n = 0; n < palavras.length; n++) {
                     const testLinha = linhaAtual + palavras[n] + ' ';
                     const metrics = ctx.measureText(testLinha);
-                    if (metrics.width > (w - 60) && n > 0) {
-                        ctx.fillText(linhaAtual, 30, yCursor);
+                    if (metrics.width > (w - 70) && n > 0) {
+                        ctx.fillText(linhaAtual, 35, yCursor);
                         linhaAtual = palavras[n] + ' ';
-                        yCursor += 44;
+                        yCursor += 58;
                     } else {
                         linhaAtual = testLinha;
                     }
                 }
-                ctx.fillText(linhaAtual, 30, yCursor);
-                yCursor += 44;
+                ctx.fillText(linhaAtual, 35, yCursor);
+                yCursor += 58;
             }
         });
 
         this.texture.needsUpdate = true;
 
-        // Aplica a textura no mesh Three.js do plano
         const mesh = this.textoEl.getObject3D('mesh');
         if (mesh && mesh.material) {
             mesh.material.map = this.texture;

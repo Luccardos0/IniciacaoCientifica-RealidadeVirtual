@@ -382,11 +382,11 @@ this.textos = {
 
             if (textoEl) {
                 if (idCena === 4) {
-                    textoEl.setAttribute('text', 'value', this.estadoFiltro3D ? 'RELATIVIDADE: LIGADA' : 'RELATIVIDADE: DESLIGADA');
+                    textoEl.setAttribute('text', 'value', this.estadoFiltro3D ? 'RELATIVITY: ON' : 'RELATIVITY: OFF');
                 } else if (idCena === 5) {
-                    textoEl.setAttribute('text', 'value', this.estadoFiltro3D ? 'TRR: LIGADO' : 'TRR: DESLIGADO');
+                    textoEl.setAttribute('text', 'value', this.estadoFiltro3D ? 'TRR: ON' : 'TRR: OFF');
                 } else if (idCena === 2) {
-                    textoEl.setAttribute('text', 'value', this.estadoFiltro3D ? 'RASTROS: LIGADOS' : 'RASTROS: DESLIGADOS');
+                    textoEl.setAttribute('text', 'value', this.estadoFiltro3D ? 'TRAILS: ON' : 'TRAILS: OFF');
                 }
             }
         }

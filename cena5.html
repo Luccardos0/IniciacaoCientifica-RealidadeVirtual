@@ -82,7 +82,7 @@
         
         <!-- Texto Digital do Contador -->
         <a-entity id="display-contador-3d" position="0 0 0.085" 
-                  text="value: DETECTADOS: 0; color: #00FF7F; align: center; width: 4.2; font: roboto; anchor: center"></a-entity>
+                  text="value: DETECTED: 0; color: #00FF7F; align: center; width: 4.2; font: roboto; anchor: center"></a-entity>
     </a-entity>
 </a-entity>
 
@@ -98,7 +98,7 @@
 
             <!-- NAVEGAÇÃO ENTRE CENAS -->
             <a-entity position="0.35 0 0">
-                <a-entity position="0 0.13 0" text="value: TROCAR CENA; color: #FFD1DC; align: center; width: 1.2; font: roboto"></a-entity>
+                <a-entity position="0 0.13 0" text="value: SWITCH SCENE; color: #FFD1DC; align: center; width: 1.2; font: roboto"></a-entity>
                 <a-box class="btn-cena-anterior raycastable" position="-0.15 -0.04 0" width="0.24" height="0.18" depth="0.04" material="color: #A83264; roughness: 0.4">
                     <a-triangle position="0 0 0.025" rotation="0 0 90" vertex-a="0 0.04 0" vertex-b="-0.03 -0.02 0" vertex-c="0.03 -0.02 0" material="color: #FFFFFF; shader: flat; side: double"></a-triangle>
                 </a-box>
@@ -110,7 +110,7 @@
             <!-- BOTÃO INFERIOR RETANGULAR (TRR) -->
             <a-entity class="btn-toggle-trr-3d raycastable" position="-0.01 -0.30 0">
                 <a-box class="raycastable" width="1.26" height="0.22" depth="0.04" material="color: #6A3A8A; roughness: 0.5"></a-box>
-                <a-entity class="texto-btn-trr" position="0 0 0.025" text="value: TRR: DESLIGADO; color: #FFFFFF; align: center; width: 1.8; font: roboto"></a-entity>
+                <a-entity class="texto-btn-trr" position="0 0 0.025" text="value: TRR: OFF; color: #FFFFFF; align: center; width: 1.8; font: roboto"></a-entity>
             </a-entity>
         </a-entity>
 
@@ -136,7 +136,7 @@
 
                 <!-- Botão Fechar -->
                 <a-box class="btn-fechar-modal raycastable" position="0.32 0 0" width="0.48" height="0.18" depth="0.04" material="color: #B22222; roughness: 0.4">
-                    <a-entity position="0 0 0.025" text="value: FECHAR; color: #FFFFFF; align: center; width: 1.6; font: roboto"></a-entity>
+                    <a-entity position="0 0 0.025" text="value: CLOSE; color: #FFFFFF; align: center; width: 1.6; font: roboto"></a-entity>
                 </a-box>
             </a-entity>
         </a-entity>

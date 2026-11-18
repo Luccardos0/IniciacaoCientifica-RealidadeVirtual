@@ -521,7 +521,8 @@ function inicializarCena4() {
 
         // 2. Exibe o HUD com a mensagem
         if (hudSucesso) {
-            hudSucesso.setAttribute('value', "TEMPO PROPRIO ESGOTADO (2.2 µs)\nO muon decaiu na atmosfera\n antes de atingir o solo.");
+            //hudSucesso.setAttribute('value', "TEMPO PROPRIO ESGOTADO (2.2 µs)\nO muon decaiu na atmosfera\n antes de atingir o solo.");
+            hudSucesso.setAttribute('value', "PROPER TIME EXPIRED (2.2 us)\nThe muon decayed in the atmosphere\nbefore reaching the ground.");
             hudSucesso.setAttribute('color', '#fb735a');
             hudSucesso.emit('mostrarMsg');
         }
@@ -552,7 +553,8 @@ function inicializarCena4() {
             containerNuvens.setAttribute('animador-nuvens', 'animar', false);
 
             if (hudSucesso) {
-                hudSucesso.setAttribute('value', "SUPERFICIE ATINGIDA!\nContracao do Espaco Comprovada.");
+                //hudSucesso.setAttribute('value', "SUPERFICIE ATINGIDA!\nContracao do Espaco Comprovada.");
+                hudSucesso.setAttribute('value', "SURFACE REACHED!\nLength Contraction Proven.");
                 hudSucesso.setAttribute('color', '#f5e60c');
                 hudSucesso.emit('mostrarMsg');
             }
@@ -650,7 +652,7 @@ function inicializarCena5() {
         totalMuonsDetectados++;
 
         if (displayContador3D) {
-            displayContador3D.setAttribute('text', 'value', `DETECTADOS: ${totalMuonsDetectados}`);
+            displayContador3D.setAttribute('text', 'value', `DETECTED: ${totalMuonsDetectados}`);
         }
 
         if (lampadaDetector && luzFlash) {
@@ -744,7 +746,7 @@ function inicializarCena5() {
         
         totalMuonsDetectados = 0;
         if (displayContador3D) {
-            displayContador3D.setAttribute('text', 'value', 'DETECTADOS: 0');
+            displayContador3D.setAttribute('text', 'value', 'DETECTED: 0');
         }
 
         if (trrAtiva) {

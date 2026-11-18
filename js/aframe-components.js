@@ -90,28 +90,61 @@ AFRAME.registerComponent('painel-explicativo', {
     },
 
     init: function () {
-        this.textos = {
-            1: [
-                "PÁGINA 1/2\nRaios cósmicos de alta energia colidem com gases na alta atmosfera terrestre. A colisão gera uma cascata de partículas secundárias em direção ao solo.",
-                "PÁGINA 2/2\nNesta cena observamos a origem dos píons de primeira geração. A simulação mostra a chegada aleatória e distribuída dessas partículas na Terra."
-            ],
-            2: [
-                "PÁGINA 1/2\nOs píons gerados na alta atmosfera são instáveis e decaem rapidamente. Esse decaimento origina os múons e neutrinos de segunda geração.",
-                "PÁGINA 2/2\nPela física clássica o tempo de vida curto dos múons impediria sua chegada ao solo. A trajetória tracejada permite visualizar cada etapa do decaimento."
-            ],
-            3: [
-                "PÁGINA 1/2\nA quantidade de múons incidentes depende da energia dos raios cósmicos na atmosfera. O tempo de meia-vida próprio do múon é de apenas 2.2 microssegundos.",
-                "PÁGINA 2/2\nAlterne no console entre 3 e 6 múons por ciclo para comparar a densidade do fluxo. Observe como a taxa de decaimento varia sobre a superfície do mar."
-            ],
-            4: [
-                "PÁGINA 1/2\nNo referencial de repouso do múon a atmosfera se move em sua direção. Sem a TRR o tempo próprio de 2.2 microssegundos acaba e o múon decai no ar.",
-                "PÁGINA 2/2\nCom a TRR ativa ocorre a contração do comprimento da atmosfera. A distância encurtada permite que a superfície da Terra atinja o múon antes do decaimento."
-            ],
-            5: [
-                "PÁGINA 1/2\nNo referencial da Terra a atmosfera possui extensões reais de 10 a 15 km. Sem a TRR o percurso exige tempo excessivo e quase 100% dos múons decaem no ar.",
-                "PÁGINA 2/2\nCom a TRR a dilatação temporal estende a vida útil do múon para o observador do solo. A física probabilística permite que cerca de 50% atinjam o detector."
-            ]
-        };
+//        this.textos = {
+//    1: [
+//       "PÁGINA 1/3\nRaios cósmicos de alta energia partem do Sol e colidem com gases na alta atmosfera, gerando uma cascata de partículas secundárias em direção à Terra.",
+//        "PÁGINA 2/3\nObserve as cores da simulação: os raios cósmicos (laranja) atingem a camada atmosférica azul e originam múons (roxo), que caem de forma aleatória até o solo.",
+//        "PÁGINA 3/3\nOs múons viajam quase à velocidade da luz (v ≈ 0,998c), mas possuem tempo de vida médio próprio de apenas τ0 ≈ 2,2 μs — curto demais para a física clássica."
+//    ],
+//    2: [
+//        "PÁGINA 1/3\nNa alta atmosfera, cada raio cósmico (laranja) gera píons instáveis (roxo), que rapidamente decaem em múons (rosa) e elétrons (amarelo) de segunda geração.",
+//        "PÁGINA 2/3\nSem efeitos relativísticos, um múon com vida média τ0 ≈ 2,2 μs percorreria cerca de 660 m antes de decair, impedindo sua chegada à superfície terrestre.",
+//        "PÁGINA 3/3\nUse o botão RASTROS abaixo do painel para ligar ou desligar as linhas tracejadas e acompanhar cada etapa do decaimento desde a atmosfera até o solo."
+//    ],
+//    3: [
+//        "PÁGINA 1/3\nVocê está no nível do mar, ponto que representa a travessia máxima da atmosfera (10 a 15 km), onde a física clássica prevê que quase nenhum múon chegaria.",
+//        "PÁGINA 2/3\nVeja a cascata no céu: raios cósmicos (azul-claro) geram píons (roxo), que decaem em múons (rosa) e neutrinos (amarelo) seguindo uma taxa probabilística.",
+//        "PÁGINA 3/3\nAlterne entre 3 MÚONS e 6 MÚONS no console abaixo para variar a densidade do fluxo e comparar quantas partículas sobrevivem até atingir o oceano."
+//    ],
+//    4: [
+//        "PÁGINA 1/3\nNo referencial de repouso do múon, ele permanece parado enquanto as nuvens e a superfície da Terra sobem em sua direção a velocidade relativística.",
+//        "PÁGINA 2/3\nCom a TRR ativa ocorre a contração do espaço: L = L0 / γ.\nPara γ ≈ 10, uma atmosfera de 15 km encolhe para apenas 1,5 km no referencial do múon.",
+//        "PÁGINA 3/3\nClique em RELATIVIDADE abaixo: desligada, o tempo próprio (τ0 = 2,2 μs) esgota no ar; ligada, o solo encurtado alcança o múon antes do decaimento."
+//    ],
+//    5: [
+//        "PÁGINA 1/3\nNo referencial da Terra, a atmosfera mantém sua espessura real de 10 a 15 km e observamos os múons descendo em direção ao detector no solo.",
+//        "PÁGINA 2/3\nCom a TRR ativa ocorre a dilatação do tempo: Δt = γ · Δt0.\nPara γ ≈ 10, o tempo de vida observado do solo aumenta de 2,2 μs para cerca de 22 μs.",
+//        "PÁGINA 3/3\nAtive o botão TRR abaixo: desligado, quase todos os múons decaem no ar; ligado, cerca de 50% atingem a placa sensorial e somam no contador 3D."
+//    ]
+// };
+
+this.textos = {
+    1: [
+        "PAGE 1/3\nHigh-energy cosmic rays travel from the Sun and collide with gases in Earth's upper atmosphere, generating a cascade of secondary particles toward the ground.",
+        "PAGE 2/3\nObserve the simulation colors: cosmic rays (orange) hit the blue atmospheric layer and produce muons (purple), which fall randomly toward the ground.",
+        "PAGE 3/3\nMuons travel near the speed of light (v ≈ 0.998c), yet have a proper mean lifetime of only τ0 ≈ 2.2 μs, far too short according to classical physics."
+    ],
+    2: [
+        "PAGE 1/3\nIn the upper atmosphere, each cosmic ray (orange) produces unstable pions (purple), which quickly decay into second-generation muons (pink) and electrons (yellow).",
+        "PAGE 2/3\nWithout relativistic effects, a muon with a mean lifetime of τ0 ≈ 2.2 μs would travel only about 660 m before decaying, preventing it from reaching Earth's surface.",
+        "PAGE 3/3\nUse the TRAILS button below the panel to toggle the dashed lines on or off and follow each stage of the decay from the atmosphere down to the ground."
+    ],
+    3: [
+        "PAGE 1/3\nYou are at sea level, representing the full traversal of the atmosphere (10 to 15 km), where classical physics predicts almost no muons would survive.",
+        "PAGE 2/3\nWatch the cascade in the sky: cosmic rays (light blue) generate pions (purple), which decay into muons (pink) and neutrinos (yellow) at a probabilistic rate.",
+        "PAGE 3/3\nSwitch between 3 MUONS and 6 MUONS on the console below to vary the flux density and compare how many particles survive to reach the ocean."
+    ],
+    4: [
+        "PAGE 1/3\nIn the muon's rest frame, it remains stationary while the clouds and Earth's surface rush upward toward it at relativistic speed.",
+        "PAGE 2/3\nWith SR active, length contraction occurs: L = L0 / γ.\nFor γ ≈ 10, a 15 km atmosphere shrinks to just 1.5 km in the muon's reference frame.",
+        "PAGE 3/3\nClick RELATIVITY below: when off, proper time (τ0 = 2.2 μs) runs out mid-air; when on, the contracted ground reaches the muon before it decays."
+    ],
+    5: [
+        "PAGE 1/3\nIn Earth's reference frame, the atmosphere keeps its true thickness of 10 to 15 km, and we observe muons descending toward the ground detector.",
+        "PAGE 2/3\nWith SR active, time dilation occurs: Δt = γ · Δt0.\nFor γ ≈ 10, the lifetime observed from the ground increases from 2.2 μs to about 22 μs.",
+        "PAGE 3/3\nToggle the SR button below: when off, nearly all muons decay in mid-air; when on, about 50% hit the sensor plate and register on the 3D counter."
+    ]
+};
 
         this.paginaAtual = 0;
         let idCena = parseInt(this.data.cenaAtual, 10) || 1;
